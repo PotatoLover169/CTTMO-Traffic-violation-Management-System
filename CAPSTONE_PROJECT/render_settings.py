@@ -83,4 +83,16 @@ LOGGING = {
             'level': 'INFO',
         },
     },
-} 
+}
+
+# reCAPTCHA settings for Render
+RECAPTCHA_SITE_KEY = os.environ.get('RECAPTCHA_SITE_KEY', '6LcooDUrAAAAAFKBOKmvx5DgMXp2GyuckuLlWLt4')
+RECAPTCHA_SECRET_KEY = os.environ.get('RECAPTCHA_SECRET_KEY', '6LcooDUrAAAAAKq8h5bPT6l2JCIlAl6QksJA-Oig')
+
+# Fix domain format for reCAPTCHA - must be domain only without protocol
+# Extract domains from ALLOWED_HOSTS and also add explicit render domain
+ALLOWED_DOMAINS = [host for host in ALLOWED_HOSTS if host != '*' and not host.startswith('.')]
+ALLOWED_DOMAINS.append('traffic-violation-system.onrender.com')
+
+# Set allowed domains for reCAPTCHA
+RECAPTCHA_ALLOWED_DOMAINS = ALLOWED_DOMAINS 
