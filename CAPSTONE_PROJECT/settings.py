@@ -274,3 +274,10 @@ EMAIL_VERIFICATION_EXEMPT_URLS = [
 # reCAPTCHA settings
 RECAPTCHA_SITE_KEY = os.environ.get('RECAPTCHA_SITE_KEY', '6LcooDUrAAAAAFKBOKmvx5DgMXp2GyuckuLlWLt4')  # Test key
 RECAPTCHA_SECRET_KEY = os.environ.get('RECAPTCHA_SECRET_KEY', '6LcooDUrAAAAAKq8h5bPT6l2JCIlAl6QksJA-Oig')  # Test key
+
+# Define allowed domains for reCAPTCHA to work on
+# This should match what you've configured in the Google reCAPTCHA admin console
+RECAPTCHA_ALLOWED_DOMAINS = os.environ.get('RECAPTCHA_ALLOWED_DOMAINS', '').split(',')
+if not RECAPTCHA_ALLOWED_DOMAINS or RECAPTCHA_ALLOWED_DOMAINS == ['']:
+    # Default to the configured hosts if no explicit domains are set
+    RECAPTCHA_ALLOWED_DOMAINS = [host.strip("^$") for host in ALLOWED_HOSTS if not host.startswith('*')]

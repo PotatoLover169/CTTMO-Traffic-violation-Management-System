@@ -9,7 +9,7 @@
 
 // Configuration
 const RECAPTCHA_CONFIG = {
-    siteKey: '6LdPGjUrAAAAAIwQo_5ZnIW_lSEWqB16xK3lm5PG',
+    siteKey: document.querySelector('meta[name="recaptcha-site-key"]')?.content || '6LdPGjUrAAAAAIwQo_5ZnIW_lSEWqB16xK3lm5PG',
     theme: 'light',
     size: 'normal',
     // Forms to protect with reCAPTCHA (selector patterns)
@@ -28,7 +28,13 @@ const RECAPTCHA_CONFIG = {
     errorMessages: {
         notVerified: 'Please complete the reCAPTCHA verification.',
         networkError: 'Network error. Please try again.',
-        alreadyVerified: 'Already verified.'
+        alreadyVerified: 'Already verified.',
+        domainError: 'Domain validation error. Administrator has been notified.'
+    },
+    // Domain configuration
+    domainConfig: {
+        currentDomain: document.querySelector('meta[name="recaptcha-current-domain"]')?.content || window.location.hostname,
+        allowedDomains: JSON.parse(document.querySelector('meta[name="recaptcha-allowed-domains"]')?.content || '[]')
     },
     // Fallback settings
     fallbackSettings: {
@@ -48,7 +54,8 @@ const reCAPTCHAState = {
     callbacks: {},
     initialized: false,
     loadAttempts: 0,
-    fallbackActivated: new Set()
+    fallbackActivated: new Set(),
+    domainValidated: false
 };
 
 /**
@@ -58,6 +65,29 @@ const reCAPTCHAState = {
 function loadReCaptchaScript() {
     if (reCAPTCHAState.isLoaded || reCAPTCHAState.isLoading) {
         return Promise.resolve();
+    }
+    
+    // Validate domain before loading
+    if (!validateDomain()) {
+        console.warn('reCAPTCHA domain validation failed:', RECAPTCHA_CONFIG.domainConfig.currentDomain);
+        
+        // Still allow the form to work by activating fallback for all forms
+        document.querySelectorAll(RECAPTCHA_CONFIG.protectedForms.join(',')).forEach(form => {
+            const formId = generateFormId(form);
+            reCAPTCHAState.fallbackActivated.add(formId);
+            
+            // Show domain error message
+            const recaptchaContainer = form.querySelector('.recaptcha-container');
+            if (recaptchaContainer) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'alert alert-warning small';
+                errorDiv.textContent = RECAPTCHA_CONFIG.errorMessages.domainError;
+                recaptchaContainer.innerHTML = '';
+                recaptchaContainer.appendChild(errorDiv);
+            }
+        });
+        
+        return Promise.reject(new Error('Domain validation failed'));
     }
     
     reCAPTCHAState.isLoading = true;
@@ -672,4 +702,32 @@ function initializeProtectedForms() {
             return true;
         });
     });
+}
+
+/**
+ * Check if the current domain is valid for reCAPTCHA
+ */
+function validateDomain() {
+    const { currentDomain, allowedDomains } = RECAPTCHA_CONFIG.domainConfig;
+    
+    // If we're running locally, always validate
+    if (currentDomain === 'localhost' || currentDomain === '127.0.0.1') {
+        reCAPTCHAState.domainValidated = true;
+        return true;
+    }
+    
+    // If no allowed domains are configured, assume it's valid
+    if (!allowedDomains || allowedDomains.length === 0) {
+        reCAPTCHAState.domainValidated = true;
+        return true;
+    }
+    
+    // Check if current domain is in the allowed list
+    const isValid = allowedDomains.some(domain => 
+        currentDomain === domain || 
+        (domain.startsWith('*.') && currentDomain.endsWith(domain.substring(1)))
+    );
+    
+    reCAPTCHAState.domainValidated = isValid;
+    return isValid;
 } 
