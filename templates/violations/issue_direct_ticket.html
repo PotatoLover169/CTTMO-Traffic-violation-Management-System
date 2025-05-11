@@ -46,7 +46,7 @@
 
         <!-- Card body with responsive improvements -->
         <div class="card-body p-4">
-            <form method="POST" id="ticketForm" class="needs-validation" novalidate>
+            <form method="POST" id="ticketForm" class="needs-validation" data-novalidate-recaptcha="true" novalidate>
                 {% csrf_token %}
                 <!-- Hidden field to store user ID if violator is a registered user -->
                 <input type="hidden" id="user_account_id" name="user_account_id" value="">

@@ -167,7 +167,12 @@ function findProtectedForms() {
     // Use each selector pattern to find matching forms
     RECAPTCHA_CONFIG.protectedForms.forEach(selector => {
         const foundForms = document.querySelectorAll(selector);
-        foundForms.forEach(form => forms.push(form));
+        foundForms.forEach(form => {
+            // Skip forms with data-novalidate-recaptcha attribute
+            if (!form.hasAttribute('data-novalidate-recaptcha')) {
+                forms.push(form);
+            }
+        });
     });
     
     // Remove duplicates
@@ -179,6 +184,11 @@ function findProtectedForms() {
  * @param {HTMLFormElement} form - The form to add reCAPTCHA to
  */
 function addReCaptchaToForm(form) {
+    // Skip if form has data-novalidate-recaptcha attribute
+    if (form.hasAttribute('data-novalidate-recaptcha')) {
+        return;
+    }
+    
     // Skip if form already has reCAPTCHA
     if (form.querySelector('.g-recaptcha') || form.hasAttribute('data-recaptcha-id')) {
         return;
@@ -671,6 +681,11 @@ function initializeProtectedForms() {
     const protectedForms = document.querySelectorAll('form.protect-form');
     
     protectedForms.forEach(form => {
+        // Skip forms with data-novalidate-recaptcha attribute
+        if (form.hasAttribute('data-novalidate-recaptcha')) {
+            return;
+        }
+        
         form.addEventListener('submit', function(event) {
             // Check if this form has a reCAPTCHA
             const captchaElement = this.querySelector('.g-recaptcha');

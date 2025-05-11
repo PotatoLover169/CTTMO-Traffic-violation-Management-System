@@ -93,6 +93,131 @@
         border-bottom: 1px solid rgba(0, 0, 0, 0.125);
         font-weight: 600;
     }
+
+    /* Enhanced mobile responsiveness */
+    @media (max-width: 992px) {
+        .card-body {
+            padding: 1rem;
+        }
+        
+        .topic-title {
+            font-size: 1.5rem;
+        }
+        
+        .d-flex.justify-content-between {
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .d-flex.gap-2 {
+            flex-direction: column;
+            width: 100%;
+        }
+        
+        .d-flex.gap-2 .btn {
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .attachment-card .card-body {
+            padding: 0.75rem;
+        }
+        
+        .file-icon {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .card-header {
+            padding: 0.75rem 1rem;
+        }
+        
+        .d-grid .btn {
+            padding: 0.5rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .admin-section-title {
+            font-size: 1.5rem;
+        }
+        
+        .row-cols-md-2 {
+            margin: 0 -5px;
+        }
+        
+        .row-cols-md-2 > .col {
+            padding: 0 5px;
+            margin-bottom: 10px;
+        }
+        
+        .topic-content {
+            font-size: 1rem;
+        }
+        
+        .topic-content img {
+            margin: 0.5rem 0;
+        }
+        
+        .list-group-item {
+            padding: 0.5rem 0.75rem;
+        }
+        
+        .card-body .d-flex.align-items-center {
+            flex-direction: column;
+            align-items: flex-start !important;
+        }
+        
+        .card-body .d-flex.align-items-center .me-auto {
+            margin-right: 0 !important;
+            margin-bottom: 0.5rem;
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        
+        .badge {
+            white-space: normal;
+            text-align: center;
+        }
+    }
+    
+    /* Collapsible mobile-friendly section for topic info */
+    @media (max-width: 767px) {
+        .mobile-collapse-header {
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .mobile-collapse-header::after {
+            content: "\e5cf"; /* Material Icons arrow_drop_down */
+            font-family: 'Material Icons';
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: transform 0.3s ease;
+        }
+        
+        .mobile-collapse-header.collapsed::after {
+            transform: translateY(-50%) rotate(-180deg);
+        }
+        
+        .mobile-collapsible {
+            transition: all 0.3s ease;
+        }
+        
+        .mobile-collapsible.collapsed {
+            max-height: 0;
+            overflow: hidden;
+            padding: 0;
+            margin: 0;
+            opacity: 0;
+        }
+    }
 </style>
 {{ block.super }}
 {% endblock %}
@@ -146,7 +271,7 @@
                     <h5 class="mb-0">Attachments</h5>
                 </div>
                 <div class="card-body">
-                    <div class="row row-cols-1 row-cols-md-2 g-3">
+                    <div class="row row-cols-1 row-cols-sm-2 g-3">
                         {% for attachment in attachments %}
                         <div class="col">
                             <div class="card attachment-card h-100">
@@ -184,11 +309,11 @@
         <div class="col-lg-4">
             <!-- Topic Info Card -->
             <div class="card mb-4">
-                <div class="card-header bg-primary text-white d-flex align-items-center">
+                <div class="card-header bg-primary text-white d-flex align-items-center mobile-collapse-header">
                     <span class="material-icons me-2">info</span>
                     <h5 class="mb-0">Topic Information</h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body mobile-collapsible">
                     <div class="d-flex align-items-center mb-4 pb-3 border-bottom">
                         <div class="me-auto">
                             <span class="badge bg-primary me-2 px-3 py-2">Manual</span>
@@ -249,11 +374,11 @@
             <!-- Attachments Card -->
             {% if attachments.exists %}
             <div class="card mb-4">
-                <div class="card-header bg-primary text-white d-flex align-items-center">
+                <div class="card-header bg-primary text-white d-flex align-items-center mobile-collapse-header">
                     <span class="material-icons me-2">attachment</span>
                     <h5 class="mb-0">Attachments</h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body mobile-collapsible">
                     {% for attachment in attachments %}
                     <div class="mb-3 {% if not forloop.last %}border-bottom pb-3{% endif %}">
                         <div class="d-flex align-items-center mb-2">
@@ -403,6 +528,25 @@
                 .find(row => row.startsWith('csrftoken='))
                 ?.split('=')[1];
             return cookieValue || '';
+        }
+        
+        // Mobile collapsible sections
+        const collapsibleHeaders = document.querySelectorAll('.mobile-collapse-header');
+        if (window.innerWidth <= 767) {
+            collapsibleHeaders.forEach(header => {
+                const content = header.nextElementSibling;
+                if (content && content.classList.contains('mobile-collapsible')) {
+                    // Initially collapse on mobile
+                    header.classList.add('collapsed');
+                    content.classList.add('collapsed');
+                    
+                    // Toggle on click
+                    header.addEventListener('click', () => {
+                        header.classList.toggle('collapsed');
+                        content.classList.toggle('collapsed');
+                    });
+                }
+            });
         }
     });
 </script>

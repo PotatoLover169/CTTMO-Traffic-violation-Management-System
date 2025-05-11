@@ -802,7 +802,9 @@
                         <h5 class="card-title mb-4 fw-bold">Recent Notifications</h5>
                     <div class="notifications-list">
                         {% for notification in recent_notifications %}
-                            <div class="notification-item d-flex">
+                            <div class="notification-item d-flex notification-trigger" 
+                                 data-notification-id="{{ notification.id }}" 
+                                 data-micromodal-trigger="modal-notification-detail">
                                 <div class="notification-icon notification-icon-{{ notification.get_icon_type|default:'gray' }}">
                                     <span class="material-icons" style="font-size: 20px;">
                                 {{ notification.get_icon }}

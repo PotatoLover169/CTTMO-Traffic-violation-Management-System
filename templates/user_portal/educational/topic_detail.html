@@ -25,11 +25,44 @@
         height: 60px;
         width: auto;
         margin-bottom: 5px;
+        transition: all 0.3s ease;
     }
     .logo-name {
         font-size: 12px;
         font-weight: bold;
         color: #333;
+    }
+
+    @media (max-width: 768px) {
+        .logos-container {
+            padding: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .logo-item img {
+            height: 45px; /* Smaller logo on tablets */
+        }
+    }
+
+    @media (max-width: 576px) {
+        .logos-container {
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            padding: 10px 5px;
+        }
+        
+        .logo-item {
+            width: 30%;
+        }
+        
+        .logo-item img {
+            height: 35px; /* Even smaller logo on mobile phones */
+        }
+        
+        .logo-name {
+            font-size: 10px;
+        }
     }
 
     /* Main container styling */
@@ -483,6 +516,70 @@
         .zoom-btn {
             padding: 8px 12px;
         }
+        
+        /* Add sidebar toggle button */
+        .sidebar-toggle {
+            display: block;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background-color: #0039cb;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .elearning-sidebar.collapsed {
+            max-height: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        /* Floating page controls for mobile */
+        .floating-nav {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            background-color: rgba(0, 57, 203, 0.9);
+            padding: 10px 15px;
+            border-radius: 30px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            align-items: center;
+            color: white;
+        }
+        
+        .floating-nav-btn {
+            background: none;
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 5px;
+        }
+        
+        .floating-nav-btn:active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .floating-page-indicator {
+            margin: 0 10px;
+            font-weight: 500;
+        }
     }
     
     @media (max-width: 576px) {
@@ -537,6 +634,7 @@
             flex: 1;
             justify-content: center;
             padding: 10px;
+            min-height: 44px; /* Better touch target */
         }
         
         .download-btn {
@@ -544,6 +642,7 @@
             width: 100%;
             margin: 8px 0 0 0; /* Reduce top margin, remove others */
             padding: 10px;
+            min-height: 44px; /* Better touch target */
         }
         
         /* Enhance readability of buttons */
@@ -565,6 +664,18 @@
         .action-btn {
             width: 100%;
             justify-content: center;
+            min-height: 44px; /* Better touch target */
+        }
+        
+        /* Improved category navigation */
+        .category-link {
+            padding: 12px 15px;
+            min-height: 44px; /* Better touch target */
+        }
+        
+        .subtopic-link {
+            padding: 12px 15px 12px 2.5rem;
+            min-height: 44px; /* Better touch target */
         }
     }
     
@@ -1226,6 +1337,7 @@
             flex: 1;
             justify-content: center;
             padding: 10px;
+            min-height: 44px; /* Better touch target */
         }
         
         .download-btn {
@@ -1233,6 +1345,7 @@
             width: 100%;
             margin: 8px 0 0 0; /* Reduce top margin, remove others */
             padding: 10px;
+            min-height: 44px; /* Better touch target */
         }
         
         /* Enhance readability of buttons */
@@ -1254,6 +1367,18 @@
         .action-btn {
             width: 100%;
             justify-content: center;
+            min-height: 44px; /* Better touch target */
+        }
+        
+        /* Improved category navigation */
+        .category-link {
+            padding: 12px 15px;
+            min-height: 44px; /* Better touch target */
+        }
+        
+        .subtopic-link {
+            padding: 12px 15px 12px 2.5rem;
+            min-height: 44px; /* Better touch target */
         }
     }
     
@@ -1302,14 +1427,340 @@
         color: #333;
         font-weight: 500;
     }
+
+    /* Add these CSS changes to improve mobile responsiveness */
+
+    /* PDF controls for small screens */
+    @media (max-width: 576px) {
+        .pdf-controls {
+            flex-direction: column;
+            padding: 12px;
+            gap: 8px;
+        }
+        
+        .pdf-controls-left, 
+        .pdf-controls-right {
+            width: 100%;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        
+        .page-controls, 
+        .zoom-controls {
+            width: 100%;
+        }
+        
+        .page-nav-btn, 
+        .zoom-btn {
+            padding: 10px;
+            min-height: 48px;
+        }
+        
+        .pdf-search-container {
+            width: 100%;
+            max-width: 100%;
+            margin: 5px 0;
+            order: 3;
+        }
+        
+        .pdf-search-input {
+            height: 48px;
+        }
+        
+        .fit-controls {
+            width: 100%;
+            margin-top: 5px;
+            order: 4;
+        }
+        
+        .download-btn {
+            width: 100%;
+            margin-top: 5px;
+            min-height: 48px;
+            order: 5;
+        }
+        
+        /* Better touch targets */
+        .material-icons {
+            font-size: 24px !important;
+        }
+        
+        /* Improved sidebar */
+        .elearning-sidebar {
+            max-height: 250px;
+        }
+        
+        /* Improved action buttons */
+        .topic-actions {
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            width: 100%;
+            justify-content: center;
+            min-height: 48px;
+        }
+    }
+
+    /* Add this after the existing mobile sidebar toggle code in your JavaScript */
+    // Add swipe gestures for PDF navigation on mobile
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    // Setup swipe navigation for PDF pages
+    function setupPdfSwipeNavigation() {
+        const pdfViewer = document.getElementById('pdfViewer');
+        if (!pdfViewer) return;
+        
+        pdfViewer.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+        }, false);
+        
+        pdfViewer.addEventListener('touchend', function(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, false);
+        
+        function handleSwipe() {
+            const swipeThreshold = 75;
+            if (touchEndX < touchStartX - swipeThreshold) {
+                // Swipe left - next page
+                document.getElementById('nextPage')?.click();
+            }
+            
+            if (touchEndX > touchStartX + swipeThreshold) {
+                // Swipe right - previous page
+                document.getElementById('prevPage')?.click();
+            }
+        }
+    }
+
+    // Call this function after PDF is loaded
+    if (window.innerWidth <= 768) {
+        setupPdfSwipeNavigation();
+        
+        // Add floating page navigation buttons for better mobile UX
+        const pdfContainer = document.querySelector('.pdf-container');
+        if (pdfContainer) {
+            const floatingNav = document.createElement('div');
+            floatingNav.className = 'floating-page-navigation';
+            floatingNav.innerHTML = `
+                <button class="floating-nav-btn prev">
+                    <span class="material-icons">arrow_back</span>
+                </button>
+                <div class="floating-page-indicator">Page <span id="floatingPageNum">1</span></div>
+                <button class="floating-nav-btn next">
+                    <span class="material-icons">arrow_forward</span>
+                </button>
+            `;
+            pdfContainer.appendChild(floatingNav);
+            
+            // Connect floating buttons to navigation
+            document.querySelector('.floating-nav-btn.prev').addEventListener('click', function() {
+                document.getElementById('prevPage')?.click();
+            });
+            
+            document.querySelector('.floating-nav-btn.next').addEventListener('click', function() {
+                document.getElementById('nextPage')?.click();
+            });
+        }
+    }
+
+    // Add this CSS for the floating page navigation
+    .floating-page-navigation {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        background-color: rgba(0, 57, 203, 0.9);
+        padding: 10px 15px;
+        border-radius: 30px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+        z-index: 1000;
+        align-items: center;
+        color: white;
+    }
+
+    .floating-nav-btn {
+        background: none;
+        border: none;
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 5px;
+        cursor: pointer;
+    }
+
+    .floating-nav-btn:active {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .floating-page-indicator {
+        margin: 0 10px;
+        font-weight: 500;
+    }
+
+    @media (min-width: 769px) {
+        .floating-page-navigation {
+            display: none;
+        }
+    }
+
+    /* Sidebar toggle button for mobile */
+    .sidebar-toggle {
+        display: none;
+        position: fixed;
+        bottom: 80px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        background-color: #0039cb;
+        color: white;
+        border-radius: 50%;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        cursor: pointer;
+        border: none;
+    }
+
+    @media (max-width: 768px) {
+        .sidebar-toggle {
+            display: flex;
+        }
+        
+        .elearning-sidebar.collapsed {
+            max-height: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    }
+
+    <!-- Add this HTML within the elearning-container div, right after the opening tag -->
+    <!-- Sidebar Toggle Button for Mobile -->
+    <button class="sidebar-toggle" id="sidebarToggle">
+        <span class="material-icons">menu</span>
+    </button>
+
+    <!-- Update the sidebar element to have an ID -->
+    <div class="elearning-sidebar" id="sidebar">
+
+    // Add this JavaScript after your existing DOMContentLoaded event listener
+    // Mobile sidebar toggle functionality
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('sidebar');
+
+    if (sidebarToggle && sidebar) {
+        // Initially collapse sidebar on mobile
+        if (window.innerWidth <= 768) {
+            sidebar.classList.add('collapsed');
+            sidebarToggle.innerHTML = '<span class="material-icons">menu</span>';
+        }
+        
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('collapsed');
+            if (sidebar.classList.contains('collapsed')) {
+                sidebarToggle.innerHTML = '<span class="material-icons">menu</span>';
+            } else {
+                sidebarToggle.innerHTML = '<span class="material-icons">close</span>';
+            }
+        });
+    }
+
+    // Add floating navigation for PDF on mobile
+    if (window.innerWidth <= 768 && document.querySelector('.pdf-container')) {
+        const floatingNav = document.createElement('div');
+        floatingNav.className = 'floating-nav';
+        floatingNav.innerHTML = `
+            <button class="floating-nav-btn prev-page-float">
+                <span class="material-icons">navigate_before</span>
+            </button>
+            <div class="floating-page-indicator">
+                <span id="floatingPageNumber">1</span> / <span id="floatingPageTotal">1</span>
+            </div>
+            <button class="floating-nav-btn next-page-float">
+                <span class="material-icons">navigate_next</span>
+            </button>
+        `;
+        document.body.appendChild(floatingNav);
+        
+        // Connect floating nav buttons
+        document.querySelector('.prev-page-float').addEventListener('click', function() {
+            document.getElementById('prevPage')?.click();
+        });
+        
+        document.querySelector('.next-page-float').addEventListener('click', function() {
+            document.getElementById('nextPage')?.click();
+        });
+        
+        // Update floating page indicators when page changes
+        const updateFloatingPageIndicators = function() {
+            document.getElementById('floatingPageNumber').textContent = document.getElementById('pageNumber')?.value || '1';
+            document.getElementById('floatingPageTotal').textContent = document.getElementById('pageCount')?.textContent.replace('/ ', '') || '1';
+        };
+        
+        // Call initially
+        updateFloatingPageIndicators();
+        
+        // Watch for changes
+        const pageNumberInput = document.getElementById('pageNumber');
+        if (pageNumberInput) {
+            pageNumberInput.addEventListener('change', updateFloatingPageIndicators);
+        }
+    }
+
+    // Add swipe gestures for PDF navigation
+    if (window.innerWidth <= 768) {
+        const canvas = document.getElementById('pdfViewer');
+        if (canvas) {
+            let touchStartX = 0;
+            let touchEndX = 0;
+            
+            canvas.addEventListener('touchstart', function(e) {
+                touchStartX = e.changedTouches[0].screenX;
+            });
+            
+            canvas.addEventListener('touchend', function(e) {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+            });
+            
+            function handleSwipe() {
+                const swipeThreshold = 75;
+                if (touchEndX < touchStartX - swipeThreshold) {
+                    // Swipe left - next page
+                    document.getElementById('nextPage')?.click();
+                }
+                
+                if (touchEndX > touchStartX + swipeThreshold) {
+                    // Swipe right - previous page
+                    document.getElementById('prevPage')?.click();
+                }
+            }
+        }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container-fluid mt-4">
     <div class="elearning-container">
-        <!-- Sidebar Navigation -->
-        <div class="elearning-sidebar">
+        <!-- Add this inside the elearning-container div, right after the opening tag -->
+        <button class="sidebar-toggle" id="sidebarToggle">
+            <span class="material-icons">menu</span>
+        </button>
+
+        <!-- Add id to the sidebar for JS manipulation -->
+        <div class="elearning-sidebar" id="sidebar">
+            <!-- Sidebar Navigation -->
             <ul class="category-list">
                 {% for category in categories %}
                 <li class="category-item">
@@ -1805,6 +2256,173 @@
             document.querySelector('.content-pagination').style.display = 'none';
         }
         {% endif %}
+
+        // Setup swipe navigation for PDF pages
+        function setupPdfSwipeNavigation() {
+            const pdfViewer = document.getElementById('pdfViewer');
+            if (!pdfViewer) return;
+            
+            let touchStartX = 0;
+            let touchEndX = 0;
+            
+            pdfViewer.addEventListener('touchstart', function(e) {
+                touchStartX = e.changedTouches[0].screenX;
+            }, false);
+            
+            pdfViewer.addEventListener('touchend', function(e) {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+            }, false);
+            
+            function handleSwipe() {
+                const swipeThreshold = 75;
+                if (touchEndX < touchStartX - swipeThreshold) {
+                    // Swipe left - next page
+                    const nextPage = document.getElementById('nextPage');
+                    if (nextPage) nextPage.click();
+                }
+                
+                if (touchEndX > touchStartX + swipeThreshold) {
+                    // Swipe right - previous page
+                    const prevPage = document.getElementById('prevPage');
+                    if (prevPage) prevPage.click();
+                }
+            }
+        }
+
+        // Call this function after PDF is loaded
+        if (window.innerWidth <= 768) {
+            setupPdfSwipeNavigation();
+            
+            // Add floating page navigation buttons for better mobile UX
+            const pdfContainer = document.querySelector('.pdf-container');
+            if (pdfContainer) {
+                const floatingNav = document.createElement('div');
+                floatingNav.className = 'floating-page-navigation';
+                floatingNav.innerHTML = `
+                    <button class="floating-nav-btn prev">
+                        <span class="material-icons">arrow_back</span>
+                    </button>
+                    <div class="floating-page-indicator">Page <span id="floatingPageNum">1</span></div>
+                    <button class="floating-nav-btn next">
+                        <span class="material-icons">arrow_forward</span>
+                    </button>
+                `;
+                pdfContainer.appendChild(floatingNav);
+                
+                // Connect floating buttons to navigation
+                const prevButton = document.querySelector('.floating-nav-btn.prev');
+                const nextButton = document.querySelector('.floating-nav-btn.next');
+                
+                if (prevButton) {
+                    prevButton.addEventListener('click', function() {
+                        const prevPage = document.getElementById('prevPage');
+                        if (prevPage) prevPage.click();
+                    });
+                }
+                
+                if (nextButton) {
+                    nextButton.addEventListener('click', function() {
+                        const nextPage = document.getElementById('nextPage');
+                        if (nextPage) nextPage.click();
+                    });
+                }
+            }
+        }
+
+        // Add floating navigation for PDF on mobile
+        if (window.innerWidth <= 768 && document.querySelector('.pdf-container')) {
+            const floatingNav = document.createElement('div');
+            floatingNav.className = 'floating-nav';
+            floatingNav.innerHTML = `
+                <button class="floating-nav-btn prev-page-float">
+                    <span class="material-icons">navigate_before</span>
+                </button>
+                <div class="floating-page-indicator">
+                    <span id="floatingPageNumber">1</span> / <span id="floatingPageTotal">1</span>
+                </div>
+                <button class="floating-nav-btn next-page-float">
+                    <span class="material-icons">navigate_next</span>
+                </button>
+            `;
+            document.body.appendChild(floatingNav);
+            
+            // Connect floating nav buttons
+            const prevFloatButton = document.querySelector('.prev-page-float');
+            const nextFloatButton = document.querySelector('.next-page-float');
+            
+            if (prevFloatButton) {
+                prevFloatButton.addEventListener('click', function() {
+                    const prevPage = document.getElementById('prevPage');
+                    if (prevPage) prevPage.click();
+                });
+            }
+            
+            if (nextFloatButton) {
+                nextFloatButton.addEventListener('click', function() {
+                    const nextPage = document.getElementById('nextPage');
+                    if (nextPage) nextPage.click();
+                });
+            }
+            
+            // Update floating page indicators when page changes
+            const updateFloatingPageIndicators = function() {
+                const pageNumber = document.getElementById('pageNumber');
+                const pageCount = document.getElementById('pageCount');
+                const floatingPageNumber = document.getElementById('floatingPageNumber');
+                const floatingPageTotal = document.getElementById('floatingPageTotal');
+                
+                if (pageNumber && floatingPageNumber) {
+                    floatingPageNumber.textContent = pageNumber.value || '1';
+                }
+                
+                if (pageCount && floatingPageTotal) {
+                    floatingPageTotal.textContent = (pageCount.textContent || '/ 1').replace('/ ', '');
+                }
+            };
+            
+            // Call initially
+            updateFloatingPageIndicators();
+            
+            // Watch for changes
+            const pageNumberInput = document.getElementById('pageNumber');
+            if (pageNumberInput) {
+                pageNumberInput.addEventListener('change', updateFloatingPageIndicators);
+            }
+        }
+
+        // Add swipe gestures for PDF navigation
+        if (window.innerWidth <= 768) {
+            const canvas = document.getElementById('pdfViewer');
+            if (canvas) {
+                let touchStartX = 0;
+                let touchEndX = 0;
+                
+                canvas.addEventListener('touchstart', function(e) {
+                    touchStartX = e.changedTouches[0].screenX;
+                });
+                
+                canvas.addEventListener('touchend', function(e) {
+                    touchEndX = e.changedTouches[0].screenX;
+                    handlePdfSwipe();
+                });
+                
+                function handlePdfSwipe() {
+                    const swipeThreshold = 75;
+                    if (touchEndX < touchStartX - swipeThreshold) {
+                        // Swipe left - next page
+                        const nextPage = document.getElementById('nextPage');
+                        if (nextPage) nextPage.click();
+                    }
+                    
+                    if (touchEndX > touchStartX + swipeThreshold) {
+                        // Swipe right - previous page
+                        const prevPage = document.getElementById('prevPage');
+                        if (prevPage) prevPage.click();
+                    }
+                }
+            }
+        }
     });
     
     {% if is_pdf_content %}
@@ -1856,8 +2474,10 @@
             // Render first page
             renderPage(pageNum);
             
-            // Setup mobile touch controls
-            setupMobileTouchControls();
+            // Update any floating page indicators
+            if (document.getElementById('floatingPageTotal')) {
+                document.getElementById('floatingPageTotal').textContent = pdf.numPages;
+            }
         })
         .catch(function(error) {
             console.error('Error loading PDF:', error);
@@ -1870,7 +2490,7 @@
         function renderPage(num) {
             pageRendering = true;
             
-            if (loadingIndicator && pdfDoc) {
+            if (loadingIndicator) {
                 loadingIndicator.style.display = 'flex';
             }
             
@@ -1905,7 +2525,14 @@
                     }
                     
                     updateButtonStates();
-                    syncSidebarWithPdfNavigation(num);
+                    
+                    // Update floating indicators if they exist
+                    if (document.getElementById('floatingPageNumber')) {
+                        document.getElementById('floatingPageNumber').textContent = num;
+                    }
+                    if (document.getElementById('floatingPageNum')) {
+                        document.getElementById('floatingPageNum').textContent = num;
+                    }
                 }).catch(function(err) {
                     console.error('Error rendering PDF page:', err);
                     pageRendering = false;
@@ -1935,58 +2562,72 @@
         
         // Update button states based on current page and zoom
         function updateButtonStates() {
-            prevButton.disabled = pageNum <= 1;
-            nextButton.disabled = pageNum >= pdfDoc.numPages;
+            if (prevButton) prevButton.disabled = pageNum <= 1;
+            if (nextButton) nextButton.disabled = pageNum >= pdfDoc.numPages;
         }
         
         // Go to previous page
-        prevButton.addEventListener('click', function() {
-            if (pageNum <= 1) return;
-            pageNum--;
-            queueRenderPage(pageNum);
-        });
+        if (prevButton) {
+            prevButton.addEventListener('click', function() {
+                if (pageNum <= 1) return;
+                pageNum--;
+                queueRenderPage(pageNum);
+            });
+        }
         
         // Go to next page
-        nextButton.addEventListener('click', function() {
-            if (pageNum >= pdfDoc.numPages) return;
-            pageNum++;
-            queueRenderPage(pageNum);
-        });
+        if (nextButton) {
+            nextButton.addEventListener('click', function() {
+                if (pageNum >= pdfDoc.numPages) return;
+                pageNum++;
+                queueRenderPage(pageNum);
+            });
+        }
         
         // Handle page number input
-        pageNumber.addEventListener('change', function() {
-            const num = parseInt(this.value);
-            if (num > 0 && num <= pdfDoc.numPages) {
-                pageNum = num;
-                queueRenderPage(pageNum);
-            } else {
-                this.value = pageNum;
-            }
-        });
+        if (pageNumber) {
+            pageNumber.addEventListener('change', function() {
+                const num = parseInt(this.value);
+                if (num > 0 && num <= pdfDoc.numPages) {
+                    pageNum = num;
+                    queueRenderPage(pageNum);
+                } else {
+                    this.value = pageNum;
+                }
+            });
+        }
         
         // Handle zoom controls
-        zoomSelect.addEventListener('change', function() {
-            scale = parseFloat(this.value);
-            queueRenderPage(pageNum);
-        });
-        
-        zoomIn.addEventListener('click', function() {
-            const currentZoomIndex = zoomSelect.selectedIndex;
-            if (currentZoomIndex < zoomSelect.options.length - 1) {
-                zoomSelect.selectedIndex = currentZoomIndex + 1;
-                scale = parseFloat(zoomSelect.value);
+        if (zoomSelect) {
+            zoomSelect.addEventListener('change', function() {
+                scale = parseFloat(this.value);
                 queueRenderPage(pageNum);
-            }
-        });
+            });
+        }
         
-        zoomOut.addEventListener('click', function() {
-            const currentZoomIndex = zoomSelect.selectedIndex;
-            if (currentZoomIndex > 0) {
-                zoomSelect.selectedIndex = currentZoomIndex - 1;
-                scale = parseFloat(zoomSelect.value);
-                queueRenderPage(pageNum);
-            }
-        });
+        if (zoomIn) {
+            zoomIn.addEventListener('click', function() {
+                if (!zoomSelect) return;
+                const currentZoomIndex = zoomSelect.selectedIndex;
+                if (currentZoomIndex < zoomSelect.options.length - 1) {
+                    zoomSelect.selectedIndex = currentZoomIndex + 1;
+                    scale = parseFloat(zoomSelect.value);
+                    queueRenderPage(pageNum);
+                }
+            });
+        }
+        
+        if (zoomOut) {
+            zoomOut.addEventListener('click', function() {
+                if (!zoomSelect) return;
+                const currentZoomIndex = zoomSelect.selectedIndex;
+                if (currentZoomIndex > 0) {
+                    zoomSelect.selectedIndex = currentZoomIndex - 1;
+                    scale = parseFloat(zoomSelect.value);
+                    queueRenderPage(pageNum);
+                }
+            });
+        }
         
         // Fit to width functionality
         if (fitToWidth) {
@@ -2038,6 +2679,8 @@
         
         // Helper function to update zoom dropdown with a custom value
         function updateZoomDisplayToValue(newScale) {
+            if (!zoomSelect) return;
+            
             const displayScale = Math.round(newScale * 100 / 5) * 5;
             const displayValue = displayScale + '%';
             
@@ -2054,6 +2697,7 @@
             }
             
             if (!found) {
+                // Remove any previously added custom options
                 for (let i = zoomSelect.options.length - 1; i >= 0; i--) {
                     if (zoomSelect.options[i].className === 'custom-zoom') {
                         zoomSelect.remove(i);
@@ -2083,25 +2727,62 @@
         }
         
         // Search functionality
-        let searchTimeout;
-        searchInput.addEventListener('input', function() {
-            clearTimeout(searchTimeout);
-            const query = this.value.trim();
+        if (searchInput && clearSearch) {
+            let searchTimeout;
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                const query = this.value.trim();
+                
+                if (query) {
+                    clearSearch.style.display = 'block';
+                    searchTimeout = setTimeout(function() {
+                        searchInPdf(query);
+                    }, 500);
+                } else {
+                    clearSearch.style.display = 'none';
+                }
+            });
             
-            if (query) {
-                clearSearch.style.display = 'block';
-                searchTimeout = setTimeout(function() {
-                    searchInPdf(query);
-                }, 500);
-            } else {
+            clearSearch.addEventListener('click', function() {
+                searchInput.value = '';
                 clearSearch.style.display = 'none';
+            });
+            
+            function searchInPdf(query) {
+                if (!pdfDoc) return;
+                
+                showToast('Searching...', 'info');
+                
+                let found = false;
+                let foundPage = 0;
+                
+                const searchPages = async () => {
+                    for (let i = 1; i <= pdfDoc.numPages; i++) {
+                        const page = await pdfDoc.getPage(i);
+                        const textContent = await page.getTextContent();
+                        const text = textContent.items.map(item => item.str).join('');
+                        
+                        if (text.toLowerCase().includes(query.toLowerCase())) {
+                            found = true;
+                            foundPage = i;
+                            break;
+                        }
+                    }
+                    
+                    if (found) {
+                        showToast(`Text found on page ${foundPage}!`, 'success');
+                        if (pageNum !== foundPage) {
+                            pageNum = foundPage;
+                            queueRenderPage(pageNum);
+                        }
+                    } else {
+                        showToast('Text not found in the document.', 'warning');
+                    }
+                };
+                
+                searchPages();
             }
-        });
-        
-        clearSearch.addEventListener('click', function() {
-            searchInput.value = '';
-            clearSearch.style.display = 'none';
-        });
+        }
         
         // Handle keyboard shortcuts
         document.addEventListener('keydown', function(e) {
@@ -2136,20 +2817,26 @@
                     break;
                 case '+':
                 case '=':
-                    e.preventDefault();
-                    zoomIn.click();
+                    if (zoomIn) {
+                        e.preventDefault();
+                        zoomIn.click();
+                    }
                     break;
                 case '-':
-                    e.preventDefault();
-                    zoomOut.click();
+                    if (zoomOut) {
+                        e.preventDefault();
+                        zoomOut.click();
+                    }
                     break;
                 case '0':
                     e.preventDefault();
                     scale = 1.0;
-                    for (let i = 0; i < zoomSelect.options.length; i++) {
-                        if (parseFloat(zoomSelect.options[i].value) === 1.0) {
-                            zoomSelect.selectedIndex = i;
-                            break;
+                    if (zoomSelect) {
+                        for (let i = 0; i < zoomSelect.options.length; i++) {
+                            if (parseFloat(zoomSelect.options[i].value) === 1.0) {
+                                zoomSelect.selectedIndex = i;
+                                break;
+                            }
                         }
                     }
                     queueRenderPage(pageNum);
@@ -2164,7 +2851,7 @@
                     if (e.ctrlKey && fitToPage) {
                         e.preventDefault();
                         fitToPage.click();
-                    } else if (e.ctrlKey && !fitToPage) {
+                    } else if (e.ctrlKey && searchInput) {
                         e.preventDefault();
                         searchInput.focus();
                     }
@@ -2174,169 +2861,73 @@
                         e.preventDefault();
                         searchInput.blur();
                         searchInput.value = '';
-                        clearSearch.style.display = 'none';
+                        if (clearSearch) clearSearch.style.display = 'none';
                     }
                     break;
             }
         });
         
-        function searchInPdf(query) {
-            if (!pdfDoc) return;
-            
-            showToast('Searching...', 'info');
-            
-            let found = false;
-            let foundPage = 0;
-            
-            const searchPages = async () => {
-                for (let i = 1; i <= pdfDoc.numPages; i++) {
-                    const page = await pdfDoc.getPage(i);
-                    const textContent = await page.getTextContent();
-                    const text = textContent.items.map(item => item.str).join('');
-                    
-                    if (text.toLowerCase().includes(query.toLowerCase())) {
-                        found = true;
-                        foundPage = i;
-                        break;
-                    }
-                }
-                
-                if (found) {
-                    showToast(`Text found on page ${foundPage}!`, 'success');
-                    if (pageNum !== foundPage) {
-                        pageNum = foundPage;
-                        queueRenderPage(pageNum);
-                    }
-                } else {
-                    showToast('Text not found in the document.', 'warning');
-                }
-            };
-            
-            searchPages();
-        }
-        
         // Download PDF
-        downloadBtn.addEventListener('click', function() {
-            const link = document.createElement('a');
-            link.href = pdfUrl;
-            link.download = '{{ topic.title|slugify }}.pdf';
-            link.target = '_blank';
-            link.click();
-        });
-        
-        // Sidebar scrolling sync
-        function syncSidebarWithPdfNavigation(pageNum) {
-            const sidebarItems = document.querySelectorAll('.subtopic-item');
-            const progress = pageNum / pdfDoc.numPages;
-            const activeIndex = Math.floor(progress * sidebarItems.length);
-            
-            sidebarItems.forEach((item, index) => {
-                if (!item.querySelector('.subtopic-link.active')) {
-                    item.querySelector('.subtopic-link')?.classList.remove('sidebar-active');
-                }
-                
-                const progressBar = item.querySelector('.scrollspy-progress') || document.createElement('div');
-                if (!progressBar.classList.contains('scrollspy-progress')) {
-                    progressBar.classList.add('scrollspy-progress');
-                    item.appendChild(progressBar);
-                }
-                
-                if (index < activeIndex) {
-                    progressBar.style.width = '100%';
-                } else if (index === activeIndex) {
-                    const partialProgress = (progress * sidebarItems.length) % 1;
-                    progressBar.style.width = `${partialProgress * 100}%`;
-                } else {
-                    progressBar.style.width = '0';
-                }
+        if (downloadBtn) {
+            downloadBtn.addEventListener('click', function() {
+                const link = document.createElement('a');
+                link.href = pdfUrl;
+                link.download = '{{ topic.title|slugify }}.pdf';
+                link.target = '_blank';
+                link.click();
             });
-            
-            if (sidebarItems[activeIndex]) {
-                const link = sidebarItems[activeIndex].querySelector('.subtopic-link');
-                if (link && !link.classList.contains('active')) {
-                    link.classList.add('sidebar-active');
-                }
-            }
         }
         
-        // Setup mobile touch controls
-        function setupMobileTouchControls() {
-            const touchPrevBtn = document.querySelector('.touch-btn.prev-page');
-            const touchNextBtn = document.querySelector('.touch-btn.next-page');
-            const touchPageIndicator = document.querySelector('.touch-page-indicator');
-            
-            if (touchPrevBtn && touchNextBtn) {
-                touchPrevBtn.addEventListener('click', function() {
-                    if (pageNum <= 1) return;
-                    pageNum--;
-                    queueRenderPage(pageNum);
-                    updateTouchPageIndicator();
-                });
-                
-                touchNextBtn.addEventListener('click', function() {
-                    if (pageNum >= pdfDoc.numPages) return;
-                    pageNum++;
-                    queueRenderPage(pageNum);
-                    updateTouchPageIndicator();
-                });
-                
-                updateTouchPageIndicator();
-            }
-            
-            // Add swipe gestures for mobile
+        // Handle swipe navigation for mobile
+        if (canvas && window.innerWidth <= 768) {
             let touchStartX = 0;
             let touchEndX = 0;
             
-            if (canvas) {
-                canvas.addEventListener('touchstart', function(e) {
-                    touchStartX = e.changedTouches[0].screenX;
-                }, false);
-                
-                canvas.addEventListener('touchend', function(e) {
-                    touchEndX = e.changedTouches[0].screenX;
-                    handleSwipe();
-                }, false);
-            }
+            canvas.addEventListener('touchstart', function(e) {
+                touchStartX = e.changedTouches[0].screenX;
+            }, false);
             
-            function handleSwipe() {
-                if (touchEndX < touchStartX - 50) {
-                    // Swipe left - go to next page
+            canvas.addEventListener('touchend', function(e) {
+                touchEndX = e.changedTouches[0].screenX;
+                
+                const swipeThreshold = 75;
+                if (touchEndX < touchStartX - swipeThreshold) {
+                    // Swipe left - next page
                     if (pageNum < pdfDoc.numPages) {
                         pageNum++;
                         queueRenderPage(pageNum);
-                        updateTouchPageIndicator();
                     }
                 }
                 
-                if (touchEndX > touchStartX + 50) {
-                    // Swipe right - go to previous page
+                if (touchEndX > touchStartX + swipeThreshold) {
+                    // Swipe right - previous page
                     if (pageNum > 1) {
                         pageNum--;
                         queueRenderPage(pageNum);
-                        updateTouchPageIndicator();
                     }
                 }
-            }
-            
-            function updateTouchPageIndicator() {
-                if (touchPageIndicator) {
-                    touchPageIndicator.textContent = `${pageNum} / ${pdfDoc.numPages}`;
-                }
-            }
-            
-            // Show swipe hint on mobile
-            if (window.innerWidth <= 768) {
-                const swipeHint = document.querySelector('.swipe-hint');
-                if (swipeHint) {
-                    swipeHint.classList.remove('d-none');
+            }, false);
+        }
+        
+        // Show swipe hint on mobile
+        if (window.innerWidth <= 768) {
+            const swipeHint = document.querySelector('.swipe-hint');
+            if (swipeHint) {
+                swipeHint.classList.remove('d-none');
+                setTimeout(function() {
+                    swipeHint.style.opacity = '0';
                     setTimeout(function() {
-                        swipeHint.style.opacity = '0';
-                        setTimeout(function() {
-                            swipeHint.style.display = 'none';
-                        }, 500);
-                    }, 5000);
-                }
+                        swipeHint.style.display = 'none';
+                    }, 500);
+                }, 5000);
             }
+        }
+        
+        // Apply fit to width automatically on initial load
+        if (fitToWidth && window.innerWidth >= 768) {
+            setTimeout(function() {
+                fitToWidth.click();
+            }, 100);
         }
     }
     {% endif %}
@@ -2426,4 +3017,4 @@
         return cookieValue;
     }
 </script>
-{% endblock %} 
+{% endblock %}

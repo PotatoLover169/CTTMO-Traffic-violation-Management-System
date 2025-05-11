@@ -11,6 +11,7 @@
         --primary-light: #EEF3FF;
         --success-color: #0CAA1D;
         --danger-color: #F53D3D;
+        --danger-light: #FFF0F0;
         --warning-color: #FFB800;
         --info-color: #4DA7FF;
         --dark-blue: #0F1C3F;
@@ -47,42 +48,29 @@
         animation: fadeIn 0.5s ease-out;
         padding-bottom: 2rem;
     }
-    
-    /* Header Icon */
-    .header-icon {
-        width: 48px;
-        height: 48px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 12px;
-        background-color: var(--primary-light);
-        margin-right: 1rem;
-        flex-shrink: 0;
+
+    /* Card Styles */
+    .operator-app-card {
+        border: none;
+        border-radius: 1rem;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        margin-bottom: 1.5rem;
+        background-color: var(--white);
+    }
+
+    .operator-app-card:hover {
+        box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.1);
     }
     
     /* Section styles */
-    .section-card {
-        border: none;
-        border-radius: 1rem;
-        background-color: var(--white);
-        margin-bottom: 1.5rem;
-        overflow: hidden;
-        transition: all 0.3s ease;
-    }
-    
-    .section-card:hover {
-        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-    }
-    
     .section-title {
         color: var(--dark-blue);
         font-weight: 600;
         margin-bottom: 1.5rem;
-        padding-bottom: 0.75rem;
-        border-bottom: 2px solid var(--primary-light);
         display: flex;
         align-items: center;
+        font-size: 1.25rem;
     }
     
     .section-title .material-icons {
@@ -120,25 +108,44 @@
         font-weight: 600;
     }
     
+    /* Document section */
+    .document-section {
+        margin-bottom: 2rem;
+    }
+    
+    .document-description {
+        margin-bottom: 1.5rem;
+        color: var(--neutral-gray);
+    }
+    
+    .required-indicator {
+        color: var(--danger-color);
+    }
+    
     /* File upload styling */
-    .file-upload-container {
+    .file-upload-wrapper {
         position: relative;
         border: 2px dashed #E0E3EB;
         border-radius: 0.75rem;
         padding: 2rem 1rem;
         text-align: center;
-        transition: all 0.2s ease;
+        transition: all 0.3s ease;
         background-color: var(--light-gray);
         cursor: pointer;
         margin-bottom: 1.5rem;
     }
     
-    .file-upload-container:hover {
+    .file-upload-wrapper:hover {
         border-color: var(--primary-color);
         background-color: var(--primary-light);
     }
     
-    .file-upload-container input[type="file"] {
+    .file-upload-wrapper.is-invalid {
+        border-color: var(--danger-color);
+        background-color: var(--danger-light);
+    }
+    
+    .file-upload-wrapper input[type="file"] {
         position: absolute;
         top: 0;
         left: 0;
@@ -154,10 +161,14 @@
         margin-bottom: 1rem;
     }
     
+    .file-upload-wrapper.is-invalid .file-upload-icon {
+        color: var(--danger-color);
+    }
+    
     .file-upload-text {
-        color: var(--dark-blue);
         font-weight: 500;
         margin-bottom: 0.5rem;
+        color: var(--dark-blue);
     }
     
     .file-upload-hint {
@@ -178,7 +189,51 @@
         margin-right: 0.5rem;
     }
     
+    .file-preview {
+        display: none;
+        margin-top: 1rem;
+    }
+
+    .file-preview-content {
+        background-color: var(--white);
+        border: 1px solid #dee2e6;
+        border-radius: 0.5rem;
+        padding: 0.5rem 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .file-preview-name {
+        margin-bottom: 0;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 200px;
+    }
+
+    .file-preview-remove {
+        background: none;
+        border: none;
+        color: var(--danger-color);
+        cursor: pointer;
+        font-size: 1.25rem;
+        padding: 0;
+    }
+    
     /* Form feedback messages */
+    .error-text {
+        color: var(--danger-color);
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+        display: none;
+    }
+    
+    .file-upload-wrapper.is-invalid + .error-text {
+        display: block;
+    }
+    
     .invalid-feedback {
         color: var(--danger-color);
         font-size: 0.875rem;
@@ -253,22 +308,12 @@
     }
     
     @media (max-width: 767px) {
-        .header-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-        }
-        
-        .header-icon .material-icons {
-            font-size: 1.5rem !important;
-        }
-        
-        .section-card {
-            padding: 1rem;
+        .file-upload-wrapper {
+            padding: 1.5rem 1rem;
         }
         
         .section-title {
-            font-size: 1.25rem;
+            font-size: 1.2rem;
         }
         
         .btn-primary, .btn-outline-secondary {
@@ -290,34 +335,42 @@
             width: 100%;
         }
         
-        .header-icon {
-            width: 36px;
-            height: 36px;
-        }
-        
-        .header-icon .material-icons {
-            font-size: 1.25rem !important;
-        }
-        
         .section-title {
             font-size: 1.1rem;
+        }
+        
+        .file-upload-wrapper {
+            padding: 1.25rem 0.75rem;
+        }
+        
+        .file-upload-icon {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .file-upload-text {
+            font-size: 0.9rem;
+        }
+        
+        .file-upload-hint {
+            font-size: 0.8rem;
         }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container py-3 py-md-5 operator-container">
+<div class="container py-4 operator-container">
     <!-- Loading Skeleton (hidden when data is loaded) -->
     <div id="operator-skeleton" style="display: none;">
         <div class="row mb-4">
             <div class="col-12">
                 <div class="card shadow-lg rounded-xl">
-        <div class="card-body p-4">
+                    <div class="card-body p-4">
                         <div class="d-flex justify-content-between">
                             <div class="d-flex">
                                 <div class="text-skeleton rounded-lg me-3" style="width: 48px; height: 48px;"></div>
-                <div>
+                                <div>
                                     <div class="text-skeleton" style="width: 200px; height: 24px;"></div>
                                     <div class="text-skeleton mt-2" style="width: 300px; height: 16px;"></div>
                                 </div>
@@ -354,39 +407,36 @@
 
     <!-- Operator Apply Content -->
     <div id="operator-content">
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card section-card shadow-lg">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Header Card -->
+                <div class="card operator-app-card mb-4">
                     <div class="card-body p-4">
-                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center header-section">
-                            <div class="d-flex align-items-center mb-3 mb-md-0">
-                                <div class="header-icon">
-                                    <span class="material-icons" style="font-size: 28px; color: var(--primary-color)">
-                                        business
-                                    </span>
-                                </div>
-                                <div class="header-title">
-                                    <h1 class="mb-0 fw-bold">Apply to Become an Operator</h1>
-                                    <p class="text-muted mt-2 mb-0 d-none d-sm-block">Submit your application to register vehicles and become an official operator</p>
-                                </div>
-                            </div>
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="material-icons display-4 me-3" style="color: var(--primary-color);">business</span>
                             <div>
-                                <a href="{% url 'user_portal:user_dashboard' %}" class="btn btn-outline-secondary">
-                                    <span class="material-icons">arrow_back</span>
-                                    Back to Dashboard
-                                </a>
+                                <h1 class="h3 mb-1">Apply to Become an Operator</h1>
+                                <p class="text-muted mb-0">Submit your application to register vehicles and become an official operator</p>
                             </div>
+                        </div>
+                        <div class="alert alert-info d-flex align-items-center" role="alert">
+                            <span class="material-icons me-2">info</span>
+                            <div>
+                                All applications are thoroughly reviewed by our administrators. Please ensure all documents are clear, legible, and valid.
+                            </div>
+                        </div>
+                        <div class="mt-3 text-end">
+                            <a href="{% url 'user_portal:user_dashboard' %}" class="btn btn-outline-secondary">
+                                <span class="material-icons">arrow_back</span>
+                                Back to Dashboard
+                            </a>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- Pending Application Message -->
-        {% if has_pending_application %}
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card section-card shadow-lg" style="border-left: 4px solid var(--warning-color); background-color: #FFF9E6;">
+                <!-- Pending Application Message -->
+                {% if has_pending_application %}
+                <div class="card operator-app-card" style="border-left: 4px solid var(--warning-color); background-color: #FFF9E6;">
                     <div class="card-body p-4">
                         <div class="d-flex align-items-start">
                             <div class="me-3" style="color: var(--warning-color);">
@@ -403,15 +453,11 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        {% endif %}
+                {% endif %}
 
-        <!-- Application Form - Only shown if no pending application exists -->
-        {% if not has_pending_application %}
-        <div class="row">
-            <div class="col-12">
-                <div class="card section-card shadow-lg">
+                <!-- Application Form - Only shown if no pending application exists -->
+                {% if not has_pending_application %}
+                <div class="card operator-app-card">
                     <div class="card-body p-4">
                         <h2 class="section-title">
                             <span class="material-icons">assignment</span>
@@ -431,23 +477,33 @@
                             </div>
                         </div>
                         
-                        <form method="post" enctype="multipart/form-data" class="mt-4">
+                        <form method="post" enctype="multipart/form-data" id="operatorApplicationForm" class="mt-4">
                             {% csrf_token %}
                             
                             <!-- Business Permit -->
-                            <div class="mb-4">
-                                <div class="file-upload-label">
-                                    <span class="material-icons">description</span>
-                                    Business Permit*
+                            <div class="document-section">
+                                <div class="section-title">
+                                    <span class="material-icons me-2">description</span>
+                                    Business Permit <span class="required-indicator">*</span>
                                 </div>
-                                <div class="file-upload-container">
-                                    <input type="file" name="business_permit" required id="id_business_permit" accept=".jpg,.jpeg,.png,.pdf">
-                                    <div class="file-upload-icon">
-                                        <span class="material-icons">upload_file</span>
+                                <p class="document-description">
+                                    Valid business permit allowing you to operate public utility vehicles in the city.
+                                </p>
+                                <div class="file-upload-wrapper" id="business-permit-wrapper">
+                                    <input type="file" name="business_permit" required id="business-permit-input" accept=".jpg,.jpeg,.png,.pdf">
+                                    <span class="material-icons file-upload-icon">upload_file</span>
+                                    <h5 class="file-upload-text">Click to upload or drag and drop</h5>
+                                    <p class="file-upload-hint">PDF, JPG or PNG (max. 5MB)</p>
+                                    <div class="file-preview" id="business-permit-preview">
+                                        <div class="file-preview-content">
+                                            <p class="file-preview-name" id="business-permit-name"></p>
+                                            <button type="button" class="file-preview-remove" data-input-id="business-permit-input">
+                                                <span class="material-icons">close</span>
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div class="file-upload-text">Drag & drop business permit or click to browse</div>
-                                    <div class="file-upload-hint">Please upload a clear image of your business permit (JPG, PNG, PDF)</div>
                                 </div>
+                                <div class="error-text" id="business-permit-error">Business Permit is required</div>
                                 {% if form.business_permit.errors %}
                                 <div class="invalid-feedback d-block">
                                     {{ form.business_permit.errors }}
@@ -456,19 +512,29 @@
                             </div>
                             
                             <!-- Police Clearance -->
-                            <div class="mb-4">
-                                <div class="file-upload-label">
-                                    <span class="material-icons">security</span>
-                                    Police Clearance*
+                            <div class="document-section">
+                                <div class="section-title">
+                                    <span class="material-icons me-2">security</span>
+                                    Police Clearance <span class="required-indicator">*</span>
                                 </div>
-                                <div class="file-upload-container">
-                                    <input type="file" name="police_clearance" required id="id_police_clearance" accept=".jpg,.jpeg,.png">
-                                    <div class="file-upload-icon">
-                                        <span class="material-icons">upload_file</span>
+                                <p class="document-description">
+                                    Recent police clearance (not older than 3 months) showing you have no criminal record.
+                                </p>
+                                <div class="file-upload-wrapper" id="police-clearance-wrapper">
+                                    <input type="file" name="police_clearance" required id="police-clearance-input" accept=".jpg,.jpeg,.png">
+                                    <span class="material-icons file-upload-icon">upload_file</span>
+                                    <h5 class="file-upload-text">Click to upload or drag and drop</h5>
+                                    <p class="file-upload-hint">JPG or PNG (max. 5MB)</p>
+                                    <div class="file-preview" id="police-clearance-preview">
+                                        <div class="file-preview-content">
+                                            <p class="file-preview-name" id="police-clearance-name"></p>
+                                            <button type="button" class="file-preview-remove" data-input-id="police-clearance-input">
+                                                <span class="material-icons">close</span>
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div class="file-upload-text">Drag & drop police clearance or click to browse</div>
-                                    <div class="file-upload-hint">Please upload a clear image of your police clearance (JPG, PNG)</div>
                                 </div>
+                                <div class="error-text" id="police-clearance-error">Police Clearance is required</div>
                                 {% if form.police_clearance.errors %}
                                 <div class="invalid-feedback d-block">
                                     {{ form.police_clearance.errors }}
@@ -477,19 +543,29 @@
                             </div>
                             
                             <!-- Barangay Certificate -->
-                            <div class="mb-4">
-                                <div class="file-upload-label">
-                                    <span class="material-icons">location_city</span>
-                                    Barangay Certificate*
+                            <div class="document-section">
+                                <div class="section-title">
+                                    <span class="material-icons me-2">location_city</span>
+                                    Barangay Certificate <span class="required-indicator">*</span>
                                 </div>
-                                <div class="file-upload-container">
-                                    <input type="file" name="barangay_certificate" required id="id_barangay_certificate" accept=".jpg,.jpeg,.png">
-                                    <div class="file-upload-icon">
-                                        <span class="material-icons">upload_file</span>
+                                <p class="document-description">
+                                    Valid Barangay Certificate as proof of residency and good standing in your community.
+                                </p>
+                                <div class="file-upload-wrapper" id="barangay-certificate-wrapper">
+                                    <input type="file" name="barangay_certificate" required id="barangay-certificate-input" accept=".jpg,.jpeg,.png">
+                                    <span class="material-icons file-upload-icon">upload_file</span>
+                                    <h5 class="file-upload-text">Click to upload or drag and drop</h5>
+                                    <p class="file-upload-hint">JPG or PNG (max. 5MB)</p>
+                                    <div class="file-preview" id="barangay-certificate-preview">
+                                        <div class="file-preview-content">
+                                            <p class="file-preview-name" id="barangay-certificate-name"></p>
+                                            <button type="button" class="file-preview-remove" data-input-id="barangay-certificate-input">
+                                                <span class="material-icons">close</span>
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div class="file-upload-text">Drag & drop barangay certificate or click to browse</div>
-                                    <div class="file-upload-hint">Please upload a clear image of your barangay certificate (JPG, PNG)</div>
                                 </div>
+                                <div class="error-text" id="barangay-certificate-error">Barangay Certificate is required</div>
                                 {% if form.barangay_certificate.errors %}
                                 <div class="invalid-feedback d-block">
                                     {{ form.barangay_certificate.errors }}
@@ -498,19 +574,29 @@
                             </div>
                             
                             <!-- Cedula (Community Tax Certificate) -->
-                            <div class="mb-4">
-                                <div class="file-upload-label">
-                                    <span class="material-icons">receipt</span>
-                                    Cedula (Community Tax Certificate)*
+                            <div class="document-section">
+                                <div class="section-title">
+                                    <span class="material-icons me-2">receipt</span>
+                                    Cedula (Community Tax Certificate) <span class="required-indicator">*</span>
                                 </div>
-                                <div class="file-upload-container">
-                                    <input type="file" name="cedula" required id="id_cedula" accept=".jpg,.jpeg,.png">
-                                    <div class="file-upload-icon">
-                                        <span class="material-icons">upload_file</span>
+                                <p class="document-description">
+                                    Current Community Tax Certificate (Cedula) as proof of tax compliance.
+                                </p>
+                                <div class="file-upload-wrapper" id="cedula-wrapper">
+                                    <input type="file" name="cedula" required id="cedula-input" accept=".jpg,.jpeg,.png">
+                                    <span class="material-icons file-upload-icon">upload_file</span>
+                                    <h5 class="file-upload-text">Click to upload or drag and drop</h5>
+                                    <p class="file-upload-hint">JPG or PNG (max. 5MB)</p>
+                                    <div class="file-preview" id="cedula-preview">
+                                        <div class="file-preview-content">
+                                            <p class="file-preview-name" id="cedula-name"></p>
+                                            <button type="button" class="file-preview-remove" data-input-id="cedula-input">
+                                                <span class="material-icons">close</span>
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div class="file-upload-text">Drag & drop cedula or click to browse</div>
-                                    <div class="file-upload-hint">Please upload a clear image of your community tax certificate (JPG, PNG)</div>
                                 </div>
+                                <div class="error-text" id="cedula-error">Cedula is required</div>
                                 {% if form.cedula.errors %}
                                 <div class="invalid-feedback d-block">
                                     {{ form.cedula.errors }}
@@ -519,19 +605,29 @@
                             </div>
                             
                             <!-- CENRO Tickets -->
-                            <div class="mb-4">
-                                <div class="file-upload-label">
-                                    <span class="material-icons">eco</span>
-                                    CENRO Tickets/Permits*
+                            <div class="document-section">
+                                <div class="section-title">
+                                    <span class="material-icons me-2">eco</span>
+                                    CENRO Tickets/Permits <span class="required-indicator">*</span>
                                 </div>
-                                <div class="file-upload-container">
-                                    <input type="file" name="cenro_tickets" required id="id_cenro_tickets" accept=".jpg,.jpeg,.png">
-                                    <div class="file-upload-icon">
-                                        <span class="material-icons">upload_file</span>
+                                <p class="document-description">
+                                    City Environment and Natural Resources Office (CENRO) tickets or permits required to operate vehicles in the city.
+                                </p>
+                                <div class="file-upload-wrapper" id="cenro-tickets-wrapper">
+                                    <input type="file" name="cenro_tickets" required id="cenro-tickets-input" accept=".jpg,.jpeg,.png">
+                                    <span class="material-icons file-upload-icon">upload_file</span>
+                                    <h5 class="file-upload-text">Click to upload or drag and drop</h5>
+                                    <p class="file-upload-hint">JPG or PNG (max. 5MB)</p>
+                                    <div class="file-preview" id="cenro-tickets-preview">
+                                        <div class="file-preview-content">
+                                            <p class="file-preview-name" id="cenro-tickets-name"></p>
+                                            <button type="button" class="file-preview-remove" data-input-id="cenro-tickets-input">
+                                                <span class="material-icons">close</span>
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div class="file-upload-text">Drag & drop CENRO tickets or click to browse</div>
-                                    <div class="file-upload-hint">Please upload a clear image of your CENRO tickets/permits (JPG, PNG)</div>
                                 </div>
+                                <div class="error-text" id="cenro-tickets-error">CENRO Tickets/Permits are required</div>
                                 {% if form.cenro_tickets.errors %}
                                 <div class="invalid-feedback d-block">
                                     {{ form.cenro_tickets.errors }}
@@ -540,18 +636,27 @@
                             </div>
                             
                             <!-- Mayor's Permit (Optional) -->
-                            <div class="mb-4">
-                                <div class="file-upload-label">
-                                    <span class="material-icons">description</span>
-                                    Mayor's Permit (Optional)
+                            <div class="document-section">
+                                <div class="section-title">
+                                    <span class="material-icons me-2">description</span>
+                                    Mayor's Permit <span class="text-muted">(Optional)</span>
                                 </div>
-                                <div class="file-upload-container">
-                                    <input type="file" name="mayors_permit" id="id_mayors_permit" accept=".jpg,.jpeg,.png,.pdf">
-                                    <div class="file-upload-icon">
-                                        <span class="material-icons">upload_file</span>
+                                <p class="document-description">
+                                    If available, you may also upload a Mayor's Permit to strengthen your application.
+                                </p>
+                                <div class="file-upload-wrapper" id="mayors-permit-wrapper">
+                                    <input type="file" name="mayors_permit" id="mayors-permit-input" accept=".jpg,.jpeg,.png,.pdf">
+                                    <span class="material-icons file-upload-icon">upload_file</span>
+                                    <h5 class="file-upload-text">Click to upload or drag and drop</h5>
+                                    <p class="file-upload-hint">PDF, JPG or PNG (max. 5MB)</p>
+                                    <div class="file-preview" id="mayors-permit-preview">
+                                        <div class="file-preview-content">
+                                            <p class="file-preview-name" id="mayors-permit-name"></p>
+                                            <button type="button" class="file-preview-remove" data-input-id="mayors-permit-input">
+                                                <span class="material-icons">close</span>
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div class="file-upload-text">Drag & drop mayor's permit or click to browse</div>
-                                    <div class="file-upload-hint">Please upload a clear image if available (JPG, PNG, PDF)</div>
                                 </div>
                                 {% if form.mayors_permit.errors %}
                                 <div class="invalid-feedback d-block">
@@ -561,18 +666,27 @@
                             </div>
                             
                             <!-- Other Documents (Optional) -->
-                            <div class="mb-4">
-                                <div class="file-upload-label">
-                                    <span class="material-icons">description</span>
-                                    Other Supporting Documents (Optional)
+                            <div class="document-section">
+                                <div class="section-title">
+                                    <span class="material-icons me-2">description</span>
+                                    Other Supporting Documents <span class="text-muted">(Optional)</span>
                                 </div>
-                                <div class="file-upload-container">
-                                    <input type="file" name="other_documents" id="id_other_documents" accept=".jpg,.jpeg,.png,.pdf">
-                                    <div class="file-upload-icon">
-                                        <span class="material-icons">upload_file</span>
+                                <p class="document-description">
+                                    Any additional documents that may support your application, such as business certifications, character references, etc.
+                                </p>
+                                <div class="file-upload-wrapper" id="other-documents-wrapper">
+                                    <input type="file" name="other_documents" id="other-documents-input" accept=".jpg,.jpeg,.png,.pdf">
+                                    <span class="material-icons file-upload-icon">upload_file</span>
+                                    <h5 class="file-upload-text">Click to upload or drag and drop</h5>
+                                    <p class="file-upload-hint">PDF, JPG or PNG (max. 5MB)</p>
+                                    <div class="file-preview" id="other-documents-preview">
+                                        <div class="file-preview-content">
+                                            <p class="file-preview-name" id="other-documents-name"></p>
+                                            <button type="button" class="file-preview-remove" data-input-id="other-documents-input">
+                                                <span class="material-icons">close</span>
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div class="file-upload-text">Drag & drop other documents or click to browse</div>
-                                    <div class="file-upload-hint">Please upload any additional supporting documents (JPG, PNG, PDF)</div>
                                 </div>
                                 {% if form.other_documents.errors %}
                                 <div class="invalid-feedback d-block">
@@ -581,41 +695,43 @@
                                 {% endif %}
                             </div>
                             
-                            <!-- Vehicle Type Dropdown -->
-                            <div class="mb-4">
-                                <div class="file-upload-label">
-                                    <span class="material-icons">commute</span>
-                                    Vehicle Type
+                            <!-- Vehicle Type and Number of Units -->
+                            <div class="document-section">
+                                <div class="section-title">
+                                    <span class="material-icons me-2">commute</span>
+                                    Vehicle Information
                                 </div>
-                                <div class="input-group">
-                                    <span class="input-group-text">
-                                        <span class="material-icons">directions_car</span>
-                                    </span>
-                                    <select name="vehicle_type" id="id_vehicle_type" class="form-select">
-                                        <option value="Potpot">Potpot</option>
-                                        <option value="Jeepney">Jeepney</option>
-                                        <option value="Tricycle">Tricycle</option>
-                                    </select>
+                                
+                                <!-- Vehicle Type Dropdown -->
+                                <div class="mb-4">
+                                    <label for="id_vehicle_type" class="form-label fw-bold">Vehicle Type <span class="required-indicator">*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <span class="material-icons">directions_car</span>
+                                        </span>
+                                        <select name="vehicle_type" id="id_vehicle_type" class="form-select">
+                                            <option value="Potpot">Potpot</option>
+                                            <option value="Jeepney">Jeepney</option>
+                                            <option value="Tricycle">Tricycle</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-text text-muted mt-1">
+                                        <small>Select the type of vehicle you want to register</small>
+                                    </div>
                                 </div>
-                                <div class="form-text text-muted mt-1">
-                                    <small>Select the type of vehicle you want to register</small>
-                                </div>
-                            </div>
-                            
-                            <!-- Number of Units/Potpot -->
-                            <div class="mb-4">
-                                <div class="file-upload-label">
-                                    <span class="material-icons">directions_car</span>
-                                    Number of Units
-                                </div>
-                                <div class="input-group">
-                                    <span class="input-group-text">
-                                        <span class="material-icons">directions_car</span>
-                                    </span>
-                                    <input type="number" name="number_of_units" id="id_number_of_units" class="form-control" min="1" max="100" value="1" placeholder="Enter number of units">
-                                </div>
-                                <div class="form-text text-muted mt-1">
-                                    <small>If approved, each unit will get a unique identifier (format: XXX)</small>
+                                
+                                <!-- Number of Units/Potpot -->
+                                <div class="mb-4">
+                                    <label for="id_number_of_units" class="form-label fw-bold">Number of Units <span class="required-indicator">*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <span class="material-icons">directions_car</span>
+                                        </span>
+                                        <input type="number" name="number_of_units" id="id_number_of_units" class="form-control" min="1" max="100" value="1" placeholder="Enter number of units">
+                                    </div>
+                                    <div class="form-text text-muted mt-1">
+                                        <small>If approved, each unit will get a unique identifier (format: XXX)</small>
+                                    </div>
                                 </div>
                             </div>
                             
@@ -627,7 +743,7 @@
                                     <span class="material-icons">close</span>
                                     Cancel
                                 </a>
-                                <button type="submit" class="btn btn-primary">
+                                <button type="submit" class="btn btn-primary" id="submitButton">
                                     <span class="material-icons">send</span>
                                     Submit Application
                                 </button>
@@ -635,14 +751,15 @@
                         </form>
                     </div>
                 </div>
+                {% endif %}
             </div>
         </div>
-        {% endif %}
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Show skeleton loading on page load
@@ -659,195 +776,351 @@ document.addEventListener('DOMContentLoaded', function() {
         operatorContent.style.display = 'block';
     }, 800);
     
-    // Form submission
-    const form = document.querySelector('form');
-    const submitButton = document.querySelector('button[type="submit"]');
+    // File upload preview functionality
+    const fileInputs = document.querySelectorAll('input[type="file"]');
+    
+    fileInputs.forEach(input => {
+        const inputId = input.id;
+        const previewId = inputId.replace('-input', '-preview');
+        const nameId = inputId.replace('-input', '-name');
+        const wrapperId = inputId.replace('-input', '-wrapper');
+        const errorId = inputId.replace('-input', '-error');
+        
+        const preview = document.getElementById(previewId);
+        const nameElement = document.getElementById(nameId);
+        const wrapper = document.getElementById(wrapperId);
+        const errorElement = document.getElementById(errorId);
+        
+        if (preview && nameElement && wrapper) {
+            input.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    // Validate file size (5MB max)
+                    if (file.size > 5 * 1024 * 1024) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'File Too Large',
+                            text: `The file size exceeds the 5MB limit. Current size: ${(file.size / (1024 * 1024)).toFixed(2)}MB`,
+                            confirmButtonColor: 'var(--primary-color)'
+                        });
+                        
+                        this.value = '';
+                        preview.style.display = 'none';
+                        
+                        // Mark as invalid if required
+                        if (this.hasAttribute('required')) {
+                            wrapper.classList.add('is-invalid');
+                        }
+                        return;
+                    }
+                    
+                    // Validate file type
+                    const acceptedTypes = this.accept.split(',');
+                    const fileType = '.' + file.name.split('.').pop().toLowerCase();
+                    const isValidType = acceptedTypes.some(type => {
+                        // Handle image/* types
+                        if (type.includes('/*')) {
+                            const mainType = type.split('/')[0];
+                            return file.type.startsWith(mainType);
+                        }
+                        // Handle .ext types
+                        return type === fileType || type === file.type;
+                    });
+                    
+                    if (!isValidType) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Invalid File Type',
+                            text: 'Please upload a file in the correct format as specified.',
+                            confirmButtonColor: 'var(--primary-color)'
+                        });
+                        
+                        this.value = '';
+                        preview.style.display = 'none';
+                        
+                        // Mark as invalid if required
+                        if (this.hasAttribute('required')) {
+                            wrapper.classList.add('is-invalid');
+                        }
+                        return;
+                    }
+                    
+                    // Show preview
+                    nameElement.textContent = file.name;
+                    preview.style.display = 'block';
+                    
+                    // Remove invalid state
+                    wrapper.classList.remove('is-invalid');
+                } else {
+                    // Hide preview if no file selected
+                    preview.style.display = 'none';
+                    
+                    // Mark as invalid if required
+                    if (this.hasAttribute('required')) {
+                        wrapper.classList.add('is-invalid');
+                    }
+                }
+            });
+        }
+    });
+    
+    // Remove file functionality
+    const removeButtons = document.querySelectorAll('.file-preview-remove');
+    
+    removeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const inputId = this.dataset.inputId;
+            const input = document.getElementById(inputId);
+            const previewId = inputId.replace('-input', '-preview');
+            const preview = document.getElementById(previewId);
+            const wrapperId = inputId.replace('-input', '-wrapper');
+            const wrapper = document.getElementById(wrapperId);
+            
+            if (input && preview) {
+                input.value = '';
+                preview.style.display = 'none';
+                
+                // Mark as invalid if required
+                if (input.hasAttribute('required')) {
+                    wrapper.classList.add('is-invalid');
+                }
+            }
+        });
+    });
+    
+    // Form validation and submission
+    const form = document.getElementById('operatorApplicationForm');
+    const submitButton = document.getElementById('submitButton');
     
     if (form) {
         form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            // Reset error states
+            document.querySelectorAll('.file-upload-wrapper').forEach(wrapper => {
+                wrapper.classList.remove('is-invalid');
+            });
+            
+            // Validate all required file inputs
+            let isValid = true;
+            let firstInvalidElement = null;
+            const requiredInputs = [
+                { id: 'business-permit-input', name: 'Business Permit' },
+                { id: 'police-clearance-input', name: 'Police Clearance' },
+                { id: 'barangay-certificate-input', name: 'Barangay Certificate' },
+                { id: 'cedula-input', name: 'Cedula (Community Tax Certificate)' },
+                { id: 'cenro-tickets-input', name: 'CENRO Tickets/Permits' }
+            ];
+            
+            const missingDocuments = [];
+            
+            requiredInputs.forEach(input => {
+                const inputElem = document.getElementById(input.id);
+                if (inputElem) {
+                    const wrapper = document.getElementById(input.id.replace('-input', '-wrapper'));
+                    
+                    if (!inputElem.files || !inputElem.files[0]) {
+                        isValid = false;
+                        missingDocuments.push(input.name);
+                        if (wrapper) {
+                            wrapper.classList.add('is-invalid');
+                            
+                            if (!firstInvalidElement) {
+                                firstInvalidElement = wrapper;
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Validate number of units
+            const numUnitsInput = document.getElementById('id_number_of_units');
+            if (numUnitsInput) {
+                const numUnits = parseInt(numUnitsInput.value) || 0;
+                if (numUnits < 1 || numUnits > 100) {
+                    isValid = false;
+                    numUnitsInput.classList.add('is-invalid');
+                    
+                    if (!firstInvalidElement) {
+                        firstInvalidElement = numUnitsInput;
+                    }
+                    
+                    if (numUnits < 1) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Invalid Number of Units',
+                            text: 'Number of units must be at least 1.',
+                            confirmButtonColor: 'var(--primary-color)'
+                        });
+                        return;
+                    } else if (numUnits > 100) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Invalid Number of Units',
+                            text: 'Number of units cannot exceed 100.',
+                            confirmButtonColor: 'var(--primary-color)'
+                        });
+                        return;
+                    }
+                }
+            }
+            
+            if (!isValid) {
+                // Show error alert
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Required Documents Missing',
+                    html: `
+                        <p>Please upload the following required documents:</p>
+                        <ul style="text-align: left; display: inline-block;">
+                            ${missingDocuments.map(doc => `<li>${doc}</li>`).join('')}
+                        </ul>
+                    `,
+                    confirmButtonColor: 'var(--primary-color)'
+                }).then(() => {
+                    // Scroll to the first invalid element
+                    if (firstInvalidElement) {
+                        firstInvalidElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                });
+                return;
+            }
+            
             // Show loading state
             submitButton.disabled = true;
-            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
+            const originalButtonText = submitButton.innerHTML;
+            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Submitting...';
+            
+            // Show processing message
+            const loadingSwal = Swal.fire({
+                title: 'Submitting Application',
+                html: 'Please wait while we process your application...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            // Submit the form
+            this.submit();
         });
     }
     
-    // Function to handle file input preview text
-    function setupFileUploadPreview(inputId, defaultText) {
-        const input = document.getElementById(inputId);
-        if (!input) return;
+    // Handle number of units change for the potpot preview
+    const numUnitsInput = document.getElementById('id_number_of_units');
+    if (numUnitsInput) {
+        numUnitsInput.addEventListener('change', function() {
+            updatePotpotPreview();
+        });
         
-        const container = input.closest('.file-upload-container');
-        if (!container) return;
-        
-        const textElement = container.querySelector('.file-upload-text');
-        if (!textElement) return;
-        
-        input.addEventListener('change', function() {
-            if (input.files.length > 0) {
-                textElement.textContent = `Selected file: ${input.files[0].name}`;
-                container.style.borderColor = 'var(--success-color)';
-                container.style.backgroundColor = 'rgba(12, 170, 29, 0.05)';
-            } else {
-                textElement.textContent = defaultText;
-                container.style.borderColor = '';
-                container.style.backgroundColor = '';
-            }
+        numUnitsInput.addEventListener('keyup', function() {
+            updatePotpotPreview();
         });
     }
-    
-    // Setup file upload previews for all document inputs
-    setupFileUploadPreview('id_business_permit', 'Drag & drop business permit or click to browse');
-    setupFileUploadPreview('id_police_clearance', 'Drag & drop police clearance or click to browse');
-    setupFileUploadPreview('id_barangay_certificate', 'Drag & drop barangay certificate or click to browse');
-    setupFileUploadPreview('id_cedula', 'Drag & drop cedula or click to browse');
-    setupFileUploadPreview('id_cenro_tickets', 'Drag & drop CENRO tickets or click to browse');
-    setupFileUploadPreview('id_mayors_permit', 'Drag & drop mayor\'s permit or click to browse');
-    setupFileUploadPreview('id_other_documents', 'Drag & drop other documents or click to browse');
-    
-    // Add visual feedback when dragging files over upload areas
-    const fileContainers = document.querySelectorAll('.file-upload-container');
-    fileContainers.forEach(container => {
-        container.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            this.style.borderColor = 'var(--primary-color)';
-            this.style.backgroundColor = 'var(--primary-light)';
-        });
-        
-        container.addEventListener('dragleave', function(e) {
-            e.preventDefault();
-            // Only reset if no file is selected
-            const input = this.querySelector('input[type="file"]');
-            if (!input || !input.files || input.files.length === 0) {
-                this.style.borderColor = '';
-                this.style.backgroundColor = '';
-            }
-        });
-        
-        container.addEventListener('drop', function(e) {
-            e.preventDefault();
-            // The change event on the input will handle the visual update
-        });
-    });
-    
-    // Handle number of units change
-    $('#id_number_of_units').on('change keyup', function() {
-        const numUnits = parseInt($(this).val()) || 0;
-        
-        // Validate the number of units
-        if (numUnits > 100) {
-            $(this).val(100);
-            showAlert('warning', 'Maximum 100 units allowed.');
-            return updatePotpotPreview();
-        } else if (numUnits < 0) {
-            $(this).val(1);
-            return updatePotpotPreview();
-        }
-        
-        updatePotpotPreview();
-    });
 
     // Handle vehicle type change
-    $('#id_vehicle_type').on('change', function() {
-        updatePotpotPreview();
-    });
-
-    // Function to show an alert message
-    function showAlert(type, message) {
-        const alertHTML = `
-            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
-                <span class="material-icons fs-5 align-middle me-1">${type === 'warning' ? 'warning' : 'info'}</span>
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        `;
-        
-        // Remove any existing alerts
-        $('.alert-dismissible').remove();
-        
-        // Insert the alert before the form
-        $('form').before(alertHTML);
-        
-        // Auto-dismiss after 5 seconds
-        setTimeout(() => {
-            $('.alert-dismissible').alert('close');
-        }, 5000);
+    const vehicleTypeSelect = document.getElementById('id_vehicle_type');
+    if (vehicleTypeSelect) {
+        vehicleTypeSelect.addEventListener('change', function() {
+            updatePotpotPreview();
+        });
     }
-    
+
     // Initialize potpot preview
     updatePotpotPreview();
 
     // Function to update the potpot number preview
     function updatePotpotPreview() {
-        const numUnits = parseInt($('#id_number_of_units').val()) || 0;
-        const vehicleType = $('#id_vehicle_type').val() || 'Potpot';
-        let previewHTML = '';
+        const numUnitsInput = document.getElementById('id_number_of_units');
+        const vehicleTypeSelect = document.getElementById('id_vehicle_type');
+        const previewContainer = document.getElementById('potpot-preview-container');
         
-        // Get the appropriate icon based on vehicle type
-        let vehicleIcon = 'directions_car';
-        if (vehicleType === 'Jeepney') {
-            vehicleIcon = 'directions_bus';
-        } else if (vehicleType === 'Tricycle') {
-            vehicleIcon = 'two_wheeler';
-        }
-        
-        // Clear the preview container
-        $('#potpot-preview-container').empty();
-        
-        if (numUnits > 0) {
-            previewHTML = '<div class="card border-0 shadow-sm rounded-3">';
-            previewHTML += '<div class="card-header bg-transparent d-flex align-items-center px-4 py-3 border-bottom">';
-            previewHTML += '<span class="material-icons me-2" style="color: var(--primary-color); font-size: 24px;">preview</span>';
-            previewHTML += '<h5 class="mb-0 fw-bold">Vehicle Preview</h5>';
-            previewHTML += '</div>';
-            previewHTML += '<div class="card-body p-4">';
+        if (numUnitsInput && vehicleTypeSelect && previewContainer) {
+            const numUnits = parseInt(numUnitsInput.value) || 0;
+            const vehicleType = vehicleTypeSelect.value || 'Potpot';
             
-            // Add explanation about system-wide uniqueness
-            previewHTML += `
-                <div class="alert alert-info mb-4">
-                    <div class="d-flex align-items-start">
-                        <span class="material-icons me-3 mt-1">info</span>
-                        <div>
-                            <p class="mb-1"><strong>System-wide unique ${vehicleType} numbers</strong></p>
-                            <p class="mb-0">If your application is approved, the system will automatically assign ${numUnits} sequential ${vehicleType.toLowerCase()} numbers. Each ${vehicleType.toLowerCase()} will have a unique XXX format number (e.g., 001, 002, 045, 123, etc.) that is not used by any other vehicle in the system.</p>
-                        </div>
-                    </div>
-                </div>
-            `;
+            // Validate the number of units
+            if (numUnits > 100) {
+                numUnitsInput.value = 100;
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Maximum Limit Reached',
+                    text: 'Maximum 100 units allowed.',
+                    confirmButtonColor: 'var(--primary-color)'
+                });
+                return updatePotpotPreview();
+            } else if (numUnits < 0) {
+                numUnitsInput.value = 1;
+                return updatePotpotPreview();
+            }
             
-            previewHTML += '<div class="row">';
+            // Get the appropriate icon based on vehicle type
+            let vehicleIcon = 'directions_car';
+            if (vehicleType === 'Jeepney') {
+                vehicleIcon = 'directions_bus';
+            } else if (vehicleType === 'Tricycle') {
+                vehicleIcon = 'two_wheeler';
+            }
             
-            // Show sample format but not actual numbers
-            for (let i = 1; i <= Math.min(numUnits, 12); i++) {
+            // Clear the preview container
+            previewContainer.innerHTML = '';
+            
+            if (numUnits > 0) {
+                let previewHTML = '<div class="card border-0 shadow-sm rounded-3">';
+                previewHTML += '<div class="card-header bg-transparent d-flex align-items-center px-4 py-3 border-bottom">';
+                previewHTML += '<span class="material-icons me-2" style="color: var(--primary-color); font-size: 24px;">preview</span>';
+                previewHTML += '<h5 class="mb-0 fw-bold">Vehicle Preview</h5>';
+                previewHTML += '</div>';
+                previewHTML += '<div class="card-body p-4">';
+                
+                // Add explanation about system-wide uniqueness
                 previewHTML += `
-                    <div class="col-md-3 col-sm-4 col-6 mb-3">
-                        <div class="card border-0 shadow-sm h-100">
-                            <div class="card-body p-2 text-center">
-                                <span class="material-icons text-primary mb-1">${vehicleIcon}</span>
-                                <div class="badge bg-primary p-2 w-100 fs-6">XXX</div>
-                                <div class="mt-1">
-                                    <small class="text-muted">${vehicleType}</small>
-                                </div>
+                    <div class="alert alert-info mb-4">
+                        <div class="d-flex align-items-start">
+                            <span class="material-icons me-3 mt-1">info</span>
+                            <div>
+                                <p class="mb-1"><strong>System-wide unique ${vehicleType} numbers</strong></p>
+                                <p class="mb-0">If your application is approved, the system will automatically assign ${numUnits} sequential ${vehicleType.toLowerCase()} numbers. Each ${vehicleType.toLowerCase()} will have a unique XXX format number (e.g., 001, 002, 045, 123, etc.) that is not used by any other vehicle in the system.</p>
                             </div>
                         </div>
                     </div>
                 `;
-            }
-            
-            if (numUnits > 12) {
-                previewHTML += `
-                    <div class="col-12 mt-2">
-                        <div class="alert alert-info py-2 mb-0">
-                            <span class="material-icons fs-6 align-middle me-1">info</span>
-                            ${numUnits - 12} more units will be created with unique sequential IDs.
+                
+                previewHTML += '<div class="row">';
+                
+                // Show sample format but not actual numbers
+                for (let i = 1; i <= Math.min(numUnits, 12); i++) {
+                    previewHTML += `
+                        <div class="col-md-3 col-sm-4 col-6 mb-3">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body p-2 text-center">
+                                    <span class="material-icons text-primary mb-1">${vehicleIcon}</span>
+                                    <div class="badge bg-primary p-2 w-100 fs-6">XXX</div>
+                                    <div class="mt-1">
+                                        <small class="text-muted">${vehicleType}</small>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                `;
+                    `;
+                }
+                
+                if (numUnits > 12) {
+                    previewHTML += `
+                        <div class="col-12 mt-2">
+                            <div class="alert alert-info py-2 mb-0">
+                                <span class="material-icons fs-6 align-middle me-1">info</span>
+                                ${numUnits - 12} more units will be created with unique sequential IDs.
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                previewHTML += '</div></div></div>';
+                
+                // Append the preview to the container
+                previewContainer.innerHTML = previewHTML;
             }
-            
-            previewHTML += '</div></div></div>';
-            
-            // Append the preview to the container
-            $('#potpot-preview-container').html(previewHTML);
         }
     }
 });

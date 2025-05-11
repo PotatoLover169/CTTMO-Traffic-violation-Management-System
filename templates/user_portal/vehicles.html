@@ -742,6 +742,10 @@
                             </div>
                             
                                         <div class="text-end mt-4">
+                                            <button class="btn btn-outline-primary edit-vehicle me-2" data-vehicle-id="{{ vehicle.id }}">
+                                                <span class="material-icons" style="font-size: 1rem;">edit</span>
+                                                Edit
+                                            </button>
                                             <button class="btn btn-outline-primary view-details" data-vehicle-id="{{ vehicle.id }}">
                                                 <span class="material-icons" style="font-size: 1rem;">visibility</span>
                                                 View Details
@@ -878,6 +882,108 @@
     </div>
 </div>
 
+<!-- Vehicle Edit Modal -->
+<div class="modal micromodal-slide" id="vehicle-edit-modal" aria-hidden="true">
+    <div class="modal__overlay" tabindex="-1" data-micromodal-close>
+        <div class="modal__container" role="dialog" aria-modal="true" aria-labelledby="vehicle-edit-modal-title" style="width: 95% !important; max-width: 800px !important;">
+            <header class="modal__header">
+                <h2 class="modal__title d-flex align-items-center" id="vehicle-edit-modal-title">
+                    <span class="material-icons me-2" style="color: var(--primary-color)">edit</span>
+                    Edit Vehicle
+                </h2>
+                <button class="modal__close" aria-label="Close modal" data-micromodal-close></button>
+            </header>
+            <main class="modal__content">
+                <div class="vehicle-edit-loader" id="vehicle-edit-loader">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading vehicle data...</p>
+                </div>
+                <div class="vehicle-edit-content" id="vehicle-edit-content" style="display: none;">
+                    <form id="edit-vehicle-form">
+                        {% csrf_token %}
+                        <input type="hidden" id="edit-vehicle-id" name="vehicle_id">
+                        
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="edit-plate-number" class="form-label">Plate Number</label>
+                                <input type="text" class="form-control" id="edit-plate-number" name="plate_number" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="edit-vehicle-type" class="form-label">Vehicle Type</label>
+                                <select class="form-select" id="edit-vehicle-type" name="vehicle_type" required>
+                                    <option value="Car">Car</option>
+                                    <option value="Motorcycle">Motorcycle</option>
+                                    <option value="Truck">Truck</option>
+                                    <option value="Bus">Bus</option>
+                                    <option value="SUV">SUV</option>
+                                    <option value="Van">Van</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="edit-make" class="form-label">Make</label>
+                                <input type="text" class="form-control" id="edit-make" name="make" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="edit-model" class="form-label">Model</label>
+                                <input type="text" class="form-control" id="edit-model" name="model" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="edit-year-model" class="form-label">Year Model</label>
+                                <input type="number" class="form-control" id="edit-year-model" name="year_model" required min="1900" max="2099">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="edit-color" class="form-label">Color</label>
+                                <input type="text" class="form-control" id="edit-color" name="color" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="edit-classification" class="form-label">Classification</label>
+                                <select class="form-select" id="edit-classification" name="classification" required>
+                                    <option value="Private">Private</option>
+                                    <option value="Public">Public</option>
+                                    <option value="Government">Government</option>
+                                    <option value="Diplomatic">Diplomatic</option>
+                                    <option value="For Hire">For Hire</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="edit-or-number" class="form-label">OR Number</label>
+                                <input type="text" class="form-control" id="edit-or-number" name="or_number" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="edit-cr-number" class="form-label">CR Number</label>
+                                <input type="text" class="form-control" id="edit-cr-number" name="cr_number" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="edit-expiry-date" class="form-label">Expiry Date</label>
+                                <input type="date" class="form-control" id="edit-expiry-date" name="expiry_date" required>
+                            </div>
+                            <div class="col-12">
+                                <div class="alert alert-info">
+                                    <span class="material-icons me-2">info</span>
+                                    To update the OR/CR image, please visit the vehicle details page.
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="vehicle-edit-error" id="vehicle-edit-error" style="display: none;">
+                    <div class="alert alert-danger mb-0">
+                        <span class="material-icons me-2">error</span>
+                        <span id="edit-error-message">Could not load vehicle details. Please try again.</span>
+                    </div>
+                </div>
+            </main>
+            <footer class="modal__footer">
+                <button class="modal__btn" data-micromodal-close aria-label="Cancel">Cancel</button>
+                <button class="modal__btn modal__btn-primary" id="save-vehicle-edit">Save Changes</button>
+            </footer>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
@@ -926,13 +1032,44 @@
             window.history.replaceState({}, document.title, url);
         }
         
+        // Check for edit success parameter
+        if (urlParams.get('edit') === 'success') {
+            // Show success message using SweetAlert
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: 'Your vehicle has been updated successfully.',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#3563E9'
+            });
+            
+            // Clean up URL after showing message
+            const url = new URL(window.location.href);
+            url.searchParams.delete('edit');
+            window.history.replaceState({}, document.title, url);
+        }
+        
         // Initialize vehicle detail modal triggers
-        const modalTriggers = document.querySelectorAll('[data-vehicle-id]');
-        modalTriggers.forEach(trigger => {
+        const detailTriggers = document.querySelectorAll('.view-details');
+        detailTriggers.forEach(trigger => {
             trigger.addEventListener('click', function() {
                 const vehicleId = this.getAttribute('data-vehicle-id');
                 showVehicleDetails(vehicleId);
             });
+        });
+        
+        // Initialize vehicle edit modal triggers
+        const editTriggers = document.querySelectorAll('.edit-vehicle');
+        editTriggers.forEach(trigger => {
+            trigger.addEventListener('click', function() {
+                const vehicleId = this.getAttribute('data-vehicle-id');
+                showVehicleEditForm(vehicleId);
+            });
+        });
+        
+        // Handle save edit button click
+        document.getElementById('save-vehicle-edit').addEventListener('click', function() {
+            saveVehicleEdits();
         });
     });
     
@@ -955,7 +1092,16 @@
         fetch(`/user/vehicles/${vehicleId}/`)
             .then(response => {
                 if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
+                    // Check content type to see if it's JSON or not
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        return response.json().then(data => {
+                            throw new Error(data.error || `Error: ${response.status} ${response.statusText}`);
+                        });
+                    } else {
+                        // Not JSON, likely an HTML error page
+                        throw new Error(`Server returned ${response.status}: ${response.statusText}. The endpoint may not exist or requires authentication.`);
+                    }
                 }
                 return response.json();
             })
@@ -994,8 +1140,150 @@
                 console.error('Error fetching vehicle details:', error);
                 loader.style.display = 'none';
                 errorDiv.style.display = 'block';
-                document.getElementById('error-message').textContent = 'Could not load vehicle details. Please try again.';
+                document.getElementById('error-message').textContent = error.message || 'Could not load vehicle details. Please try again.';
             });
+    }
+    
+    // Function to show vehicle edit form
+    function showVehicleEditForm(vehicleId) {
+        // Show loading state
+        const loader = document.getElementById('vehicle-edit-loader');
+        const content = document.getElementById('vehicle-edit-content');
+        const errorDiv = document.getElementById('vehicle-edit-error');
+        
+        // Reset modal state
+        loader.style.display = 'flex';
+        content.style.display = 'none';
+        errorDiv.style.display = 'none';
+        
+        // Open the modal with loading state
+        MicroModal.show('vehicle-edit-modal');
+        
+        // Fetch vehicle details from API
+        fetch(`/user/vehicles/${vehicleId}/`)
+            .then(response => {
+                if (!response.ok) {
+                    // Check content type to see if it's JSON or not
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        return response.json().then(data => {
+                            throw new Error(data.error || `Error: ${response.status} ${response.statusText}`);
+                        });
+                    } else {
+                        // Not JSON, likely an HTML error page
+                        throw new Error(`Server returned ${response.status}: ${response.statusText}. The endpoint may not exist or requires authentication.`);
+                    }
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Hide loader and show content
+                loader.style.display = 'none';
+                content.style.display = 'block';
+                
+                // Set vehicle ID in the hidden field
+                document.getElementById('edit-vehicle-id').value = vehicleId;
+                
+                // Populate the form with vehicle data
+                document.getElementById('edit-plate-number').value = data.plate_number;
+                document.getElementById('edit-vehicle-type').value = data.vehicle_type;
+                document.getElementById('edit-make').value = data.make;
+                document.getElementById('edit-model').value = data.model;
+                document.getElementById('edit-year-model').value = data.year_model;
+                document.getElementById('edit-color').value = data.color;
+                document.getElementById('edit-classification').value = data.classification;
+                document.getElementById('edit-or-number').value = data.or_number;
+                document.getElementById('edit-cr-number').value = data.cr_number;
+                
+                // Format the date for the input field (YYYY-MM-DD)
+                if (data.expiry_date) {
+                    const dateParts = data.expiry_date.split(/[, ]+/);  // Split by comma or space
+                    if (dateParts.length >= 3) {
+                        const month = new Date(Date.parse(dateParts[0] + " 1, 2000")).getMonth() + 1;
+                        const day = parseInt(dateParts[1]);
+                        const year = parseInt(dateParts[2]);
+                        const formattedDate = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+                        document.getElementById('edit-expiry-date').value = formattedDate;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching vehicle details:', error);
+                loader.style.display = 'none';
+                errorDiv.style.display = 'block';
+                document.getElementById('edit-error-message').textContent = error.message || 'Could not load vehicle details. Please try again.';
+            });
+    }
+    
+    // Function to save vehicle edits
+    function saveVehicleEdits() {
+        const form = document.getElementById('edit-vehicle-form');
+        const vehicleId = document.getElementById('edit-vehicle-id').value;
+        
+        // Create FormData object from form
+        const formData = new FormData(form);
+        
+        // Show loading state
+        const saveBtn = document.getElementById('save-vehicle-edit');
+        const originalBtnText = saveBtn.textContent;
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Saving...';
+        
+        // Send AJAX request to update vehicle
+        fetch(`/user/vehicles/${vehicleId}/update/`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                // Check content type to see if it's JSON or not
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    return response.json().then(data => {
+                        throw new Error(data.error || `Error: ${response.status} ${response.statusText}`);
+                    });
+                } else {
+                    // Not JSON, likely an HTML error page
+                    throw new Error(`Server returned ${response.status}: ${response.statusText}. The endpoint may not exist or requires authentication.`);
+                }
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Close the modal
+            MicroModal.close('vehicle-edit-modal');
+            
+            // Show success message
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: 'Vehicle details updated successfully.',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#3563E9'
+            }).then(() => {
+                // Reload the page to reflect changes
+                window.location.href = '/user/vehicles/?edit=success';
+            });
+        })
+        .catch(error => {
+            console.error('Error updating vehicle:', error);
+            
+            // Show error message
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error.message || 'Failed to update vehicle. Please try again.',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#3563E9'
+            });
+            
+            // Reset button state
+            saveBtn.disabled = false;
+            saveBtn.textContent = originalBtnText;
+        });
     }
 </script>
 {% endblock %} 

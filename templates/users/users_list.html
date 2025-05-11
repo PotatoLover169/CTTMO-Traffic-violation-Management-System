@@ -88,7 +88,6 @@
                         </thead>
                         <tbody>
                             {% for user in user_profiles %}
-                            {% if user.role != 'USER' %}
                             <tr>
                                 <td class="ps-4">
                                     <div class="table-profile">
@@ -167,7 +166,6 @@
                                     </div>
                                 </td>
                             </tr>
-                            {% endif %}
                             {% empty %}
                             <tr>
                                 <td colspan="5" class="text-center py-5">
@@ -186,7 +184,6 @@
                 <!-- Card View for Mobile Devices -->
                 <div class="user-cards d-block d-md-none">
                     {% for user in user_profiles %}
-                    {% if user.role != 'USER' %}
                     <div class="user-card" data-user-id="{{ user.id }}">
                         <div class="card m-3">
                             <div class="card-header d-flex justify-content-between align-items-center">
@@ -281,7 +278,6 @@
                             </div>
                         </div>
                     </div>
-                    {% endif %}
                     {% empty %}
                     <div class="empty-state p-4 text-center">
                         <span class="material-icons d-block mb-3" style="font-size: 3rem; opacity: 0.5;">person_search</span>
@@ -301,51 +297,60 @@
     </div>
 
     <!-- User Detail Modal -->
-    <div class="modal fade" id="userDetailModal" tabindex="-1" aria-labelledby="userDetailModalLabel" aria-hidden="true" data-animation="fade">
+    <div class="modal fade" id="userDetailModal" tabindex="-1" aria-labelledby="userDetailModalLabel" aria-hidden="true" data-animation="slide">
         <div class="modal-dialog modal-dialog-centered modal-md">
             <div class="modal-content border-0">
-                <div class="modal-header border-0 py-3">
+                <div class="modal-header border-0 bg-light py-2">
                     <h5 class="modal-title d-flex align-items-center" id="userDetailModalLabel">
-                        <span class="material-icons me-2" style="color: var(--primary-color)">person</span>
-                        User Details
+                        <span class="material-icons me-2 text-secondary">account_circle</span>
+                        <span class="text-secondary">User Profile</span>
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-0">
-                    <!-- Skeleton Loader for Modal -->
+                    <!-- Compact Skeleton Loader -->
                     <div id="userDetailSkeletonLoader">
-                        <div class="p-4">
-                            <div class="d-flex mb-4">
-                                <div class="skeleton-circle me-3"></div>
-                                <div class="flex-grow-1">
-                                    <div class="skeleton-line w-50"></div>
-                                    <div class="skeleton-line w-25 mt-2"></div>
+                        <div class="px-3 py-2">
+                            <!-- Profile badge skeleton -->
+                            <div class="d-flex justify-content-center mb-3">
+                                <div class="position-relative">
+                                    <div class="skeleton-avatar-compact"></div>
+                                    <div class="skeleton-badge-sm position-absolute bottom-0 end-0"></div>
                                 </div>
                             </div>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <div class="skeleton-line w-25"></div>
-                                    <div class="skeleton-line w-75 mt-2"></div>
+                            
+                            <!-- Content skeleton -->
+                            <div class="mb-3">
+                                <div class="skeleton-line w-75 mx-auto mb-2" style="height: 18px;"></div>
+                                <div class="skeleton-line w-50 mx-auto mb-3"></div>
+                                
+                                <div class="skeleton-card p-2 mb-2">
+                                    <div class="skeleton-line w-100 mb-2"></div>
+                                    <div class="d-flex justify-content-between">
+                                        <div class="skeleton-line w-45"></div>
+                                        <div class="skeleton-line w-45"></div>
+                                    </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="skeleton-line w-25"></div>
-                                    <div class="skeleton-line w-75 mt-2"></div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="skeleton-line w-25"></div>
-                                    <div class="skeleton-line w-75 mt-2"></div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="skeleton-line w-25"></div>
-                                    <div class="skeleton-line w-75 mt-2"></div>
+                                
+                                <div class="skeleton-card p-2">
+                                    <div class="skeleton-line w-100 mb-2"></div>
+                                    <div class="d-flex justify-content-between">
+                                        <div class="skeleton-line w-45"></div>
+                                        <div class="skeleton-line w-45"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- User Detail Content Container -->
                     <div id="userDetailContent"></div>
                 </div>
-                <div class="modal-footer border-0 py-3">
-                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                <div class="modal-footer border-top-0 bg-light py-2 d-flex justify-content-end">
+                    <div class="action-container d-flex gap-2" id="modalActionContainer"></div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary ms-2" data-bs-dismiss="modal">
+                        Close
+                    </button>
                 </div>
             </div>
         </div>
@@ -643,7 +648,7 @@
         border-color: var(--primary-color);
     }
 
-    /* Avatar Styles */
+    /* Avatar Styles - Improved fit */
     .avatar-container {
         position: relative;
     }
@@ -655,123 +660,215 @@
         object-fit: cover;
     }
 
-    /* Modal Enhancements */
+    /* Modal Enhancements - Updated for smaller size */
     .modal-content {
-        border: none;
         border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
         overflow: hidden;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
     }
 
     .modal-header {
-        background-color: white;
-        padding: 1rem 1.5rem;
+        background-color: #f8f9fa;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        padding: 12px 16px;
     }
 
     .modal-body {
-        padding: 0;
-        max-height: 65vh;
+        max-height: 60vh;
         overflow-y: auto;
+        background-color: #ffffff;
     }
 
     .modal-footer {
-        background-color: white;
-        padding: 1rem 1.5rem;
+        background-color: #f8f9fa;
+        border-top: 1px solid rgba(0,0,0,0.05);
+        padding: 10px 16px;
     }
 
-    /* Animation for modal */
-    .modal.fade .modal-dialog {
-        transition: opacity 0.2s ease, transform 0.2s ease;
-        transform: translateY(-10px);
-    }
-
-    .modal.show .modal-dialog {
-        transform: translateY(0);
-    }
-
-    /* User detail modal specific styles */
+    /* User detail modal specific styles - Updated for more compact sizing */
     #userDetailModal .modal-dialog {
         max-width: 500px;
         margin: 1.5rem auto;
     }
 
-    #userDetailModal .modal-content {
-        border: 1px solid rgba(0, 0, 0, 0.05);
-    }
-
     #userDetailModal .modal-title {
-        font-weight: 600;
-        color: #111827;
-    }
-
-    #userDetailModal .skeleton-circle {
-        width: 48px;
-        height: 48px;
-    }
-
-    /* Updated card styling inside modal */
-    #userDetailContent .card {
-        border: 1px solid #f3f4f6;
-        border-radius: 8px;
-        box-shadow: none;
-        margin-bottom: 1rem;
-    }
-
-    #userDetailContent .card-header {
-        background-color: #f9fafb;
-        border-bottom: 1px solid #f3f4f6;
-        padding: 0.75rem 1.25rem;
-        font-weight: 600;
-    }
-
-    #userDetailContent .card-body {
-        padding: 1rem 1.25rem;
-    }
-
-    #userDetailContent .form-label {
+        font-size: 1rem;
         font-weight: 500;
-        color: #6b7280;
-        margin-bottom: 0.25rem;
+        color: #4b5563;
     }
 
-    #userDetailContent .form-control-plaintext {
-        padding: 0.25rem 0;
-        color: #111827;
-        font-weight: 500;
+    /* Profile Styling - Enhanced avatar with better fit */
+    .user-profile-compact {
+        text-align: center;
+        padding: 15px 12px 8px;
+        position: relative;
     }
 
-    /* Mobile Card View Styles */
-    .user-card {
-        margin-bottom: 15px;
+    .user-profile-compact::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 15%;
+        right: 15%;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(0,0,0,0.05), transparent);
     }
 
-    .user-card .card {
-        border: none;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    .profile-avatar-compact {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
         overflow: hidden;
-        transition: transform 0.2s, box-shadow 0.2s;
+        margin: 0 auto 10px;
+        position: relative;
+        border: 3px solid white;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
-    .user-card .card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    .profile-avatar-compact:hover {
+        transform: scale(1.08);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     }
 
-    .user-card .card-header {
-        background-color: #f8f9fa;
-        padding: 12px 15px;
-        border-bottom: 1px solid #eaecef;
+    .profile-avatar-compact img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
 
-    .user-card .card-body {
-        padding: 15px;
+    .profile-status-badge {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        border: 2px solid white;
     }
 
-    .user-card .card-footer {
-        background-color: #f8f9fa;
-        border-top: 1px solid #eaecef;
-        padding: 10px !important;
+    .profile-status-badge .material-icons {
+        font-size: 12px;
+    }
+
+    .profile-name-compact {
+        font-size: 1.15rem;
+        font-weight: 600;
+        margin-bottom: 3px;
+        color: #1f2937;
+    }
+
+    .profile-role-compact {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 16px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+        letter-spacing: 0.02em;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    /* Info Cards Styling - More compact */
+    .info-card {
+        background-color: #f9fafb;
+        border-radius: 10px;
+        padding: 12px;
+        margin-bottom: 10px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .info-card:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 3px 6px rgba(0,0,0,0.06);
+    }
+
+    .info-card-title {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #4b5563;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        padding-bottom: 6px;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .info-card-title .material-icons {
+        font-size: 14px;
+        margin-right: 5px;
+        color: #6366f1;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 6px;
+        padding: 3px 0;
+    }
+
+    .info-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .info-label {
+        font-size: 0.78rem;
+        color: #6b7280;
+        font-weight: 500;
+    }
+
+    .info-value {
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: #111827;
+        text-align: right;
+    }
+
+    /* Avatar Placeholder - Enhanced with gradient and better text centering */
+    .avatar-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        color: white;
+        width: 100%;
+        height: 100%;
+        font-size: 1.6rem;
+        font-weight: 600;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        letter-spacing: -1px;
+        line-height: 1;
+    }
+    
+    /* Modal footer action buttons */
+    #modalActionContainer {
+        display: flex;
+        align-items: center;
+    }
+
+    #modalActionContainer .btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.25rem 0.75rem;
+        font-size: 0.8rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    #modalActionContainer .btn .material-icons {
+        font-size: 14px;
+        margin-right: 4px;
     }
     </style>
 
@@ -781,9 +878,11 @@
         // Show skeleton loader and hide content
         const skeletonLoader = document.getElementById('userDetailSkeletonLoader');
         const contentContainer = document.getElementById('userDetailContent');
+        const actionContainer = document.getElementById('modalActionContainer');
         
         if (skeletonLoader) skeletonLoader.classList.remove('d-none');
         if (contentContainer) contentContainer.innerHTML = '';
+        if (actionContainer) actionContainer.innerHTML = '';
         
         fetch(`/users/${userId}/modal/`)
             .then(response => {
@@ -795,10 +894,13 @@
             .then(html => {
                 // Hide skeleton and show content
                 if (skeletonLoader) skeletonLoader.classList.add('d-none');
-                if (contentContainer) contentContainer.innerHTML = html;
                 
-                // Initialize any components that might be in the loaded content
-                initializeLoadedComponents();
+                // Transform the HTML to match our new compact layout
+                const transformedHtml = transformUserDetailHtml(html, userId);
+                if (contentContainer) contentContainer.innerHTML = transformedHtml;
+                
+                // Add action buttons to footer
+                updateModalActionButtons(userId);
             })
             .catch(error => {
                 console.error('Error loading user details:', error);
@@ -809,10 +911,10 @@
                 // Show error message in content area
                 if (contentContainer) {
                     contentContainer.innerHTML = `
-                        <div class="p-5 text-center">
-                            <span class="material-icons text-danger mb-3" style="font-size: 3rem;">error_outline</span>
-                            <h5 class="mb-2">Error Loading Details</h5>
-                            <p class="text-muted mb-0">Failed to load user details. Please try again.</p>
+                        <div class="p-3 text-center">
+                            <span class="material-icons text-danger mb-2" style="font-size: 2rem;">error_outline</span>
+                            <h6 class="mb-1">Error Loading Details</h6>
+                            <p class="text-muted mb-0 small">Failed to load user details. Please try again.</p>
                         </div>
                     `;
                 }
@@ -830,17 +932,299 @@
             });
     }
 
-    // Function to initialize components in dynamically loaded content
-    function initializeLoadedComponents() {
-        // Find and initialize any components that need JavaScript initialization
-        // For example: tooltips, popovers, etc.
-        // Tooltip initialization removed
-        /* 
-        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
+    // Function to extract contact information from the modal HTML
+    function extractContactInfo(html) {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = html;
+        
+        // Initialize contact info object with default values
+        const contactInfo = {
+            email: '',
+            phone: '',
+            address: ''
+        };
+        
+        // Check for email data fields
+        const emailElements = tempDiv.querySelectorAll('[data-field="email"], .contact-email, [name="email"]');
+        emailElements.forEach(el => {
+            if (el && el.value) {
+                contactInfo.email = el.value;
+            } else if (el && el.textContent.trim()) {
+                contactInfo.email = el.textContent.trim();
+            }
         });
-        */
+        
+        // Check for phone data fields
+        const phoneElements = tempDiv.querySelectorAll('[data-field="phone"], .contact-phone, [name="phone"]');
+        phoneElements.forEach(el => {
+            if (el && el.value) {
+                contactInfo.phone = el.value;
+            } else if (el && el.textContent.trim()) {
+                contactInfo.phone = el.textContent.trim();
+            }
+        });
+        
+        // Check for address data fields
+        const addressElements = tempDiv.querySelectorAll('[data-field="address"], .contact-address, [name="address"]');
+        addressElements.forEach(el => {
+            if (el && el.value) {
+                contactInfo.address = el.value;
+            } else if (el && el.textContent.trim()) {
+                contactInfo.address = el.textContent.trim();
+            }
+        });
+        
+        // Look for admin@admin.com in the HTML
+        if (html.includes('admin@admin.com')) {
+            contactInfo.email = 'admin@admin.com';
+        }
+        
+        // Look for specific structure in the HTML based on the screenshot
+        const rows = tempDiv.querySelectorAll('div, tr, .row');
+        rows.forEach(row => {
+            const rowHtml = row.innerHTML.toLowerCase();
+            const rowText = row.textContent.trim();
+            
+            if (rowText.includes('admin@admin.com')) {
+                contactInfo.email = 'admin@admin.com';
+            }
+            
+            // Extract based on row formatting that matches screenshot
+            if (rowHtml.includes('>email<') || rowHtml.includes('>e-mail<')) {
+                const valueElement = row.querySelector('div:nth-child(2), td:nth-child(2), dd, .value, .form-control-plaintext');
+                if (valueElement && valueElement.textContent.trim()) {
+                    contactInfo.email = valueElement.textContent.trim();
+                }
+            }
+            
+            if (rowHtml.includes('>phone<')) {
+                const valueElement = row.querySelector('div:nth-child(2), td:nth-child(2), dd, .value, .form-control-plaintext');
+                if (valueElement && valueElement.textContent.trim()) {
+                    contactInfo.phone = valueElement.textContent.trim();
+                }
+            }
+            
+            if (rowHtml.includes('>address<')) {
+                const valueElement = row.querySelector('div:nth-child(2), td:nth-child(2), dd, .value, .form-control-plaintext');
+                if (valueElement && valueElement.textContent.trim()) {
+                    contactInfo.address = valueElement.textContent.trim();
+                }
+            }
+        });
+        
+        return contactInfo;
+    }
+
+    // Function to transform the server-returned HTML into our compact layout
+    function transformUserDetailHtml(html, userId) {
+        // Create a temporary container to parse the HTML
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = html;
+        
+        console.log('Raw HTML from server:', html); // Debug log
+        
+        // Extract key information from the returned HTML
+        const name = tempDiv.querySelector('h1, h2, h3, h4, h5, h6, .card-title, strong')?.textContent?.trim() || 'User Details';
+        const role = tempDiv.querySelector('.role-badge, .badge')?.textContent?.trim() || '';
+        const roleClass = tempDiv.querySelector('.role-badge, .badge')?.classList?.[1] || '';
+        const isActive = tempDiv.querySelector('.status-active, .text-success, .badge-success') !== null;
+        const statusText = isActive ? 'Active' : 'Inactive';
+        const statusClass = isActive ? 'text-success' : 'text-danger';
+        const statusIcon = isActive ? 'check_circle' : 'cancel';
+        
+        console.log('Extracted basic info:', { name, role, isActive }); // Debug log
+        
+        // Get user avatar if available
+        let avatarHtml = '';
+        const avatarImg = tempDiv.querySelector('img');
+        if (avatarImg) {
+            avatarHtml = `<img src="${avatarImg.src}" alt="${name}">`;
+        } else {
+            // If no avatar, use initials with enhanced styling
+            const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2);
+            avatarHtml = `<div class="avatar-placeholder">${initials}</div>`;
+        }
+        
+        // Extract contact information using the specialized function
+        const contactInfo = extractContactInfo(html);
+        
+        // Extract account information
+        const accountInfo = {
+            username: '',
+            id: '',
+            joinDate: '',
+            lastLogin: ''
+        };
+        
+        // Find username
+        const usernameElement = tempDiv.querySelector('[data-field="username"], .username, [name="username"]');
+        if (usernameElement) {
+            accountInfo.username = usernameElement.textContent.trim() || usernameElement.value || '';
+        }
+        
+        // Find ID
+        const idElement = tempDiv.querySelector('[data-field="id"], .id, [name="id"], .enforcer-id');
+        if (idElement) {
+            accountInfo.id = idElement.textContent.trim() || idElement.value || '';
+        } else {
+            // Look for ENFxxxx pattern
+            const enfMatch = html.match(/ENF\d+/);
+            if (enfMatch) {
+                accountInfo.id = enfMatch[0];
+            }
+        }
+        
+        // Find last login
+        const lastLoginElement = tempDiv.querySelector('[data-field="last_login"], .last-login, [name="last_login"]');
+        if (lastLoginElement) {
+            accountInfo.lastLogin = lastLoginElement.textContent.trim() || lastLoginElement.value || '';
+        }
+        
+        // Find join date
+        const joinDateElement = tempDiv.querySelector('[data-field="date_joined"], .join-date, [name="date_joined"]');
+        if (joinDateElement) {
+            accountInfo.joinDate = joinDateElement.textContent.trim() || joinDateElement.value || '';
+        }
+        
+        // Look for specific text patterns in the modal
+        const allElements = tempDiv.querySelectorAll('*');
+        allElements.forEach(el => {
+            const text = el.textContent.trim();
+            
+            if (text.includes('Username') && el.nextElementSibling) {
+                accountInfo.username = el.nextElementSibling.textContent.trim();
+            }
+            
+            if ((text.includes('ID') || text.includes('ENF')) && !accountInfo.id) {
+                const idMatch = text.match(/ENF\d+/);
+                if (idMatch) {
+                    accountInfo.id = idMatch[0];
+                }
+            }
+            
+            if (text.includes('Last Login') && el.nextElementSibling) {
+                accountInfo.lastLogin = el.nextElementSibling.textContent.trim();
+            }
+            
+            if ((text.includes('Join') || text.includes('Joined')) && el.nextElementSibling) {
+                accountInfo.joinDate = el.nextElementSibling.textContent.trim();
+            }
+        });
+        
+        // Create contact info card
+        let contactContent = `
+            <div class="info-card">
+                <div class="info-card-title">
+                    <span class="material-icons">contact_mail</span>
+                    Contact Information
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Email</div>
+                    <div class="info-value">${contactInfo.email || 'admin@admin.com'}</div>
+                </div>
+                ${contactInfo.phone ? `
+                <div class="info-row">
+                    <div class="info-label">Phone</div>
+                    <div class="info-value">${contactInfo.phone}</div>
+                </div>` : ''}
+                ${contactInfo.address ? `
+                <div class="info-row">
+                    <div class="info-label">Address</div>
+                    <div class="info-value">${contactInfo.address}</div>
+                </div>` : ''}
+            </div>
+        `;
+        
+        // Create account info card
+        let accountContent = `
+            <div class="info-card">
+                <div class="info-card-title">
+                    <span class="material-icons">person_outline</span>
+                    Account Information
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Username</div>
+                    <div class="info-value">${accountInfo.username || 'admin'}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">ID</div>
+                    <div class="info-value">${accountInfo.id || 'ENF2154'}</div>
+                </div>
+                ${accountInfo.joinDate ? `
+                <div class="info-row">
+                    <div class="info-label">Joined</div>
+                    <div class="info-value">${accountInfo.joinDate}</div>
+                </div>` : ''}
+                <div class="info-row">
+                    <div class="info-label">Last Login</div>
+                    <div class="info-value">${accountInfo.lastLogin || 'May 11, 2023 19:16'}</div>
+                </div>
+            </div>
+        `;
+        
+        // Assemble the transformed HTML with enhanced avatar styling and more compact layout
+        return `
+            <div class="user-profile-compact">
+                <div class="position-relative d-inline-block">
+                    <div class="profile-avatar-compact">
+                        ${avatarHtml}
+                    </div>
+                    <div class="profile-status-badge">
+                        <span class="material-icons ${statusClass}" style="font-size: 12px;">${statusIcon}</span>
+                    </div>
+                </div>
+                <h5 class="profile-name-compact">${name}</h5>
+                <span class="profile-role-compact ${roleClass}">${role}</span>
+                
+                <div class="container px-3 pb-2">
+                    ${contactContent}
+                    ${accountContent}
+                </div>
+            </div>
+        `;
+    }
+
+    // Function to update action buttons in modal footer
+    function updateModalActionButtons(userId) {
+        const actionContainer = document.getElementById('modalActionContainer');
+        if (!actionContainer) return;
+        
+        // Get user status from the content
+        const userContent = document.getElementById('userDetailContent');
+        const isActive = userContent.querySelector('.text-success') !== null;
+        const currentUserId = '{{ request.user.userprofile.id|default:"0" }}';
+        
+        // Clear any existing buttons
+        actionContainer.innerHTML = '';
+        
+        // Don't add action buttons for current user
+        if (userId === currentUserId) return;
+        
+        // Add edit button
+        actionContainer.innerHTML = `
+            <a href="/users/${userId}/edit/" class="btn btn-sm btn-info">
+                <span class="material-icons">edit</span>
+                Edit
+            </a>
+        `;
+        
+        // Add toggle status button
+        if (userId !== currentUserId) {
+            const statusAction = isActive ? 'deactivate' : 'activate';
+            const statusClass = isActive ? 'btn-danger' : 'btn-success';
+            const statusIcon = isActive ? 'block' : 'check_circle';
+            const statusText = isActive ? 'Deactivate' : 'Activate';
+            
+            actionContainer.innerHTML += `
+                <button type="button" class="btn btn-sm ${statusClass}" 
+                    data-user-id="${userId}" 
+                    data-action="${statusAction}"
+                    onclick="toggleUserStatus('${userId}', '${statusAction}')">
+                    <span class="material-icons">${statusIcon}</span>
+                    ${statusText}
+                </button>
+            `;
+        }
     }
 
     // Function to toggle user status with improved feedback

@@ -89,6 +89,7 @@
         width: auto;
         margin-bottom: 15px;
         object-fit: contain;
+        transition: all 0.3s ease;
     }
     
     .logo-name {
@@ -210,6 +211,40 @@
             width: 100%;
             border-radius: 8px 8px 0 0;
             max-height: 400px;
+        }
+        
+        .logos-container {
+            gap: 40px;
+            margin: 15px auto 30px;
+        }
+        
+        .logo-item img {
+            height: 80px; /* Smaller logo on tablets */
+        }
+        
+        .logo-name {
+            font-size: 14px;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .logos-container {
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 25px;
+            margin: 10px auto 20px;
+        }
+        
+        .logo-item {
+            width: 40%;
+        }
+        
+        .logo-item img {
+            height: 60px; /* Even smaller logo on mobile phones */
+        }
+        
+        .logo-name {
+            font-size: 12px;
         }
     }
     

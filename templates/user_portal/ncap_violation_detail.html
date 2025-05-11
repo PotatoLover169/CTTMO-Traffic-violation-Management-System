@@ -3,6 +3,150 @@
 
 {% block title %}NCAP Violation Details - CTTMO User Portal{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Styling for equal height cards */
+    .evidence-card {
+        height: 100%;
+        transition: transform 0.2s ease;
+        cursor: pointer;
+        border: 1px solid rgba(0,0,0,0.125);
+    }
+    
+    .evidence-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    
+    .evidence-img-container {
+        height: 200px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f8f9fa;
+    }
+    
+    .evidence-img {
+        object-fit: contain;
+        width: 100%;
+        height: 100%;
+    }
+    
+    .card-header.evidence-header {
+        background-color: #3563E9;
+        color: white;
+        font-weight: 500;
+        text-align: center;
+        padding: 0.5rem 1rem;
+    }
+    
+    .evidence-gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1rem;
+    }
+    
+    /* Badge styling */
+    .status-badge {
+        font-size: 0.9rem;
+        padding: 0.4rem 0.8rem;
+    }
+    
+    /* Swal customization for gallery view */
+    .swal2-popup.swal2-modal.evidence-modal {
+        padding: 1rem;
+    }
+    
+    .swal2-image {
+        max-height: 70vh;
+        object-fit: contain;
+    }
+    
+    .swal2-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #333;
+    }
+    
+    /* Info section styling */
+    .info-section {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .info-section:last-child {
+        border-bottom: none;
+    }
+    
+    .info-section-title {
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: #3563E9;
+        display: flex;
+        align-items: center;
+    }
+    
+    .info-section-title i {
+        margin-right: 0.5rem;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 992px) {
+        .evidence-gallery {
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .evidence-img-container {
+            height: 180px;
+        }
+        
+        .evidence-gallery {
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        }
+        
+        .card-header.evidence-header {
+            font-size: 0.9rem;
+        }
+        
+        .card-footer {
+            font-size: 0.8rem;
+            padding: 0.4rem;
+        }
+        
+        /* Optimize SweetAlert on mobile */
+        .swal2-popup.swal2-modal.evidence-modal {
+            padding: 0.5rem;
+            width: 95% !important;
+        }
+        
+        .swal2-title {
+            font-size: 1.2rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .evidence-gallery {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+        
+        .evidence-img-container {
+            height: 140px;
+        }
+        
+        /* Full-width buttons on mobile */
+        .action-buttons .btn {
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container py-4">
     <div class="card shadow-sm rounded-lg">
@@ -11,86 +155,125 @@
         </div>
         <div class="card-body">
             <!-- Violation details here -->
-            <div class="row mb-4">
-                <div class="col-md-6">
-                    <h6 class="fw-bold">Violation Information</h6>
-                    <div class="mb-3">
-                        <p class="mb-2"><strong>Violation ID:</strong> {{ violation.id }}</p>
-                        <p class="mb-2"><strong>Date:</strong> {{ violation.violation_date|date:"F d, Y H:i" }}</p>
-                        <p class="mb-2"><strong>Location:</strong> {{ violation.location }}</p>
-                        <p class="mb-2"><strong>Type:</strong> {{ violation.violation_type }}</p>
-                        <p class="mb-2"><strong>Fine Amount:</strong> ₱{{ violation.fine_amount }}</p>
-                        <p class="mb-2"><strong>Status:</strong> 
-                            <span class="badge {% if violation.status == 'PAID' %}bg-success{% elif violation.status == 'PENDING' %}bg-warning{% elif violation.status == 'APPROVED' %}bg-info{% elif violation.status == 'ADJUDICATED' %}bg-primary{% else %}bg-secondary{% endif %}">
-                                {{ violation.get_status_display }}
-                            </span>
-                        </p>
+            <div class="info-section">
+                <h6 class="info-section-title"><i class="fas fa-exclamation-triangle"></i> Violation Information</h6>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <p class="mb-2"><strong>Violation ID:</strong> {{ violation.id }}</p>
+                            <p class="mb-2"><strong>Date:</strong> {{ violation.violation_date|date:"F d, Y H:i" }}</p>
+                            <p class="mb-2"><strong>Location:</strong> {{ violation.location }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <p class="mb-2"><strong>Type:</strong> {{ violation.violation_type }}</p>
+                            <p class="mb-2"><strong>Fine Amount:</strong> ₱{{ violation.fine_amount }}</p>
+                            <p class="mb-2"><strong>Status:</strong> 
+                                <span class="badge status-badge {% if violation.status == 'PAID' %}bg-success{% elif violation.status == 'PENDING' %}bg-warning{% elif violation.status == 'APPROVED' %}bg-info{% elif violation.status == 'ADJUDICATED' %}bg-primary{% else %}bg-secondary{% endif %}">
+                                    {{ violation.get_status_display }}
+                                </span>
+                            </p>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <h6 class="fw-bold">Violator Information</h6>
-                    <div class="mb-3">
-                        <p class="mb-2"><strong>License Number:</strong> {{ violation.violator.license_number }}</p>
-                        <p class="mb-2"><strong>Name:</strong> {{ violation.violator.first_name }} {{ violation.violator.last_name }}</p>
-                        <p class="mb-2"><strong>Due Date:</strong> {{ violation.payment_due_date|date:"F d, Y" }}</p>
+            </div>
+            
+            <div class="info-section">
+                <h6 class="info-section-title"><i class="fas fa-user"></i> Violator Information</h6>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <p class="mb-2"><strong>License Number:</strong> {{ violation.violator.license_number }}</p>
+                            <p class="mb-2"><strong>Name:</strong> {{ violation.violator.first_name }} {{ violation.violator.last_name }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <p class="mb-2"><strong>Due Date:</strong> {{ violation.payment_due_date|date:"F d, Y" }}</p>
+                        </div>
                     </div>
                 </div>
             </div>
             
             <!-- Enforcer Information -->
-            <div class="row mb-4">
-                <div class="col-md-6">
-                    <h6 class="fw-bold">Enforcer Information</h6>
-                    <div class="mb-3">
-                        <p class="mb-2"><strong>Enforcer Name:</strong> {{ violation.enforcer.get_full_name }}</p>
-                        <p class="mb-2"><strong>Enforcer ID:</strong> {{ violation.enforcer.userprofile.enforcer_id }}</p>
+            <div class="info-section">
+                <h6 class="info-section-title"><i class="fas fa-user-shield"></i> Enforcer Information</h6>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <p class="mb-2"><strong>Enforcer Name:</strong> {{ violation.enforcer.get_full_name }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <p class="mb-2"><strong>Enforcer ID:</strong> {{ violation.enforcer.userprofile.enforcer_id }}</p>
+                        </div>
                     </div>
                 </div>
             </div>
             
             <!-- NCAP Images Section -->
-            <div class="mt-4 mb-4">
-                <h6 class="fw-bold">NCAP Evidence</h6>
-                <div class="row">
+            <div class="info-section">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="info-section-title mb-0"><i class="fas fa-camera"></i> NCAP Evidence</h6>
+                    <button type="button" id="viewAllBtn" class="btn btn-sm btn-outline-primary" data-evidence-count="0">
+                        <i class="fas fa-images me-1"></i> View All Evidence
+                    </button>
+                </div>
+                
+                <div class="evidence-gallery">
                     {% if violation.image %}
-                    <div class="col-md-6 mb-3">
-                        <div class="card">
-                            <div class="card-header">Primary Evidence</div>
-                            <div class="card-body p-0">
-                                <img src="{{ violation.image.url }}" class="img-fluid" alt="Primary Evidence">
+                    <div class="evidence-item" data-index="0">
+                        <div class="card evidence-card">
+                            <div class="card-header evidence-header">Primary Evidence</div>
+                            <div class="evidence-img-container">
+                                <img src="{{ violation.image.url }}" class="evidence-img" alt="Primary Evidence" data-title="Primary Evidence">
+                            </div>
+                            <div class="card-footer bg-white text-center py-2">
+                                <small class="text-muted">Click to enlarge</small>
                             </div>
                         </div>
                     </div>
                     {% endif %}
                     
                     {% if violation.driver_photo %}
-                    <div class="col-md-6 mb-3">
-                        <div class="card">
-                            <div class="card-header">Driver Photo</div>
-                            <div class="card-body p-0">
-                                <img src="{{ violation.driver_photo.url }}" class="img-fluid" alt="Driver Photo">
+                    <div class="evidence-item" data-index="1">
+                        <div class="card evidence-card">
+                            <div class="card-header evidence-header">Driver Photo</div>
+                            <div class="evidence-img-container">
+                                <img src="{{ violation.driver_photo.url }}" class="evidence-img" alt="Driver Photo" data-title="Driver Photo">
+                            </div>
+                            <div class="card-footer bg-white text-center py-2">
+                                <small class="text-muted">Click to enlarge</small>
                             </div>
                         </div>
                     </div>
                     {% endif %}
                     
                     {% if violation.vehicle_photo %}
-                    <div class="col-md-6 mb-3">
-                        <div class="card">
-                            <div class="card-header">Vehicle Photo</div>
-                            <div class="card-body p-0">
-                                <img src="{{ violation.vehicle_photo.url }}" class="img-fluid" alt="Vehicle Photo">
+                    <div class="evidence-item" data-index="2">
+                        <div class="card evidence-card">
+                            <div class="card-header evidence-header">Vehicle Photo</div>
+                            <div class="evidence-img-container">
+                                <img src="{{ violation.vehicle_photo.url }}" class="evidence-img" alt="Vehicle Photo" data-title="Vehicle Photo">
+                            </div>
+                            <div class="card-footer bg-white text-center py-2">
+                                <small class="text-muted">Click to enlarge</small>
                             </div>
                         </div>
                     </div>
                     {% endif %}
                     
                     {% if violation.secondary_photo %}
-                    <div class="col-md-6 mb-3">
-                        <div class="card">
-                            <div class="card-header">Additional Evidence</div>
-                            <div class="card-body p-0">
-                                <img src="{{ violation.secondary_photo.url }}" class="img-fluid" alt="Additional Evidence">
+                    <div class="evidence-item" data-index="3">
+                        <div class="card evidence-card">
+                            <div class="card-header evidence-header">Additional Evidence</div>
+                            <div class="evidence-img-container">
+                                <img src="{{ violation.secondary_photo.url }}" class="evidence-img" alt="Additional Evidence" data-title="Additional Evidence">
+                            </div>
+                            <div class="card-footer bg-white text-center py-2">
+                                <small class="text-muted">Click to enlarge</small>
                             </div>
                         </div>
                     </div>
@@ -100,12 +283,8 @@
             
             <!-- Action options section -->
             <div class="mt-4">
-                <div class="d-flex flex-wrap gap-2 justify-content-center">
-                    <a href="{% url 'user_portal:print_ncap_violation_form' violation.id %}" class="btn btn-secondary" target="_blank">
-                        <i class="fas fa-print me-2"></i>Print Form
-                    </a>
-                    
-                    <a href="{% url 'user_portal:user_violations' %}" class="btn btn-outline-primary">
+                <div class="d-flex flex-wrap gap-2 justify-content-center action-buttons">
+                    <a href="{% url 'user_portal:user_violations' %}" class="btn btn-primary">
                         <i class="fas fa-arrow-left me-2"></i>Back to Violations
                     </a>
                 </div>
@@ -118,20 +297,134 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Enable image lightbox/zoom
-    const evidenceImages = document.querySelectorAll('.card-body img');
-    evidenceImages.forEach(img => {
-        img.style.cursor = 'pointer';
-        img.addEventListener('click', function() {
-            Swal.fire({
-                imageUrl: img.src,
-                imageAlt: img.alt,
-                width: '80%',
-                confirmButtonText: 'Close',
-                confirmButtonColor: '#3563E9'
-            });
+    // Collect all evidence images and info
+    const evidenceItems = document.querySelectorAll('.evidence-item');
+    const evidenceGallery = [];
+    let evidenceCount = 0;
+    
+    // Debug log for troubleshooting
+    console.log(`Found ${evidenceItems.length} evidence items`);
+    
+    evidenceItems.forEach((item, idx) => {
+        const img = item.querySelector('.evidence-img');
+        const title = img.getAttribute('data-title');
+        
+        evidenceGallery.push({
+            src: img.src,
+            title: title,
+            alt: img.alt
         });
+        
+        // Debug log for each item
+        console.log(`Added item ${idx} with title: ${title}`);
+        evidenceCount++;
     });
+    
+    // Update view all button counter
+    const viewAllBtn = document.getElementById('viewAllBtn');
+    if (viewAllBtn) {
+        viewAllBtn.setAttribute('data-evidence-count', evidenceCount);
+        if (evidenceCount > 0) {
+            viewAllBtn.innerHTML = `<i class="fas fa-images me-1"></i> View All (${evidenceCount})`;
+        }
+    }
+    
+    // Improve event delegation - attach click listeners to both card and its children
+    evidenceItems.forEach((item, idx) => {
+        const card = item.querySelector('.evidence-card');
+        const index = parseInt(item.getAttribute('data-index'), 10);
+        
+        // Make the entire card and all its elements clickable
+        const makeClickable = (element) => {
+            element.style.cursor = 'pointer';
+            element.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent multiple triggers
+                showEvidence(index);
+                console.log(`Clicked item at index ${index}`);
+            });
+        };
+        
+        // Apply to the card and all its children that should be clickable
+        makeClickable(card);
+        makeClickable(card.querySelector('.evidence-img-container'));
+        makeClickable(card.querySelector('.evidence-img'));
+        makeClickable(card.querySelector('.card-footer'));
+    });
+    
+    // Set up view all button
+    if (viewAllBtn) {
+        viewAllBtn.addEventListener('click', function() {
+            if (evidenceCount > 0) {
+                showEvidence(0);
+            }
+        });
+    }
+    
+    // Function to show evidence in modal
+    function showEvidence(index) {
+        if (evidenceGallery.length === 0) return;
+        
+        // Ensure index is valid
+        index = Math.max(0, Math.min(evidenceGallery.length - 1, index));
+        const currentEvidence = evidenceGallery[index];
+        
+        // Determine if we're on mobile
+        const isMobile = window.innerWidth < 768;
+        
+        Swal.fire({
+            title: currentEvidence.title,
+            imageUrl: currentEvidence.src,
+            imageAlt: currentEvidence.alt,
+            width: isMobile ? '95%' : '80%',
+            customClass: {
+                popup: 'evidence-modal'
+            },
+            showCloseButton: true,
+            showDenyButton: evidenceGallery.length > 1,
+            showCancelButton: evidenceGallery.length > 1,
+            confirmButtonText: 'Close',
+            confirmButtonColor: '#3563E9',
+            denyButtonText: '<i class="fas fa-chevron-left"></i>',
+            denyButtonColor: '#6c757d',
+            cancelButtonText: '<i class="fas fa-chevron-right"></i>',
+            cancelButtonColor: '#6c757d',
+            denyButtonAriaLabel: 'Previous image',
+            cancelButtonAriaLabel: 'Next image',
+            reverseButtons: true,
+            focusConfirm: false,
+            footer: `<div class="text-center w-100">Image ${index + 1} of ${evidenceGallery.length}</div>`
+        }).then((result) => {
+            if (result.isDenied) {
+                // Previous image
+                const prevIndex = (index - 1 + evidenceGallery.length) % evidenceGallery.length;
+                showEvidence(prevIndex);
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                // Next image
+                const nextIndex = (index + 1) % evidenceGallery.length;
+                showEvidence(nextIndex);
+            }
+        });
+    }
+    
+    // Adjust image containers on window resize
+    function adjustImageContainers() {
+        const containers = document.querySelectorAll('.evidence-img-container');
+        if (containers.length === 0) return;
+        
+        const containerWidth = containers[0].offsetWidth;
+        if (containerWidth > 0) {
+            const aspectRatio = window.innerWidth < 768 ? 0.75 : 0.8;
+            containers.forEach(container => {
+                container.style.height = `${containerWidth * aspectRatio}px`;
+            });
+        }
+    }
+    
+    // Run once on load and again on window resize
+    if (evidenceItems.length > 0) {
+        adjustImageContainers();
+        window.addEventListener('resize', adjustImageContainers);
+    }
 });
 </script>
 {% endblock %} 

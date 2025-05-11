@@ -287,33 +287,42 @@ class UserViolationManager(models.Manager):
 
 class VehicleRegistration(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='registered_vehicles')
-    or_number = models.CharField(max_length=50, unique=True)  # OR Number
-    cr_number = models.CharField(max_length=50, unique=True)  # CR Number
+    or_number = models.CharField(max_length=50, unique=True)
+    cr_number = models.CharField(max_length=50, unique=True)
     plate_number = models.CharField(max_length=20, unique=True)
-    vehicle_type = models.CharField(max_length=100)
-    make = models.CharField(max_length=100)
-    model = models.CharField(max_length=100)
-    year_model = models.CharField(max_length=4)
+    vehicle_type = models.CharField(max_length=50)
+    make = models.CharField(max_length=50)
+    model = models.CharField(max_length=50)
+    year_model = models.IntegerField()
     color = models.CharField(max_length=50)
-    classification = models.CharField(max_length=20, choices=[
-        ('Private', 'Private'),
-        ('Public', 'Public'),
-        ('Government', 'Government'),
-        ('Commercial', 'Commercial')
-    ])
+    classification = models.CharField(max_length=50)
     registration_date = models.DateField()
     expiry_date = models.DateField()
-    or_cr_image = models.ImageField(upload_to='or_cr_images/')
-    capacity = models.PositiveIntegerField(default=4)  # Default to 4 passengers
     is_active = models.BooleanField(default=True)
+    or_cr_image = models.ImageField(upload_to='vehicle_documents/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
+    
     def __str__(self):
-        return f"{self.plate_number} - {self.vehicle_type}"
-
-    class Meta:
-        ordering = ['-created_at']
+        return f"{self.plate_number} - {self.make} {self.model}"
+        
+    def is_expired(self):
+        """Check if vehicle registration is expired based on current date"""
+        return self.expiry_date < timezone.now().date()
+    
+    @property
+    def should_be_active(self):
+        """Determine if vehicle should be active based on expiry date"""
+        return not self.is_expired()
+    
+    def update_active_status(self):
+        """Update the is_active status based on whether the vehicle is expired"""
+        should_be_active = self.should_be_active
+        if self.is_active != should_be_active:
+            self.is_active = should_be_active
+            self.save(update_fields=['is_active', 'updated_at'])
+            return True
+        return False
 
 
 class OperatorViolationLookup(models.Model):

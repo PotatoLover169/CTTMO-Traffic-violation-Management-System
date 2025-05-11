@@ -520,6 +520,7 @@ class ActivityLog(models.Model):
         ('user', 'User'),
         ('payment', 'Payment'),
         ('system', 'System'),
+        ('education', 'Education'),
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)

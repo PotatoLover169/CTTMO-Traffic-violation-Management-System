@@ -4474,8 +4474,8 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('reCAPTCHA validation script loaded');
             
-            // Get all forms marked as protected (requiring reCAPTCHA)
-            const protectedForms = document.querySelectorAll('form[data-protected="true"]');
+            // Get all forms marked as protected (requiring reCAPTCHA), excluding those with data-novalidate-recaptcha
+            const protectedForms = document.querySelectorAll('form[data-protected="true"]:not([data-novalidate-recaptcha])');
             console.log('Protected forms found:', protectedForms.length);
             
             // For each protected form, add a submit event handler
@@ -4492,6 +4492,12 @@
                 };
                 
                 form.addEventListener('submit', function(e) {
+                    // Skip validation for forms with data-novalidate-recaptcha attribute
+                    if (form.hasAttribute('data-novalidate-recaptcha')) {
+                        console.log('reCAPTCHA validation skipped - allowing submission');
+                        return true;
+                    }
+                    
                     console.log('Form submit event triggered');
                     if (!validateRecaptcha(form)) {
                         console.log('reCAPTCHA validation failed - preventing submission');
@@ -4590,6 +4596,23 @@
                     });
                 };
             }
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Skip recaptcha initialization for forms with data-novalidate-recaptcha attribute
+            const forms = document.querySelectorAll('form:not([data-novalidate-recaptcha])');
+            
+            forms.forEach(function(form) {
+                // Only proceed with protected forms
+                if (!form.classList.contains('protect-form') && !form.hasAttribute('data-protected')) {
+                    return;
+                }
+                
+                // Rest of recaptcha initialization
+                // ... existing code ...
+            });
         });
     </script>
 </body>

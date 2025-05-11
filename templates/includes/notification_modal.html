@@ -450,6 +450,25 @@
         script.src = 'https://unpkg.com/micromodal/dist/micromodal.min.js';
         script.onload = function() {
             console.log('MicroModal loaded dynamically');
+            initializeNotificationSystem();
+        };
+        document.head.appendChild(script);
+    } else {
+        console.log('MicroModal already loaded');
+        // Make sure we initialize the notification system after the DOM is fully loaded
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            setTimeout(initializeNotificationSystem, 1);
+        } else {
+            document.addEventListener('DOMContentLoaded', function() {
+                initializeNotificationSystem();
+            });
+        }
+    }
+    
+    function initializeNotificationSystem() {
+        console.log('Initializing notification system');
+        
+        // Initialize MicroModal with specific settings
             MicroModal.init({
                 openTrigger: 'data-micromodal-trigger',
                 closeTrigger: 'data-micromodal-close',
@@ -457,11 +476,296 @@
                 disableScroll: true,
                 awaitOpenAnimation: true,
                 awaitCloseAnimation: true,
-                debugMode: false
+            onShow: function(modal) {
+                console.log('Modal shown:', modal.id);
+                // If the modal is the notification detail, we need to make sure it's properly initialized
+                if (modal.id === 'modal-notification-detail') {
+                    const activeItem = document.querySelector('.notification-trigger[aria-expanded="true"]');
+                    if (activeItem) {
+                        const notificationId = activeItem.getAttribute('data-notification-id');
+                        if (notificationId) {
+                            console.log('Loading content for notification ID from active item:', notificationId);
+                            loadNotificationContent(notificationId);
+                        }
+                    }
+                }
+            },
+            onClose: function(modal) {
+                console.log('Modal closed:', modal.id);
+            }
+        });
+        
+        // Setup notification click handlers
+        const notificationTriggers = document.querySelectorAll('.notification-trigger');
+        console.log('Found notification triggers:', notificationTriggers.length);
+        
+        notificationTriggers.forEach(trigger => {
+            trigger.addEventListener('click', function(event) {
+                event.preventDefault();
+                
+                // Get the notification ID from the clicked element
+                const notificationId = this.getAttribute('data-notification-id');
+                console.log('Notification trigger clicked with ID:', notificationId);
+                
+                if (notificationId) {
+                    // Set this notification ID as the current one
+                    document.getElementById('modal-notification-detail')
+                        .setAttribute('data-current-notification-id', notificationId);
+                    
+                    // Show the modal
+                    MicroModal.show('modal-notification-detail', {
+                        onShow: function() {
+                            // Load the notification content
+                            loadNotificationContent(notificationId);
+                        }
+                    });
+                } else {
+                    console.error('No notification ID found on trigger element', this);
+                }
             });
-        };
-        document.head.appendChild(script);
+        });
+        
+        // Setup mark as read button
+        const markReadBtn = document.querySelector('.mark-read-btn');
+        if (markReadBtn) {
+            markReadBtn.addEventListener('click', function() {
+                // Get notification ID from the modal
+                const modal = document.getElementById('modal-notification-detail');
+                const notificationId = modal.getAttribute('data-current-notification-id') || 
+                                     this.getAttribute('data-notification-id');
+                
+                if (notificationId) {
+                    markNotificationAsRead(notificationId);
+                } else {
+                    console.error('No notification ID found for marking as read');
+                }
+            });
+        }
+        
+        // Setup read more toggle
+        const readMoreToggle = document.querySelector('.read-more-toggle');
+        if (readMoreToggle) {
+            readMoreToggle.addEventListener('click', function() {
+                const content = document.querySelector('.announcement-content');
+                if (content.classList.contains('expanded')) {
+                    content.classList.remove('expanded');
+                    this.classList.remove('expanded');
+                    this.innerHTML = 'Read More <span class="material-icons" style="font-size: 1rem;">expand_more</span>';
+                } else {
+                    content.classList.add('expanded');
+                    this.classList.add('expanded');
+                    this.innerHTML = 'Read Less <span class="material-icons" style="font-size: 1rem;">expand_less</span>';
+                }
+            });
+        }
+    }
+    
+    // Function to load notification content
+    function loadNotificationContent(notificationId) {
+        console.log('Loading notification content for ID:', notificationId);
+        
+        // Show loading state
+        document.getElementById('notification-loading').style.display = 'block';
+        document.getElementById('notification-content').style.display = 'none';
+        document.getElementById('notification-error').classList.add('d-none');
+        
+        // Update mark as read button with notification ID
+        const markReadBtn = document.querySelector('.mark-read-btn');
+        if (markReadBtn) {
+            markReadBtn.setAttribute('data-notification-id', notificationId);
+        }
+        
+        // Store current notification ID in the modal
+        document.getElementById('modal-notification-detail')
+            .setAttribute('data-current-notification-id', notificationId);
+        
+        // Fetch notification details
+        fetch(`/api/notifications/${notificationId}/`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Notification data received:', data);
+                displayNotificationContent(data);
+            })
+            .catch(error => {
+                console.error('Error fetching notification:', error);
+                document.getElementById('notification-loading').style.display = 'none';
+                document.getElementById('notification-error').classList.remove('d-none');
+                document.querySelector('.error-message').textContent = 
+                    `Error loading notification details: ${error.message}. Please try again.`;
+            });
+    }
+    
+    // Function to display notification content
+    function displayNotificationContent(data) {
+        console.log('Displaying notification data:', data);
+        
+        // Update title and icon
+        document.querySelector('.notification-title').textContent = data.type_display || 'System Notification';
+        
+        // Update type icon
+        const typeIcon = document.querySelector('.notification-type-icon');
+        if (typeIcon) {
+            typeIcon.textContent = data.icon || 'notifications';
+            
+            // Remove all type classes
+            typeIcon.classList.remove('VIOLATION', 'PAYMENT', 'STATUS', 'SYSTEM');
+            
+            // Add current type class
+            if (data.type) {
+                typeIcon.classList.add(data.type);
+            }
+        }
+        
+        // Update message
+        const messageElement = document.querySelector('.notification-message');
+        if (messageElement) {
+            messageElement.innerHTML = data.message || 'No message content';
+        }
+        
+        // Update time
+        const timeElement = document.querySelector('.notification-time');
+        if (timeElement) {
+            timeElement.textContent = data.created_at_formatted || 'Unknown time';
+        }
+        
+        // Update status
+        const statusElement = document.querySelector('.notification-status');
+        if (statusElement) {
+            if (data.is_read) {
+                statusElement.innerHTML = '<span class="text-success">Read</span>';
+                const markReadBtn = document.querySelector('.mark-read-btn');
+                if (markReadBtn) {
+                    markReadBtn.style.display = 'none';
+                }
+            } else {
+                statusElement.innerHTML = '<span class="text-primary">Unread</span>';
+                const markReadBtn = document.querySelector('.mark-read-btn');
+                if (markReadBtn) {
+                    markReadBtn.style.display = 'block';
+                }
+            }
+        }
+        
+        // Handle announcement content if available
+        const announcementContainer = document.querySelector('.announcement-header-container');
+        const announcementContentContainer = document.querySelector('.announcement-content-container');
+        
+        if (data.announcement_title && data.announcement_content) {
+            // Show announcement sections
+            if (announcementContainer) announcementContainer.style.display = 'block';
+            if (announcementContentContainer) announcementContentContainer.style.display = 'block';
+            
+            // Update announcement title and content
+            const titleEl = document.querySelector('.announcement-title-text');
+            if (titleEl) titleEl.textContent = data.announcement_title;
+            
+            const contentEl = document.querySelector('.announcement-content');
+            if (contentEl) contentEl.innerHTML = data.announcement_content;
+            
+            // Handle read more for long content
+            const readMoreContainer = document.querySelector('.read-more-container');
+            if (contentEl && readMoreContainer) {
+                if (contentEl.scrollHeight > 200) {
+                    readMoreContainer.style.display = 'block';
+                } else {
+                    readMoreContainer.style.display = 'none';
+                }
+            }
+        } else {
+            // Hide announcement sections
+            if (announcementContainer) announcementContainer.style.display = 'none';
+            if (announcementContentContainer) announcementContentContainer.style.display = 'none';
+        }
+        
+        // Hide loading and show content
+        document.getElementById('notification-loading').style.display = 'none';
+        document.getElementById('notification-content').style.display = 'block';
+    }
+    
+    // Function to mark notification as read
+    function markNotificationAsRead(notificationId) {
+        console.log('Marking notification as read:', notificationId);
+        
+        fetch(`/api/notifications/${notificationId}/mark-read/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Mark as read response:', data);
+            if (data.success) {
+                // Update UI to show notification as read
+                const statusElement = document.querySelector('.notification-status');
+                if (statusElement) {
+                    statusElement.innerHTML = '<span class="text-success">Read</span>';
+                }
+                
+                const markReadBtn = document.querySelector('.mark-read-btn');
+                if (markReadBtn) {
+                    markReadBtn.style.display = 'none';
+                }
+                
+                // Update notification counter
+                updateNotificationCounter();
+                
+                // Update the notification item in the list to show as read
+                const notificationItem = document.querySelector(`.notification-item[data-notification-id="${notificationId}"]`);
+                if (notificationItem) {
+                    notificationItem.classList.remove('unread');
+                }
+                
+                // Close modal after a short delay
+                setTimeout(() => {
+                    MicroModal.close('modal-notification-detail');
+                }, 500);
     } else {
-        console.log('MicroModal already loaded');
+                throw new Error(data.message || 'Failed to mark notification as read');
+            }
+        })
+        .catch(error => {
+            console.error('Error marking notification as read:', error);
+            alert('Error marking notification as read: ' + error.message);
+        });
+    }
+    
+    // Function to get CSRF token
+    function getCsrfToken() {
+        const cookieValue = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('csrftoken='))
+            ?.split('=')[1];
+        
+        return cookieValue || '';
+    }
+    
+    // Function to update notification counter
+    function updateNotificationCounter() {
+        // Update notification badge count in the header
+        const badgeCountElements = document.querySelectorAll('.badge-count');
+        badgeCountElements.forEach(badge => {
+            const count = parseInt(badge.textContent);
+            if (!isNaN(count) && count > 0) {
+                const newCount = count - 1;
+                badge.textContent = newCount;
+                
+                // Hide badge if count is zero
+                if (newCount === 0) {
+                    badge.style.display = 'none';
+                }
+            }
+        });
     }
 </script> 

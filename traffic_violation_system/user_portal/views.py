@@ -555,6 +555,11 @@ def delete_account(request):
 @login_required
 def vehicle_list(request):
     vehicles = VehicleRegistration.objects.filter(user=request.user)
+    
+    # Update active status based on expiry date for each vehicle
+    for vehicle in vehicles:
+        vehicle.update_active_status()
+    
     return render(request, 'user_portal/vehicles.html', {'vehicles': vehicles})
 
 @login_required
@@ -747,6 +752,10 @@ def register_vehicle(request):
 @login_required
 def vehicle_detail(request, vehicle_id):
     vehicle = get_object_or_404(VehicleRegistration, id=vehicle_id, user=request.user)
+    
+    # Update active status based on expiry date
+    vehicle.update_active_status()
+    
     response_data = {
         'id': vehicle.id,
         'or_number': vehicle.or_number,
@@ -760,7 +769,9 @@ def vehicle_detail(request, vehicle_id):
         'classification': vehicle.classification,
         'registration_date': vehicle.registration_date.strftime('%Y-%m-%d'),
         'expiry_date': vehicle.expiry_date.strftime('%Y-%m-%d'),
-        'or_cr_image_url': vehicle.or_cr_image.url if vehicle.or_cr_image else None
+        'or_cr_image_url': vehicle.or_cr_image.url if vehicle.or_cr_image else None,
+        'is_active': vehicle.is_active,
+        'is_expired': vehicle.is_expired()
     }
     
     # Add capacity if available
@@ -770,6 +781,90 @@ def vehicle_detail(request, vehicle_id):
         response_data['capacity'] = 4  # Default capacity
         
     return JsonResponse(response_data)
+
+@login_required
+def update_vehicle(request, vehicle_id):
+    """
+    View function to handle vehicle updates via AJAX.
+    Takes a POST request with vehicle details and updates the specified vehicle
+    if it belongs to the current user.
+    """
+    # Ensure the request method is POST and is an AJAX request
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
+    
+    # Get the vehicle (only if it belongs to the current user)
+    try:
+        vehicle = get_object_or_404(VehicleRegistration, id=vehicle_id, user=request.user)
+        
+        # Update vehicle fields from form data
+        if 'plate_number' in request.POST:
+            vehicle.plate_number = request.POST.get('plate_number')
+        
+        if 'vehicle_type' in request.POST:
+            vehicle.vehicle_type = request.POST.get('vehicle_type')
+        
+        if 'make' in request.POST:
+            vehicle.make = request.POST.get('make')
+        
+        if 'model' in request.POST:
+            vehicle.model = request.POST.get('model')
+        
+        if 'year_model' in request.POST:
+            vehicle.year_model = request.POST.get('year_model')
+        
+        if 'color' in request.POST:
+            vehicle.color = request.POST.get('color')
+        
+        if 'classification' in request.POST:
+            vehicle.classification = request.POST.get('classification')
+        
+        if 'or_number' in request.POST:
+            vehicle.or_number = request.POST.get('or_number')
+        
+        if 'cr_number' in request.POST:
+            vehicle.cr_number = request.POST.get('cr_number')
+        
+        # Handle expiry date
+        if 'expiry_date' in request.POST and request.POST.get('expiry_date'):
+            vehicle.expiry_date = request.POST.get('expiry_date')
+        
+        # Save the updated vehicle
+        vehicle.save()
+        
+        # Update active status based on expiry date
+        vehicle.update_active_status()
+        
+        # Return success response
+        return JsonResponse({
+            'success': True,
+            'message': 'Vehicle updated successfully',
+            'vehicle': {
+                'id': vehicle.id,
+                'plate_number': vehicle.plate_number,
+                'vehicle_type': vehicle.vehicle_type,
+                'make': vehicle.make,
+                'model': vehicle.model,
+                'year_model': vehicle.year_model,
+                'color': vehicle.color,
+                'classification': vehicle.classification,
+                'or_number': vehicle.or_number,
+                'cr_number': vehicle.cr_number,
+                'expiry_date': vehicle.expiry_date.strftime('%B %d, %Y') if vehicle.expiry_date else None,
+                'is_active': vehicle.is_active,
+                'is_expired': vehicle.is_expired()
+            }
+        })
+    
+    except Exception as e:
+        # Log the error (you can use Django's logging framework)
+        print(f"Error updating vehicle: {str(e)}")
+        
+        # Return error response
+        return JsonResponse({
+            'success': False,
+            'error': str(e) if str(e) else 'An error occurred while updating the vehicle'
+        }, status=500)
 
 @user_passes_test(lambda u: u.is_staff)
 def user_management(request):

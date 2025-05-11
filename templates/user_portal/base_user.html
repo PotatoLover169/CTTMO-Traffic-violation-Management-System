@@ -51,6 +51,11 @@
             font-family: var(--font-primary);
             font-weight: 500;
         }
+
+        /* Fix for SweetAlert appearing behind mobile popups */
+        .swal2-container {
+            z-index: 9999 !important; /* Higher than mobile-menu-popups (2000) */
+        }
     </style>
     
     <style>
@@ -1580,6 +1585,13 @@
                     
                     // Determine which form to submit
                     const form = this.closest('form');
+                    
+                    // Close any open mobile popups first
+                    const mobilePopups = document.querySelectorAll('.mobile-menu-popups.show');
+                    mobilePopups.forEach(popup => {
+                        popup.classList.remove('show');
+                        document.body.style.overflow = '';
+                    });
                     
                     if (typeof Swal !== 'undefined') {
                         Swal.fire({
@@ -3283,6 +3295,203 @@
 
     // Make the function available globally
     window.openNotificationDetailModal = openNotificationDetailModal;
+    </script>
+
+    <!-- Fix for notification modal issue -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Initializing notification modal fix...');
+            
+            // Add notification-trigger class and micromodal-trigger attribute to all notification items
+            const notificationItems = document.querySelectorAll('.notification-item');
+            console.log('Found notification items:', notificationItems.length);
+            
+            notificationItems.forEach(item => {
+                // Add notification-trigger class if not already present
+                if (!item.classList.contains('notification-trigger')) {
+                    item.classList.add('notification-trigger');
+                }
+                
+                // Add micromodal-trigger attribute if not already present
+                if (!item.hasAttribute('data-micromodal-trigger')) {
+                    item.setAttribute('data-micromodal-trigger', 'modal-notification-detail');
+                }
+            });
+            
+            // Override notification item click handler for mobile and desktop
+            document.querySelectorAll('.notification-item').forEach(item => {
+                // Remove existing click event listeners using cloneNode
+                const newItem = item.cloneNode(true);
+                item.parentNode.replaceChild(newItem, item);
+                
+                // Add new click event listener
+                newItem.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const notificationId = this.getAttribute('data-notification-id');
+                    console.log('Notification clicked:', notificationId);
+                    
+                    if (!notificationId) {
+                        console.error('Missing notification ID');
+                        return;
+                    }
+                    
+                    // Close mobile menu if open
+                    const mobileMenu = document.querySelector('.mobile-menu-popups.show');
+                    if (mobileMenu) {
+                        mobileMenu.classList.remove('show');
+                        document.body.style.overflow = '';
+                    }
+                    
+                    // Show notification modal using MicroModal
+                    if (typeof MicroModal !== 'undefined') {
+                        MicroModal.show('modal-notification-detail', {
+                            onShow: function(modal) {
+                                // Set current notification ID on modal
+                                modal.setAttribute('data-current-notification-id', notificationId);
+                                
+                                // Load notification content via AJAX
+                                fetch(`/api/notifications/${notificationId}/`)
+                                    .then(response => {
+                                        if (!response.ok) {
+                                            throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
+                                        }
+                                        return response.json();
+                                    })
+                                    .then(data => {
+                                        console.log('Notification data received:', data);
+                                        
+                                        // Update title and icon
+                                        document.querySelector('.notification-title').textContent = 
+                                            data.type_display || 'System Notification';
+                                        
+                                        // Update message
+                                        const messageElement = document.querySelector('.notification-message');
+                                        if (messageElement) {
+                                            messageElement.innerHTML = data.message || 'No message content';
+                                        }
+                                        
+                                        // Update time
+                                        const timeElement = document.querySelector('.notification-time');
+                                        if (timeElement) {
+                                            timeElement.textContent = data.created_at_formatted || 'Unknown time';
+                                        }
+                                        
+                                        // Update status
+                                        const statusElement = document.querySelector('.notification-status');
+                                        if (statusElement) {
+                                            if (data.is_read) {
+                                                statusElement.innerHTML = '<span class="text-success">Read</span>';
+                                                document.querySelector('.mark-read-btn').style.display = 'none';
+                                            } else {
+                                                statusElement.innerHTML = '<span class="text-primary">Unread</span>';
+                                                document.querySelector('.mark-read-btn').style.display = 'block';
+                                            }
+                                        }
+                                        
+                                        // Hide loading and show content
+                                        document.getElementById('notification-loading').style.display = 'none';
+                                        document.getElementById('notification-content').style.display = 'block';
+                                    })
+                                    .catch(error => {
+                                        console.error('Error fetching notification:', error);
+                                        document.getElementById('notification-loading').style.display = 'none';
+                                        document.getElementById('notification-error').classList.remove('d-none');
+                                        document.querySelector('.error-message').textContent = 
+                                            `Error loading notification details: ${error.message}. Please try again.`;
+                                    });
+                            }
+                        });
+                    } else {
+                        console.error('MicroModal not loaded');
+                        // Fallback: redirect to notifications page
+                        window.location.href = '/notifications/';
+                    }
+                });
+            });
+            
+            // Setup mark as read button
+            const markReadBtn = document.querySelector('.mark-read-btn');
+            if (markReadBtn) {
+                // Remove existing click handlers
+                const newBtn = markReadBtn.cloneNode(true);
+                markReadBtn.parentNode.replaceChild(newBtn, markReadBtn);
+                
+                newBtn.addEventListener('click', function() {
+                    // Get notification ID from the modal
+                    const modal = document.getElementById('modal-notification-detail');
+                    const notificationId = modal.getAttribute('data-current-notification-id');
+                    
+                    if (notificationId) {
+                        // Mark notification as read
+                        fetch(`/api/notifications/${notificationId}/mark-read/`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': getCookie('csrftoken')
+                            }
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                // Update UI to show notification as read
+                                document.querySelector('.notification-status').innerHTML = 
+                                    '<span class="text-success">Read</span>';
+                                document.querySelector('.mark-read-btn').style.display = 'none';
+                                
+                                // Update notification counter
+                                const badgeCountElements = document.querySelectorAll('.badge-count');
+                                badgeCountElements.forEach(badge => {
+                                    const count = parseInt(badge.textContent);
+                                    if (!isNaN(count) && count > 0) {
+                                        const newCount = count - 1;
+                                        badge.textContent = newCount;
+                                        
+                                        // Hide badge if count is zero
+                                        if (newCount === 0) {
+                                            badge.style.display = 'none';
+                                        }
+                                    }
+                                });
+                                
+                                // Close modal after a short delay
+                                setTimeout(() => {
+                                    MicroModal.close('modal-notification-detail');
+                                }, 500);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error marking notification as read:', error);
+                            alert('Error marking notification as read: ' + error.message);
+                        });
+                    } else {
+                        console.error('No notification ID found for marking as read');
+                    }
+                });
+            }
+            
+            // Helper function to get cookies
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+        });
     </script>
 
 </body>
