@@ -39,6 +39,27 @@
             </div>
         </div>
     </div>
+    
+    <!-- Signature Refusal Information (Only displayed when signature was refused) -->
+    {% if violation.signature_refused %}
+    <div class="card shadow mt-4">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-exclamation-triangle me-2"></i>Signature Refused
+            </h5>
+        </div>
+        <div class="card-body">
+            <h6 class="font-weight-bold">Reason for Refusal:</h6>
+            <div class="p-3 bg-light rounded">
+                {{ violation.refusal_note|default:"No reason provided"|linebreaks }}
+            </div>
+            <small class="text-muted mt-2 d-block">
+                <i class="fas fa-info-circle me-1"></i>
+                The violator refused to sign the violation ticket.
+            </small>
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}
 

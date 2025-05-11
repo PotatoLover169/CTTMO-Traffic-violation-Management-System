@@ -911,20 +911,7 @@ def issue_ticket(request):
             # Initialize signature_data as None
             signature_data = None
 
-            
-            # Handle signature refusal if applicable
-            signature_refused = request.POST.get('signature_refused') == 'true'
-            if signature_refused:
-                violation.signature_refused = True
-                violation.refusal_note = request.POST.get('refusal_note', '')
-                print(f"Violator refused to sign: {violation.refusal_note}")
-                signature_data = None
-                violation.save()
-            else:
-                # Initialize signature_data as None
-                signature_data = None
-
-                # Handle signature if provided
+            # Handle signature if provided
             signature_input = request.POST.get('signature_data')
             if signature_input:
                 try:
@@ -990,8 +977,6 @@ def issue_ticket(request):
                 'is_tdz_violation': violation.is_tdz_violation,
                 'violation_date': violation.violation_date.strftime('%Y-%m-%d %H:%M:%S'),
                 'signature_data': signature_data,
-                'signature_refused': violation.signature_refused,
-                'refusal_note': violation.refusal_note or '',
                 'enforcer_name': request.user.get_full_name(),
                 'enforcer_id': request.user.userprofile.enforcer_id
             }
@@ -2694,20 +2679,7 @@ def issue_ticket(request):
             # Initialize signature_data as None
             signature_data = None
 
-            
-            # Handle signature refusal if applicable
-            signature_refused = request.POST.get('signature_refused') == 'true'
-            if signature_refused:
-                violation.signature_refused = True
-                violation.refusal_note = request.POST.get('refusal_note', '')
-                print(f"Violator refused to sign: {violation.refusal_note}")
-                signature_data = None
-                violation.save()
-            else:
-                # Initialize signature_data as None
-                signature_data = None
-
-                # Handle signature if provided
+            # Handle signature if provided
             signature_input = request.POST.get('signature_data')
             if signature_input:
                 try:
@@ -2773,8 +2745,6 @@ def issue_ticket(request):
                 'is_tdz_violation': violation.is_tdz_violation,
                 'violation_date': violation.violation_date.strftime('%Y-%m-%d %H:%M:%S'),
                 'signature_data': signature_data,
-                'signature_refused': violation.signature_refused,
-                'refusal_note': violation.refusal_note or '',
                 'enforcer_name': request.user.get_full_name(),
                 'enforcer_id': request.user.userprofile.enforcer_id
             }
@@ -4622,20 +4592,7 @@ def issue_ticket(request):
             # Initialize signature_data as None
             signature_data = None
 
-            
-            # Handle signature refusal if applicable
-            signature_refused = request.POST.get('signature_refused') == 'true'
-            if signature_refused:
-                violation.signature_refused = True
-                violation.refusal_note = request.POST.get('refusal_note', '')
-                print(f"Violator refused to sign: {violation.refusal_note}")
-                signature_data = None
-                violation.save()
-            else:
-                # Initialize signature_data as None
-                signature_data = None
-
-                # Handle signature if provided
+            # Handle signature if provided
             signature_input = request.POST.get('signature_data')
             if signature_input:
                 try:
@@ -4701,8 +4658,6 @@ def issue_ticket(request):
                 'is_tdz_violation': violation.is_tdz_violation,
                 'violation_date': violation.violation_date.strftime('%Y-%m-%d %H:%M:%S'),
                 'signature_data': signature_data,
-                'signature_refused': violation.signature_refused,
-                'refusal_note': violation.refusal_note or '',
                 'enforcer_name': request.user.get_full_name(),
                 'enforcer_id': request.user.userprofile.enforcer_id
             }
@@ -6405,20 +6360,7 @@ def issue_ticket(request):
             # Initialize signature_data as None
             signature_data = None
 
-            
-            # Handle signature refusal if applicable
-            signature_refused = request.POST.get('signature_refused') == 'true'
-            if signature_refused:
-                violation.signature_refused = True
-                violation.refusal_note = request.POST.get('refusal_note', '')
-                print(f"Violator refused to sign: {violation.refusal_note}")
-                signature_data = None
-                violation.save()
-            else:
-                # Initialize signature_data as None
-                signature_data = None
-
-                # Handle signature if provided
+            # Handle signature if provided
             signature_input = request.POST.get('signature_data')
             if signature_input:
                 try:
@@ -6484,8 +6426,6 @@ def issue_ticket(request):
                 'is_tdz_violation': violation.is_tdz_violation,
                 'violation_date': violation.violation_date.strftime('%Y-%m-%d %H:%M:%S'),
                 'signature_data': signature_data,
-                'signature_refused': violation.signature_refused,
-                'refusal_note': violation.refusal_note or '',
                 'enforcer_name': request.user.get_full_name(),
                 'enforcer_id': request.user.userprofile.enforcer_id
             }
@@ -7971,20 +7911,7 @@ def issue_ticket(request):
             # Initialize signature_data as None
             signature_data = None
 
-            
-            # Handle signature refusal if applicable
-            signature_refused = request.POST.get('signature_refused') == 'true'
-            if signature_refused:
-                violation.signature_refused = True
-                violation.refusal_note = request.POST.get('refusal_note', '')
-                print(f"Violator refused to sign: {violation.refusal_note}")
-                signature_data = None
-                violation.save()
-            else:
-                # Initialize signature_data as None
-                signature_data = None
-
-                # Handle signature if provided
+            # Handle signature if provided
             signature_input = request.POST.get('signature_data')
             if signature_input:
                 try:
@@ -8050,8 +7977,6 @@ def issue_ticket(request):
                 'is_tdz_violation': violation.is_tdz_violation,
                 'violation_date': violation.violation_date.strftime('%Y-%m-%d %H:%M:%S'),
                 'signature_data': signature_data,
-                'signature_refused': violation.signature_refused,
-                'refusal_note': violation.refusal_note or '',
                 'enforcer_name': request.user.get_full_name(),
                 'enforcer_id': request.user.userprofile.enforcer_id
             }
@@ -9854,20 +9779,7 @@ def issue_ticket(request):
             # Initialize signature_data as None
             signature_data = None
 
-            
-            # Handle signature refusal if applicable
-            signature_refused = request.POST.get('signature_refused') == 'true'
-            if signature_refused:
-                violation.signature_refused = True
-                violation.refusal_note = request.POST.get('refusal_note', '')
-                print(f"Violator refused to sign: {violation.refusal_note}")
-                signature_data = None
-                violation.save()
-            else:
-                # Initialize signature_data as None
-                signature_data = None
-
-                # Handle signature if provided
+            # Handle signature if provided
             signature_input = request.POST.get('signature_data')
             if signature_input:
                 try:
@@ -9933,8 +9845,6 @@ def issue_ticket(request):
                 'is_tdz_violation': violation.is_tdz_violation,
                 'violation_date': violation.violation_date.strftime('%Y-%m-%d %H:%M:%S'),
                 'signature_data': signature_data,
-                'signature_refused': violation.signature_refused,
-                'refusal_note': violation.refusal_note or '',
                 'enforcer_name': request.user.get_full_name(),
                 'enforcer_id': request.user.userprofile.enforcer_id
             }
@@ -11040,20 +10950,7 @@ def issue_ticket(request):
             # Initialize signature_data as None
             signature_data = None
 
-            
-            # Handle signature refusal if applicable
-            signature_refused = request.POST.get('signature_refused') == 'true'
-            if signature_refused:
-                violation.signature_refused = True
-                violation.refusal_note = request.POST.get('refusal_note', '')
-                print(f"Violator refused to sign: {violation.refusal_note}")
-                signature_data = None
-                violation.save()
-            else:
-                # Initialize signature_data as None
-                signature_data = None
-
-                # Handle signature if provided
+            # Handle signature if provided
             signature_input = request.POST.get('signature_data')
             if signature_input:
                 try:
@@ -11119,8 +11016,6 @@ def issue_ticket(request):
                 'is_tdz_violation': violation.is_tdz_violation,
                 'violation_date': violation.violation_date.strftime('%Y-%m-%d %H:%M:%S'),
                 'signature_data': signature_data,
-                'signature_refused': violation.signature_refused,
-                'refusal_note': violation.refusal_note or '',
                 'enforcer_name': request.user.get_full_name(),
                 'enforcer_id': request.user.userprofile.enforcer_id
             }
@@ -12606,20 +12501,7 @@ def issue_ticket(request):
             # Initialize signature_data as None
             signature_data = None
 
-            
-            # Handle signature refusal if applicable
-            signature_refused = request.POST.get('signature_refused') == 'true'
-            if signature_refused:
-                violation.signature_refused = True
-                violation.refusal_note = request.POST.get('refusal_note', '')
-                print(f"Violator refused to sign: {violation.refusal_note}")
-                signature_data = None
-                violation.save()
-            else:
-                # Initialize signature_data as None
-                signature_data = None
-
-                # Handle signature if provided
+            # Handle signature if provided
             signature_input = request.POST.get('signature_data')
             if signature_input:
                 try:
@@ -12685,8 +12567,6 @@ def issue_ticket(request):
                 'is_tdz_violation': violation.is_tdz_violation,
                 'violation_date': violation.violation_date.strftime('%Y-%m-%d %H:%M:%S'),
                 'signature_data': signature_data,
-                'signature_refused': violation.signature_refused,
-                'refusal_note': violation.refusal_note or '',
                 'enforcer_name': request.user.get_full_name(),
                 'enforcer_id': request.user.userprofile.enforcer_id
             }
@@ -14489,20 +14369,7 @@ def issue_ticket(request):
             # Initialize signature_data as None
             signature_data = None
 
-            
-            # Handle signature refusal if applicable
-            signature_refused = request.POST.get('signature_refused') == 'true'
-            if signature_refused:
-                violation.signature_refused = True
-                violation.refusal_note = request.POST.get('refusal_note', '')
-                print(f"Violator refused to sign: {violation.refusal_note}")
-                signature_data = None
-                violation.save()
-            else:
-                # Initialize signature_data as None
-                signature_data = None
-
-                # Handle signature if provided
+            # Handle signature if provided
             signature_input = request.POST.get('signature_data')
             if signature_input:
                 try:
@@ -14568,8 +14435,6 @@ def issue_ticket(request):
                 'is_tdz_violation': violation.is_tdz_violation,
                 'violation_date': violation.violation_date.strftime('%Y-%m-%d %H:%M:%S'),
                 'signature_data': signature_data,
-                'signature_refused': violation.signature_refused,
-                'refusal_note': violation.refusal_note or '',
                 'enforcer_name': request.user.get_full_name(),
                 'enforcer_id': request.user.userprofile.enforcer_id
             }

@@ -225,6 +225,28 @@
                         </div>
                     </div>
                     {% endif %}
+                    
+                    {% if violation.signature_refused %}
+                    <!-- Signature Refusal Card -->
+                    <div class="info-card signature-refusal-card">
+                        <div class="info-header bg-warning text-dark">
+                            <span class="material-icons">warning</span>
+                            <h6>Signature Refused</h6>
+                        </div>
+                        <div class="info-content">
+                            <div class="info-group">
+                                <label>Reason for Refusal</label>
+                                <div class="info-value p-2 bg-light rounded">
+                                    {{ violation.refusal_note|default:"No reason provided"|linebreaks }}
+                                </div>
+                            </div>
+                            <div class="text-muted small mt-2">
+                                <span class="material-icons small align-middle me-1">info</span>
+                                The violator refused to sign the violation ticket.
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
 
