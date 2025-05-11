@@ -9,7 +9,8 @@
 
 // Configuration
 const RECAPTCHA_CONFIG = {
-    siteKey: '6LdPGjUrAAAAAIwQo_5ZnIW_lSEWqB16xK3lm5PG',
+    // Get site key from meta tag with no fallback - we want to fail clearly if not set
+    siteKey: document.querySelector('meta[name="recaptcha-site-key"]')?.content || '',
     theme: 'light',
     size: 'normal',
     // Forms to protect with reCAPTCHA (selector patterns)

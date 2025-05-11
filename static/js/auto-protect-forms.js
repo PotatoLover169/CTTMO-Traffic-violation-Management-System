@@ -219,25 +219,42 @@ document.addEventListener('DOMContentLoaded', function() {
             const recaptchaDiv = document.createElement('div');
             recaptchaDiv.className = 'g-recaptcha';
             
-            // Get site key from data attribute or use default
+            // Get site key from meta tag without fallback
             const siteKeyMeta = document.querySelector('meta[name="recaptcha-site-key"]');
-            const siteKey = siteKeyMeta ? siteKeyMeta.getAttribute('content') : '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'; // Test key as fallback
+            const siteKey = siteKeyMeta ? siteKeyMeta.getAttribute('content') : '';
             
-            console.log('Using reCAPTCHA site key:', siteKey);
+            // Log site key (but don't show the full key for security)
+            if (siteKey) {
+                const maskedKey = siteKey.substring(0, 8) + '...' + siteKey.substring(siteKey.length - 4);
+                console.log('Using reCAPTCHA site key:', maskedKey);
+            } else {
+                console.error('No reCAPTCHA site key found in meta tags. reCAPTCHA will not work.');
+            }
             
-            // Set reCAPTCHA attributes
-            recaptchaDiv.setAttribute('data-sitekey', siteKey);
-            recaptchaDiv.setAttribute('data-callback', 'onRecaptchaSuccess');
-            recaptchaDiv.setAttribute('data-expired-callback', 'onRecaptchaExpired');
-            recaptchaDiv.setAttribute('data-error-callback', 'onRecaptchaError');
-            
-            // Create message container for errors
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'recaptcha-message text-danger mt-1';
-            
-            // Append elements
-            recaptchaContainer.appendChild(recaptchaDiv);
-            recaptchaContainer.appendChild(messageDiv);
+            // Only add reCAPTCHA if we have a site key
+            if (siteKey) {
+                // Set reCAPTCHA attributes
+                recaptchaDiv.setAttribute('data-sitekey', siteKey);
+                recaptchaDiv.setAttribute('data-callback', 'onRecaptchaSuccess');
+                recaptchaDiv.setAttribute('data-expired-callback', 'onRecaptchaExpired');
+                recaptchaDiv.setAttribute('data-error-callback', 'onRecaptchaError');
+                
+                // Create message container for errors
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'recaptcha-message text-danger mt-1';
+                
+                // Append elements
+                recaptchaContainer.appendChild(recaptchaDiv);
+                recaptchaContainer.appendChild(messageDiv);
+            } else {
+                // Display a warning if no site key is available
+                recaptchaContainer.innerHTML = `
+                    <div class="alert alert-warning small py-2 text-center">
+                        <span class="material-icons fs-6 me-2">warning</span>
+                        <span>reCAPTCHA configuration issue. Please contact the administrator.</span>
+                    </div>
+                `;
+            }
             
             // Find submission button for positioning
             const submitButton = form.querySelector('[type="submit"]');

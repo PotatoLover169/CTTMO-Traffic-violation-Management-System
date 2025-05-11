@@ -52,8 +52,16 @@
 
             <!-- reCAPTCHA placeholder - explicit position -->
             <div class="recaptcha-placeholder-slot mt-3 mb-3 d-flex justify-content-center">
-                <!-- Direct reCAPTCHA implementation -->
-                <div class="g-recaptcha" data-sitekey="{{ recaptcha_site_key }}"></div>
+                {% if recaptcha_site_key %}
+                    <!-- Direct reCAPTCHA implementation -->
+                    <div class="g-recaptcha" data-sitekey="{{ recaptcha_site_key }}"></div>
+                {% else %}
+                    <!-- Warning when site key is missing -->
+                    <div class="alert alert-warning small py-2 text-center">
+                        <span class="material-icons fs-6 me-2">warning</span>
+                        <span>reCAPTCHA is not configured properly. You may still proceed with login.</span>
+                    </div>
+                {% endif %}
             </div>
 
             <button type="submit" class="btn btn-primary w-100 mb-3">
@@ -579,7 +587,10 @@
 }
 </style>
 
+<!-- Load reCAPTCHA API only if site key is available -->
+{% if recaptcha_site_key %}
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+{% endif %}
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -659,18 +670,24 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Debugging reCAPTCHA setup
-    console.log('reCAPTCHA site key:', document.querySelector('meta[name="recaptcha-site-key"]')?.content);
+    const metaSiteKey = document.querySelector('meta[name="recaptcha-site-key"]');
+    console.log('reCAPTCHA site key available:', metaSiteKey && metaSiteKey.content ? 'yes' : 'no');
     console.log('Current domain:', document.querySelector('meta[name="recaptcha-current-domain"]')?.content);
     console.log('Allowed domains:', document.querySelector('meta[name="recaptcha-allowed-domains"]')?.content);
     
-    // Force reCAPTCHA to render if it's not already visible
-    setTimeout(function() {
-        if (!document.querySelector('.g-recaptcha iframe') && typeof grecaptcha !== 'undefined') {
-            grecaptcha.render(document.querySelector('.g-recaptcha'), {
-                'sitekey': '{{ recaptcha_site_key }}'
-            });
-        }
-    }, 1000);
+    // Try to render reCAPTCHA if it exists
+    const recaptchaElement = document.querySelector('.g-recaptcha');
+    if (recaptchaElement && typeof grecaptcha !== 'undefined') {
+        setTimeout(function() {
+            if (!document.querySelector('.g-recaptcha iframe')) {
+                try {
+                    grecaptcha.render(recaptchaElement);
+                } catch (e) {
+                    console.error('Error rendering reCAPTCHA:', e);
+                }
+            }
+        }, 1000);
+    }
 });
 </script>
 {% endblock %}
