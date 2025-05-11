@@ -19,9 +19,15 @@
         </div>
 
         <!-- Progress Bar -->
-        <div class="px-3 mb-3">
-            <div class="progress" style="height: 4px;">
-                <div class="progress-bar" role="progressbar" style="width: 0%;" id="formProgress"></div>
+        <div class="px-3 mb-4">
+            <div class="progress-container">
+                <div class="progress" style="height: 6px;">
+                    <div class="progress-bar" role="progressbar" style="width: 0%;" id="formProgress"></div>
+                </div>
+            </div>
+            <div class="d-flex justify-content-between mt-1">
+                <small class="text-muted">Registration Progress</small>
+                <small class="text-muted" id="progressPercentage">0%</small>
             </div>
         </div>
 
@@ -39,29 +45,33 @@
 
         <!-- QR Code Information Alert -->
         <div class="alert alert-info alert-dismissible fade show mb-4">
-            <div class="d-flex align-items-center">
-                <i class="material-icons me-2">qr_code_2</i>
+            <div class="d-flex">
+                <div class="alert-icon-container me-3 d-flex align-items-center justify-content-center">
+                    <span class="material-icons">qr_code_2</span>
+                </div>
                 <div>
-                    <strong>QR Code Generated on Registration</strong>
+                    <h6 class="alert-heading mb-1 fw-bold">QR Code Generated on Registration</h6>
                     <p class="mb-0 small">Upon successful registration, a unique QR code will be automatically generated for your profile. This QR code will contain your driver information, license details, and associated vehicles.</p>
                 </div>
             </div>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close btn-close-sm" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
 
         <!-- Violation Detection Alert -->
         <div class="alert alert-warning alert-dismissible fade show mb-4">
-            <div class="d-flex align-items-center">
-                <i class="material-icons me-2">warning</i>
+            <div class="d-flex">
+                <div class="alert-icon-container me-3 d-flex align-items-center justify-content-center">
+                    <span class="material-icons">warning</span>
+                </div>
                 <div>
-                    <strong>Violation Detection</strong>
+                    <h6 class="alert-heading mb-1 fw-bold">Violation Detection</h6>
                     <p class="mb-0 small">The system will automatically check for any existing violations associated with your name or license number. If violations are found, they will be linked to your account upon confirmation.</p>
                 </div>
             </div>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close btn-close-sm" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
 
-        <form method="post" enctype="multipart/form-data" id="registrationForm" class="needs-validation" novalidate>
+        <form method="post" enctype="multipart/form-data" id="registrationForm" class="needs-validation" novalidate data-protected="true">
             {% csrf_token %}
             <!-- Hidden field for violations confirmation -->
             <input type="hidden" name="violations_confirmed" id="violations_confirmed" value="false">
@@ -159,8 +169,8 @@
                                         <span class="input-group-text"><i class="material-icons small">lock</i></span>
                                         <input type="password" class="form-control" id="password" name="password" 
                                                required pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$">
-                                        <button class="btn btn-outline-secondary btn-sm" type="button" id="togglePassword">
-                                            <i class="material-icons small">visibility</i>
+                                        <button type="button" id="togglePassword">
+                                            <span class="material-icons small">visibility</span>
                                         </button>
                                         <div class="invalid-feedback">8+ chars, include letters and numbers</div>
                                     </div>
@@ -176,7 +186,7 @@
                                 <div class="mb-2">
                                     <label for="confirm_password" class="form-label small fw-semibold">Confirm Password</label>
                                     <div class="input-group input-group-sm">
-                                        <span class="input-group-text"><i class="material-icons small">lock_clock</i></span>
+                                        <span class="input-group-text"><span class="material-icons small">lock_clock</span></span>
                                         <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
                                         <div class="invalid-feedback">Passwords must match</div>
                                     </div>
@@ -203,19 +213,23 @@
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" id="termsCheck" required>
                     <label class="form-check-label small" for="termsCheck">
-                        I agree to the <a href="#" data-micromodal-trigger="modal-terms">Terms and Conditions</a>
+                        I agree to the <a href="#" data-micromodal-trigger="modal-terms" class="text-primary">Terms and Conditions</a>
                     </label>
                     <div class="invalid-feedback">You must agree to the terms</div>
                 </div>
             </div>
 
+            <!-- reCAPTCHA placeholder - explicit position -->
+            <div class="recaptcha-placeholder-slot my-3 d-flex justify-content-center"></div>
+
             <!-- Action Buttons -->
-            <div class="d-flex justify-content-between align-items-center mt-3">
-                <a href="{% url 'login' %}" class="btn btn-link text-muted small text-decoration-none">
-                    <i class="material-icons align-middle small me-1">arrow_back</i> Back to Login
+            <div class="d-flex justify-content-between align-items-center mt-3 gap-3">
+                <a href="{% url 'login' %}" class="btn btn-outline-secondary btn-sm px-3 py-2 d-flex align-items-center justify-content-center">
+                    <span class="material-icons fs-6 me-2">arrow_back</span>
+                    Back to Login
                 </a>
                 <button type="submit" class="btn btn-primary btn-sm px-3 py-2" id="registerBtn">
-                    Create Account <i class="material-icons align-middle small ms-1">arrow_forward</i>
+                    Create Account <span class="material-icons fs-6 align-middle ms-1">arrow_forward</span>
                 </button>
             </div>
         </form>
@@ -228,22 +242,44 @@
     <div class="modal__overlay" tabindex="-1" data-micromodal-close>
         <div class="modal__container" role="dialog" aria-modal="true" aria-labelledby="modal-terms-title">
             <header class="modal__header">
-                <h2 class="modal__title" id="modal-terms-title">Terms and Conditions</h2>
+                <h2 class="modal__title" id="modal-terms-title">
+                    <span class="material-icons fs-5 me-2 text-primary align-middle">gavel</span>
+                    Terms and Conditions
+                </h2>
                 <button class="modal__close" aria-label="Close modal" data-micromodal-close></button>
             </header>
             <main class="modal__content" id="modal-terms-content">
                 <!-- Terms and conditions content -->
-                <h6 class="fs-6 fw-bold">1. Account Registration</h6>
-                <p class="small">By registering for an account with CTTMO Traffic Violation Management System, you agree to provide accurate and complete information.</p>
+                <div class="terms-section mb-3">
+                    <h6 class="fs-6 fw-bold text-primary mb-2">1. Account Registration</h6>
+                    <p class="small">By registering for an account with CTTMO Traffic Violation Management System, you agree to provide accurate and complete information.</p>
+                </div>
                 
-                <h6 class="fs-6 fw-bold">2. Privacy Policy</h6>
-                <p class="small">Your personal information will be handled in accordance with our privacy policy and data protection regulations.</p>
+                <div class="terms-section mb-3">
+                    <h6 class="fs-6 fw-bold text-primary mb-2">2. Privacy Policy</h6>
+                    <p class="small">Your personal information will be handled in accordance with our privacy policy and data protection regulations.</p>
+                </div>
                 
-                <h6 class="fs-6 fw-bold">3. User Responsibilities</h6>
-                <p class="small">You are responsible for maintaining the confidentiality of your account credentials and for all activities under your account.</p>
+                <div class="terms-section mb-3">
+                    <h6 class="fs-6 fw-bold text-primary mb-2">3. User Responsibilities</h6>
+                    <p class="small">You are responsible for maintaining the confidentiality of your account credentials and for all activities under your account.</p>
+                </div>
+                
+                <div class="terms-section mb-3">
+                    <h6 class="fs-6 fw-bold text-primary mb-2">4. Data Usage</h6>
+                    <p class="small">The system collects and stores traffic violation data for official use. This information may be shared with relevant government agencies as required by law.</p>
+                </div>
+                
+                <div class="terms-section">
+                    <h6 class="fs-6 fw-bold text-primary mb-2">5. Terms Updates</h6>
+                    <p class="small">These terms may be updated without prior notice. It's your responsibility to review them periodically.</p>
+                </div>
             </main>
             <footer class="modal__footer">
-                <button class="btn btn-primary" data-micromodal-close>I Understand</button>
+                <button class="btn btn-primary" data-micromodal-close>
+                    <span class="material-icons fs-6 me-1">check_circle</span>
+                    I Understand
+                </button>
             </footer>
         </div>
     </div>
@@ -307,475 +343,821 @@
 
 .register-card {
     background: white;
-    border-radius: 0.75rem;
-    padding: 2rem;
+    border-radius: 1rem;
+    padding: 2.25rem;
     width: 100%;
     max-width: 1000px;
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    transform: translateY(0);
+    animation: fadeInUp 0.5s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .register-logo {
-    width: 60px;
+    width: 80px;
     height: auto;
+    animation: pulse 2s infinite;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 .register-title {
     color: #0d6efd;
-    font-size: 1.5rem;
+    font-size: 1.85rem;
     font-weight: 700;
+    margin-bottom: 0.25rem;
+    letter-spacing: -0.5px;
 }
 
 .register-subtitle {
     color: #6c757d;
-    font-size: 0.9rem;
-    margin-bottom: 0;
+    font-size: 1rem;
+    margin-bottom: 1rem;
 }
 
-.registration-accordion .accordion-button {
-    background-color: rgba(13, 110, 253, 0.05);
-    border-radius: 0.5rem;
+/* Enhanced Progress Bar Styling */
+.progress-container {
+    background-color: #f1f5f9;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress {
+    background-color: transparent;
+}
+
+.progress-bar {
+    background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+    border-radius: 10px;
+    transition: width 0.5s ease;
+}
+
+/* Improved Accordion Headers */
+.accordion-item {
+    border: none;
+    margin-bottom: 1.25rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    background-color: #fff;
+    overflow: hidden;
+}
+
+.accordion-header {
+    border-radius: 0.75rem;
+    overflow: hidden;
+}
+
+.accordion-button {
+    background-color: rgba(13, 110, 253, 0.03);
+    border-radius: 0.75rem !important;
     box-shadow: none;
     font-size: 1rem;
+    transition: all 0.2s;
+    padding: 0.8rem 1rem;
 }
 
-.registration-accordion .accordion-button:not(.collapsed) {
+.accordion-button:not(.collapsed) {
     color: #0d6efd;
+    background-color: rgba(13, 110, 253, 0.05);
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.1);
 }
 
-.registration-accordion .accordion-button::after {
-    width: 1rem;
-    height: 1rem;
-    background-size: 1rem;
+.accordion-button:focus {
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.1);
+}
+
+.accordion-collapse {
+    background-color: #fff;
+}
+
+.accordion-body {
+    padding: 1.25rem 1rem;
 }
 
 .input-group {
-    border: 1px solid #dee2e6;
-    border-radius: 0.5rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
     overflow: hidden;
-    transition: all 0.2s;
+    transition: all 0.25s;
     height: auto;
+    min-height: 45px;
+    background-color: #f8fafc;
 }
 
 .input-group:focus-within {
     border-color: #0d6efd;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.1);
+    box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.15);
+    background-color: #fff;
 }
 
 .input-group-text {
-    background-color: white;
+    background-color: transparent;
     border: none;
-    color: #6c757d;
-    padding-right: 0;
-    padding: 0.5rem 0.75rem;
+    color: #64748b;
+    padding: 0.6rem 0.75rem;
 }
 
 .form-control {
     border: none;
-    font-size: 1rem;
+    font-size: 0.95rem;
     padding: 0.6rem 0.75rem;
+    color: #0f172a;
     height: auto;
+    background-color: transparent;
 }
 
 .form-control::placeholder {
-    color: #adb5bd;
+    color: #94a3b8;
     font-size: 0.9rem;
 }
 
-.btn-primary {
-    background-color: #0d6efd;
+/* Improved validation styling */
+.was-validated .form-control:invalid,
+.form-control.is-invalid {
+    border-color: transparent;
+    background-image: none;
+}
+
+.was-validated .input-group:has(.form-control:invalid),
+.input-group:has(.form-control.is-invalid) {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.15);
+}
+
+.invalid-feedback {
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+}
+
+/* Password toggle button */
+#togglePassword {
+    background: transparent;
     border: none;
-    font-weight: 600;
-    font-size: 1rem;
-    transition: all 0.2s;
+    color: #64748b;
+    padding: 0;
+    margin: 0;
     display: flex;
     align-items: center;
-    padding: 0.5rem 1.2rem;
+    justify-content: center;
+    width: 36px;
+}
+
+#togglePassword:hover {
+    color: #0d6efd;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+#togglePassword .material-icons {
+    font-size: 1.1rem;
+}
+
+/* Password strength styles */
+.password-strength .progress {
+    height: 5px;
+    border-radius: 3px;
+    overflow: hidden;
+    background-color: #f1f5f9;
+}
+
+.password-strength .progress-bar {
+    transition: width 0.3s;
+}
+
+.form-check-input {
+    width: 1.1rem;
+    height: 1.1rem;
+    margin-top: 0;
+    background-color: #f8fafc;
+    border: 1px solid #cbd5e1;
+    cursor: pointer;
+}
+
+.form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.form-check-label {
+    font-size: 0.9rem;
+    padding-left: 0.5rem;
+    color: #64748b;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+    border: none;
+    padding: 0.7rem 1.2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 0.75rem;
 }
 
 .btn-primary:hover {
-    background-color: #0b5ed7;
-    transform: translateY(-1px);
-    box-shadow: 0 0.25rem 0.5rem rgba(13, 110, 253, 0.15);
+    background: linear-gradient(135deg, #0b5ed7 0%, #0a58ca 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(13, 110, 253, 0.2);
 }
 
-.input-group-sm {
-    height: auto;
-}
-
-.input-group-sm .form-control, 
-.input-group-sm .input-group-text {
-    padding: 0.5rem 0.75rem;
-}
-
+/* Button Sizes and Styles */
 .btn-sm {
-    padding: 0.4rem 1rem;
+    padding: 0.5rem 1rem;
     font-size: 0.95rem;
+    border-radius: 0.75rem;
+    min-height: 44px;
 }
 
-.avatar-preview {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    overflow: hidden;
+/* Back to Login button styling */
+.btn-outline-secondary {
+    color: #6c757d;
+    border: 1px solid #ced4da;
+    background-color: transparent;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.btn-outline-secondary:hover {
     background-color: #f8f9fa;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto;
-    border: 1px solid #dee2e6;
+    border-color: #6c757d;
+    color: #5a6268;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 }
 
-.avatar-preview-inner {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+/* Enhanced Alert Styles */
+.alert {
+    border-radius: 0.75rem;
+    border: none;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    padding: 1rem;
     position: relative;
+    overflow: hidden;
 }
 
-.empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: #adb5bd;
-}
-
-.empty-state .material-icons {
-    font-size: 2rem;
-    margin-bottom: 0.25rem;
-}
-
-#avatarPreview {
-    width: 100%;
+.alert::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
     height: 100%;
-    object-fit: cover;
+    width: 4px;
+}
+
+.alert-info {
+    background-color: rgba(13, 202, 240, 0.1);
+    color: #087990;
+}
+
+.alert-info::before {
+    background-color: #0dcaf0;
+}
+
+.alert-warning {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: #997404;
+}
+
+.alert-warning::before {
+    background-color: #ffc107;
+}
+
+.alert-icon-container {
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.alert-icon-container .material-icons {
+    font-size: 1.2rem;
+}
+
+.alert-heading {
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.btn-close-sm {
+    font-size: 0.7rem;
+    padding: 0.5rem;
+}
+
+/* Create a better looking auth link for back to login */
+.auth-link {
+    color: #0d6efd;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.auth-link:hover {
+    color: #0b5ed7;
+    text-decoration: underline;
+}
+
+.auth-link .material-icons {
+    font-size: 0.9rem !important;
 }
 
 /* Media queries for responsive design */
 @media (max-width: 992px) {
     .register-card {
         max-width: 680px;
-        padding: 1.75rem;
+        padding: 2rem;
     }
 }
 
 @media (max-width: 768px) {
     .register-card {
         max-width: 580px;
-        padding: 1.5rem;
-    }
-    
-    .form-control {
-        font-size: 0.95rem;
+        padding: 1.75rem;
     }
 }
 
 @media (max-width: 576px) {
     .register-card {
-        padding: 1.25rem;
+        padding: 1.5rem;
         margin: 0.5rem;
         max-width: 360px;
     }
     
     .register-title {
-        font-size: 1.2rem;
+        font-size: 1.5rem;
     }
     
-    .registration-accordion .accordion-button {
-        font-size: 0.9rem;
-        padding: 0.5rem;
-    }
-    
-    .form-control {
-        font-size: 0.9rem;
-        padding: 0.5rem;
-    }
-    
-    .input-group-text {
-        padding: 0.4rem 0.5rem;
-    }
-    
-    .btn-primary {
-        font-size: 0.9rem;
-        padding: 0.4rem 1rem;
+    .register-logo {
+        width: 70px;
     }
 }
 
-/**************************\
-  Micromodal.js Styles
-\**************************/
+/* Button Group Layout */
+.d-flex.gap-3 {
+    gap: 1rem !important;
+}
 
+/* Back to Login button styling */
+.btn-outline-secondary {
+    color: #6c757d;
+    border: 1px solid #ced4da;
+    background-color: transparent;
+    font-weight: 500;
+    transition: all 0.3s;
+    width: 45%;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #f8f9fa;
+    border-color: #6c757d;
+    color: #5a6268;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.btn-primary {
+    width: 55%;
+}
+
+@media (max-width: 576px) {
+    .d-flex.justify-content-between.align-items-center.mt-3 {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .btn-outline-secondary, .btn-primary {
+        width: 100%;
+    }
+}
+
+/* Modal Styles - Adding complete styling for Micromodal */
 .modal {
-  font-family: -apple-system, BlinkMacSystemFont, avenir next, avenir, helvetica neue,
-    helvetica, ubuntu, roboto, noto, segoe ui, arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, avenir next, avenir, helvetica neue, helvetica, ubuntu, roboto, noto, segoe ui, arial, sans-serif;
+    z-index: 1050;
 }
 
 .modal__overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 2000;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9000;
 }
 
 .modal__container {
-  background-color: #fff;
-  padding: 20px;
-  max-width: 90%;
-  width: 500px;
-  max-height: 90vh;
-  border-radius: 10px;
-  overflow-y: auto;
-  box-sizing: border-box;
-  box-shadow: 0 15px 30px 0 rgba(0, 0, 0, 0.11),
-    0 5px 15px 0 rgba(0, 0, 0, 0.08);
+    background-color: #fff;
+    padding: 20px;
+    max-width: 90%;
+    width: 500px;
+    max-height: 90vh;
+    border-radius: 10px;
+    overflow-y: auto;
+    box-sizing: border-box;
+    box-shadow: 0 15px 30px 0 rgba(0, 0, 0, 0.11), 0 5px 15px 0 rgba(0, 0, 0, 0.08);
 }
 
 .modal__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #eaeaea;
-  padding-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eaeaea;
+    padding-bottom: 15px;
 }
 
 .modal__title {
-  margin-top: 0;
-  margin-bottom: 0;
-  font-weight: 600;
-  font-size: 1.25rem;
-  line-height: 1.25;
-  color: #00449e;
-  box-sizing: border-box;
+    margin-top: 0;
+    margin-bottom: 0;
+    font-weight: 600;
+    font-size: 1.25rem;
+    line-height: 1.25;
+    color: #0d6efd;
+    box-sizing: border-box;
 }
 
 .modal__close {
-  background: transparent;
-  border: 0;
-  cursor: pointer;
-  position: relative;
-  width: 25px;
-  height: 25px;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    position: relative;
+    width: 25px;
+    height: 25px;
 }
 
 .modal__close:before,
 .modal__close:after {
-  content: '';
-  position: absolute;
-  width: 2px;
-  height: 18px;
-  background-color: #333;
-  top: 3px;
-  left: 11px;
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: 18px;
+    background-color: #333;
+    top: 3px;
+    left: 11px;
 }
 
 .modal__close:before {
-  transform: rotate(45deg);
+    transform: rotate(45deg);
 }
 
 .modal__close:after {
-  transform: rotate(-45deg);
+    transform: rotate(-45deg);
 }
 
 .modal__content {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-  line-height: 1.5;
-  color: rgba(0, 0, 0, 0.8);
-  max-height: 60vh;
-  overflow-y: auto;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+    color: rgba(0, 0, 0, 0.8);
+    max-height: 60vh;
+    overflow-y: auto;
 }
 
 .modal__footer {
-  display: flex;
-  justify-content: flex-end;
-  padding-top: 15px;
-  border-top: 1px solid #eaeaea;
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 15px;
+    border-top: 1px solid #eaeaea;
 }
 
 .micromodal-slide {
-  display: none;
+    display: none;
 }
 
 .micromodal-slide.is-open {
-  display: block;
+    display: block !important;
 }
 
 .micromodal-slide[aria-hidden="false"] .modal__overlay {
-  animation: mmfadeIn .3s cubic-bezier(0, 0, .2, 1);
+    animation: mmfadeIn .3s cubic-bezier(0, 0, .2, 1);
 }
 
 .micromodal-slide[aria-hidden="false"] .modal__container {
-  animation: mmslideIn .3s cubic-bezier(0, 0, .2, 1);
+    animation: mmslideIn .3s cubic-bezier(0, 0, .2, 1);
 }
 
 .micromodal-slide[aria-hidden="true"] .modal__overlay {
-  animation: mmfadeOut .3s cubic-bezier(0, 0, .2, 1);
+    animation: mmfadeOut .3s cubic-bezier(0, 0, .2, 1);
 }
 
 .micromodal-slide[aria-hidden="true"] .modal__container {
-  animation: mmslideOut .3s cubic-bezier(0, 0, .2, 1);
+    animation: mmslideOut .3s cubic-bezier(0, 0, .2, 1);
 }
 
 .micromodal-slide .modal__container,
 .micromodal-slide .modal__overlay {
-  will-change: transform;
+    will-change: transform;
 }
 
 @keyframes mmfadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 @keyframes mmfadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
+    from { opacity: 1; }
+    to { opacity: 0; }
 }
 
 @keyframes mmslideIn {
-  from { transform: translateY(15%); }
-  to { transform: translateY(0); }
+    from { transform: translateY(15%); }
+    to { transform: translateY(0); }
 }
 
 @keyframes mmslideOut {
-  from { transform: translateY(0); }
-  to { transform: translateY(-10%); }
+    from { transform: translateY(0); }
+    to { transform: translateY(-10%); }
+}
+/* End Modal Styles */
+
+/* Modal Content Styling */
+.terms-section h6 {
+    font-size: 0.95rem;
 }
 
-/* Violations list styling */
-.violations-list {
-    max-height: 300px;
-    overflow-y: auto;
-    border: 1px solid #dee2e6;
-    border-radius: 0.5rem;
-    background-color: #f8f9fa;
+.modal__container {
+    border-radius: 1rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    padding: 1.5rem;
 }
 
-.violation-item {
-    padding: 0.75rem;
-    border-bottom: 1px solid #dee2e6;
-    background-color: white;
-    transition: background-color 0.2s;
+.modal__header {
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
 }
 
-.violation-item:last-child {
-    border-bottom: none;
+.modal__footer {
+    border-top: 1px solid #e9ecef;
+    padding-top: 1rem;
+    margin-top: 1rem;
 }
 
-.violation-item:hover {
-    background-color: #f0f8ff;
-}
-
-.violation-title {
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-    color: #0d6efd;
-}
-
-.violation-details {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem 1rem;
-    font-size: 0.85rem;
-    color: #495057;
-}
-
-.violation-detail {
+.modal__title {
     display: flex;
     align-items: center;
 }
 
-.violation-detail i {
-    font-size: 0.9rem;
-    margin-right: 0.25rem;
-    opacity: 0.7;
-}
-
-/* Modal visibility fix */
-.modal.is-open {
-  display: block !important;
-}
-
-.modal__overlay {
-  z-index: 9999;
-  background: rgba(0, 0, 0, 0.6);
-}
-
-/* Fix for modal being behind overlay */
-.modal__container {
-  z-index: 10000;
-  background: white;
-  border-radius: 8px;
-  max-width: 90%;
-  width: 600px;
-}
-
-/* Modal open body style */
-body.modal-open {
-  overflow: hidden;
+.modal__footer .btn {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1.2rem;
+    border-radius: 0.75rem;
 }
 </style>
 
 <script>
-// Display any Django messages
+// Add this function to update the progress display
+function updateProgressDisplay() {
+    const percent = calculateProgress();
+    document.getElementById('formProgress').style.width = `${percent}%`;
+    document.getElementById('progressPercentage').textContent = `${percent}%`;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize Micromodal with debug options
+    // Initialize MicroModal with debug options
     MicroModal.init({
         openTrigger: 'data-micromodal-trigger',
         closeTrigger: 'data-micromodal-close',
-        disableFocus: false,
         disableScroll: true,
         awaitOpenAnimation: true,
         awaitCloseAnimation: true,
-        debugMode: true,  // Add debug mode to help troubleshoot
-        onShow: modal => console.log('Modal shown:', modal.id),
-        onClose: modal => console.log('Modal closed:', modal.id)
+        debugMode: true // Add debug mode to help troubleshoot
     });
     
-    // Setup form submission with violation check
+    // Add direct event handler for Terms and Conditions link
+    const termsLink = document.querySelector('a[data-micromodal-trigger="modal-terms"]');
+    if (termsLink) {
+        termsLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            MicroModal.show('modal-terms');
+        });
+    }
+    
+    // Add handlers for closing the Terms modal
+    const termsModalClose = document.querySelector('#modal-terms .modal__close');
+    const termsModalUnderstand = document.querySelector('#modal-terms .btn-primary');
+    if (termsModalClose) {
+        termsModalClose.addEventListener('click', function() {
+            MicroModal.close('modal-terms');
+        });
+    }
+    if (termsModalUnderstand) {
+        termsModalUnderstand.addEventListener('click', function() {
+            MicroModal.close('modal-terms');
+            // Check the terms checkbox
+            const termsCheckbox = document.getElementById('termsCheck');
+            if (termsCheckbox) {
+                termsCheckbox.checked = true;
+                // Trigger any validation updates
+                termsCheckbox.dispatchEvent(new Event('change'));
+            }
+        });
+    }
+    
+    // Add animation to form elements
+    const formGroups = document.querySelectorAll('.form-group, .mb-2, .accordion-item');
+    formGroups.forEach((element, index) => {
+        element.style.opacity = '0';
+        element.style.transform = 'translateY(10px)';
+        element.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+        
+        setTimeout(() => {
+            element.style.opacity = '1';
+            element.style.transform = 'translateY(0)';
+        }, 100 + (index * 50));
+    });
+    
+    // Action buttons animation
+    const actionButtons = document.querySelector('.d-flex.justify-content-between');
+    if (actionButtons) {
+        actionButtons.style.opacity = '0';
+        actionButtons.style.transition = 'opacity 0.5s ease 0.3s';
+        setTimeout(() => {
+            actionButtons.style.opacity = '1';
+        }, 300);
+    }
+    
+    // Setup form controls and validation  
     const form = document.getElementById('registrationForm');
+    const password = document.getElementById('password');
+    const confirmPassword = document.getElementById('confirm_password');
+    const togglePassword = document.getElementById('togglePassword');
     const registerBtn = document.getElementById('registerBtn');
+    
+    // Form state
     let formSubmitting = false;
     let violationsFound = false;
     let violationsData = [];
     
-    // Store reference to this function so we can call it after violation confirmation
-    const submitForm = function() {
-        console.log('Submitting registration form');
-        formSubmitting = true;
-        if (registerBtn) {
-            registerBtn.disabled = true;
-            registerBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Creating Account...';
-        }
-        form.submit();
-    };
+    // Toggle password visibility
+    if (togglePassword) {
+        togglePassword.addEventListener('click', function() {
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+            confirmPassword.setAttribute('type', type);
+            this.querySelector('.material-icons').textContent = type === 'password' ? 'visibility' : 'visibility_off';
+        });
+    }
     
-    // Function to populate the violations list
-    const populateViolationsList = function(violations) {
-        console.log('Populating violations list with:', violations);
-        const container = document.getElementById('violations-list');
+    // Check password strength
+    if (password) {
+        password.addEventListener('input', function() {
+            const value = this.value;
+            const progressBar = document.querySelector('#passwordStrength .progress-bar');
+            const strengthText = document.getElementById('strengthText');
+            
+            if (value.length === 0) {
+                progressBar.style.width = '0%';
+                progressBar.className = 'progress-bar';
+                strengthText.textContent = 'None';
+                return;
+            }
+            
+            // Calculate strength
+            let strength = 0;
+            
+            // Length check
+            if (value.length >= 8) strength += 25;
+            
+            // Complexity checks
+            if (/[A-Z]/.test(value)) strength += 20;  // Has uppercase
+            if (/[a-z]/.test(value)) strength += 15;  // Has lowercase
+            if (/[0-9]/.test(value)) strength += 20;  // Has number
+            if (/[^A-Za-z0-9]/.test(value)) strength += 20;  // Has special char
+            
+            // Update UI
+            progressBar.style.width = `${strength}%`;
+            
+            if (strength < 30) {
+                progressBar.className = 'progress-bar bg-danger';
+                strengthText.textContent = 'Weak';
+            } else if (strength < 60) {
+                progressBar.className = 'progress-bar bg-warning';
+                strengthText.textContent = 'Fair';
+            } else if (strength < 80) {
+                progressBar.className = 'progress-bar bg-info';
+                strengthText.textContent = 'Good';
+            } else {
+                progressBar.className = 'progress-bar bg-success';
+                strengthText.textContent = 'Strong';
+            }
+            
+            // Update form progress
+            updateProgress();
+        });
+    }
+    
+    // Confirm password validation
+    if (confirmPassword) {
+        confirmPassword.addEventListener('input', function() {
+            if (password.value !== this.value) {
+                this.setCustomValidity("Passwords don't match");
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+    }
+    
+    // Calculate progress based on form completion
+    function calculateProgress() {
+        if (!form) return 0;
         
-        if (!container) {
-            console.error('Violations list container not found');
-            return;
+        const requiredInputs = form.querySelectorAll('input[required], textarea[required], select[required]');
+        const totalFields = requiredInputs.length;
+        let completedFields = 0;
+        
+        requiredInputs.forEach(function(input) {
+            if (input.type === 'checkbox') {
+                if (input.checked) completedFields++;
+            } else if (input.type === 'password' && input.id === 'confirm_password') {
+                // Only count if it matches the password
+                if (input.value && input.value === password.value) completedFields++;
+            } else if (input.value.trim() !== '') {
+                completedFields++;
+            }
+        });
+        
+        // Calculate percentage
+        return Math.round((completedFields / totalFields) * 100);
+    }
+    
+    // Update the progress bar
+    function updateProgress() {
+        const percent = calculateProgress();
+        const progressBar = document.getElementById('formProgress');
+        const progressPercent = document.getElementById('progressPercentage');
+        
+        if (progressBar && progressPercent) {
+            progressBar.style.width = `${percent}%`;
+            progressPercent.textContent = `${percent}%`;
+            
+            // Update color based on progress
+            if (percent < 30) {
+                progressBar.className = 'progress-bar bg-danger';
+            } else if (percent < 70) {
+                progressBar.className = 'progress-bar bg-warning';
+            } else {
+                progressBar.className = 'progress-bar bg-success';
+            }
         }
+    }
+    
+    // Add input event listeners to all form fields to update progress in real-time
+    const formFields = form ? form.querySelectorAll('input, textarea, select') : [];
+    formFields.forEach(function(field) {
+        field.addEventListener('input', updateProgress);
+        field.addEventListener('change', updateProgress);
+    });
+    
+    // Initialize the progress bar on page load
+    updateProgress();
+    
+    // Function to populate the violations list in the modal
+    const populateViolationsList = function(violations) {
+        const container = document.getElementById('violations-list');
+        if (!container) return;
         
-        // Clear loading state
+        // Clear existing content
         container.innerHTML = '';
         
-        if (!violations || violations.length === 0) {
-            container.innerHTML = '<div class="alert alert-success">No violations found.</div>';
-            return;
-        }
-        
-        // Create elements for each violation
+        // Add each violation to the list
         violations.forEach(function(violation) {
             const item = document.createElement('div');
             item.className = 'violation-item';
@@ -805,6 +1187,52 @@ document.addEventListener('DOMContentLoaded', function() {
             container.appendChild(item);
         });
     };
+    
+    // Function to submit the form after validations
+    const submitForm = function() {
+        if (form && !form.checkValidity()) {
+            form.classList.add('was-validated');
+            return false;
+        }
+        
+        form.submit();
+    };
+    
+    // Set up form submission handler
+    if (form) {
+        form.addEventListener('submit', function(event) {
+            // Prevent the default form submission
+            event.preventDefault();
+            
+            // Don't submit again if already in progress
+            if (formSubmitting) return;
+            
+            // Validate the form
+            if (!form.checkValidity()) {
+                event.stopPropagation();
+                form.classList.add('was-validated');
+                return;
+            }
+            
+            // Mark form as submitting and update UI
+            formSubmitting = true;
+            if (registerBtn) {
+                registerBtn.disabled = true;
+                registerBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Checking...';
+            }
+            
+            // Create object with form data for API
+            const formData = {
+                first_name: document.getElementById('first_name').value,
+                last_name: document.getElementById('last_name').value,
+                email: document.getElementById('email').value,
+                license_number: document.getElementById('license_number').value || ''
+            };
+            
+            // Check for violations
+            checkViolations(formData);
+        });
+    }
     
     // Function to check for violations before form submission
     const checkViolations = function(userData) {
@@ -847,32 +1275,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     MicroModal.show('modal-violations');
                     console.log('MicroModal.show() called');
                     
-                    // Direct DOM manipulation as backup
-                    setTimeout(function() {
-                        const modal = document.getElementById('modal-violations');
-                        if (modal) {
-                            console.log('Applying direct DOM manipulation to modal');
-                            modal.classList.add('is-open');
-                            modal.setAttribute('aria-hidden', 'false');
-                            
-                            // Force styles to ensure visibility
-                            modal.style.display = 'block';
-                            document.body.classList.add('modal-open');
-                            
-                            // Check if modal is actually visible after manipulation
-                            setTimeout(() => {
-                                const isModalVisible = window.getComputedStyle(modal).display !== 'none';
-                                console.log('Is modal visible?', isModalVisible);
-                                
-                                // If still not visible, use alert as fallback
-                                if (!isModalVisible) {
-                                    console.log('Modal not visible, using alert fallback');
-                                    useAlertFallback(violations);
-                                }
-                            }, 200);
-                        }
-                    }, 100);
-                    
                 } catch (err) {
                     console.error('Error showing modal:', err);
                     // Use alert as fallback if modal fails
@@ -883,9 +1285,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 formSubmitting = false;
                 if (registerBtn) {
                     registerBtn.disabled = false;
-                    registerBtn.innerHTML = 'Create Account <i class="material-icons align-middle small ms-1">arrow_forward</i>';
+                    registerBtn.innerHTML = 'Create Account <span class="material-icons fs-6 align-middle ms-1">arrow_forward</span>';
                 }
-        } else {
+            } else {
                 // No violations found - proceed with registration
                 violationsFound = false;
                 document.getElementById('violations_confirmed').value = 'true'; // Skip confirmation step
@@ -916,46 +1318,10 @@ document.addEventListener('DOMContentLoaded', function() {
             formSubmitting = false;
             if (registerBtn) {
                 registerBtn.disabled = false;
-                registerBtn.innerHTML = 'Create Account <i class="material-icons align-middle small ms-1">arrow_forward</i>';
+                registerBtn.innerHTML = 'Create Account <span class="material-icons fs-6 align-middle ms-1">arrow_forward</span>';
             }
         }
     };
-    
-    // Set up form submission handler
-    if (form) {
-        form.addEventListener('submit', function(event) {
-            // Prevent the default form submission
-            event.preventDefault();
-            
-            // Don't submit again if already in progress
-            if (formSubmitting) return;
-            
-            // Validate the form
-            if (!form.checkValidity()) {
-                event.stopPropagation();
-                form.classList.add('was-validated');
-                return;
-            }
-            
-            // Mark form as submitting and update UI
-            formSubmitting = true;
-            if (registerBtn) {
-                registerBtn.disabled = true;
-                registerBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Checking...';
-            }
-            
-            // Create object with form data for API
-            const formData = {
-                first_name: document.getElementById('first_name').value,
-                last_name: document.getElementById('last_name').value,
-                email: document.getElementById('email').value,
-                license_number: document.getElementById('license_number').value || ''
-            };
-            
-            // Check for violations
-            checkViolations(formData);
-        });
-    }
     
     // Handle violations confirmation button
     const confirmBtn = document.getElementById('confirmViolationsBtn');
@@ -972,24 +1338,20 @@ document.addEventListener('DOMContentLoaded', function() {
             submitForm();
         });
     }
-
+    
+    // Auto-close alerts function
     const autoCloseAlerts = function() {
-    document.querySelectorAll('.alert').forEach(function(alert) {
-        // Auto-close messages after 5 seconds if not manually closed
-        setTimeout(function() {
-            const closeBtn = alert.querySelector('.btn-close');
-            if (closeBtn) closeBtn.click();
-        }, 5000);
-    });
+        document.querySelectorAll('.alert').forEach(function(alert) {
+            // Auto-close messages after 5 seconds if not manually closed
+            setTimeout(function() {
+                const closeBtn = alert.querySelector('.btn-close');
+                if (closeBtn) closeBtn.click();
+            }, 5000);
+        });
     };
     
-    {% if messages %}
     // Auto-close Django messages
     autoCloseAlerts();
-    {% endif %}
-    
-    // Initialize the progress bar on page load
-    updateProgress();
 });
 </script>
 {% endblock %} 

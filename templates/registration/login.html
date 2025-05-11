@@ -13,7 +13,7 @@
             <p class="auth-subtitle">City Transportation and Traffic Management Office</p>
         </div>
 
-        <form method="post" class="auth-form">
+        <form method="post" class="auth-form" data-protected="true">
             {% csrf_token %}
             
             <div class="form-group mb-3">
@@ -44,8 +44,14 @@
                     <input type="checkbox" class="form-check-input" id="rememberMe" name="remember">
                     <label class="form-check-label small" for="rememberMe">Remember me</label>
                 </div>
-                <a href="/accounts/password_reset/" class="text-decoration-none small" id="forgot-password-link">Forgot password?</a>
+                <a href="/accounts/password_reset/" class="auth-link small" id="forgot-password-link">
+                    <span class="material-icons fs-6 align-middle">help_outline</span>
+                    Forgot password?
+                </a>
             </div>
+
+            <!-- reCAPTCHA placeholder - explicit position -->
+            <div class="recaptcha-placeholder-slot mt-3 mb-3 d-flex justify-content-center"></div>
 
             <button type="submit" class="btn btn-primary w-100 mb-3">
                 <span class="material-icons fs-6 me-1">login</span>
@@ -53,8 +59,14 @@
             </button>
 
             <div class="text-center mt-3">
-                <p class="small mb-0">Don't have an account? <a href="{% url 'register' %}" class="text-primary fw-semibold">Register here</a></p>
-                <p class="small mt-2 text-muted">By signing in, you agree to our <a href="#" data-micromodal-trigger="modal-terms" class="text-primary">Terms and Conditions</a></p>
+                <div class="separator-text mb-3">
+                    <span>or</span>
+                </div>
+                <a href="{% url 'register' %}" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center">
+                    <span class="material-icons fs-6 me-1">person_add</span>
+                    Create New Account
+                </a>
+                <p class="small mt-3 text-muted">By signing in, you agree to our <a href="#" data-micromodal-trigger="modal-terms" class="text-primary">Terms and Conditions</a></p>
             </div>
         </form>
 
@@ -117,30 +129,59 @@
 
 .auth-card {
     background: white;
-    border-radius: 0.75rem;
+    border-radius: 1rem;
     padding: 2.5rem;
     width: 100%;
     max-width: 480px;
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    transform: translateY(0);
+    animation: fadeInUp 0.5s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .auth-logo {
-    width: 90px;
+    width: 100px;
     height: auto;
     margin-bottom: 1rem;
+    animation: pulse 2s infinite;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 .auth-title {
     color: #0d6efd;
-    font-size: 1.75rem;
+    font-size: 1.85rem;
     font-weight: 700;
     margin-bottom: 0.25rem;
+    letter-spacing: -0.5px;
 }
 
 .auth-subtitle {
     color: #6c757d;
     font-size: 1rem;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 .form-group {
@@ -148,89 +189,150 @@
 }
 
 .input-group {
-    border: 1px solid #dee2e6;
-    border-radius: 0.5rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
     overflow: hidden;
-    transition: all 0.2s;
+    transition: all 0.25s;
     height: auto;
-    min-height: 48px;
+    min-height: 50px;
+    background-color: #f8fafc;
 }
 
 .input-group:focus-within {
     border-color: #0d6efd;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.1);
+    box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.15);
+    background-color: #fff;
 }
 
 .auth-form .input-group-text {
-    background-color: white;
+    background-color: transparent;
     border: none;
     padding: 0.7rem 0.75rem;
     font-size: 1.1rem;
+    color: #64748b;
 }
 
 .auth-form .form-control {
     border: none;
     padding: 0.7rem 0.75rem;
     font-size: 1.1rem;
-    color: #212529;
+    color: #0f172a;
     height: auto;
-    min-height: 48px;
+    min-height: 50px;
+    background-color: transparent;
 }
 
 .auth-form .form-control::placeholder {
-    color: #adb5bd;
+    color: #94a3b8;
     font-size: 1rem;
 }
 
 .toggle-password {
     border: none;
     background: transparent;
-    color: #adb5bd;
+    color: #64748b;
     padding: 0 0.75rem;
 }
 
 .toggle-password:hover {
-    color: #6c757d;
+    color: #0d6efd;
     background: transparent;
 }
 
 .form-check {
     margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
 }
 
 .form-check-input {
     width: 1.1rem;
     height: 1.1rem;
+    margin-top: 0;
+    background-color: #f8fafc;
+    border: 1px solid #cbd5e1;
+    cursor: pointer;
+}
+
+.form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
 }
 
 .form-check-label {
     font-size: 0.9rem;
-    padding-left: 0.25rem;
+    padding-left: 0.5rem;
+    color: #64748b;
+    cursor: pointer;
 }
 
 .btn-primary {
-    background-color: #0d6efd;
+    background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
     border: none;
     padding: 0.75rem;
     font-size: 1.1rem;
     font-weight: 600;
-    transition: all 0.2s;
+    transition: all 0.3s;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    height: 52px;
+    height: 54px;
     margin-top: 1rem;
+    border-radius: 0.75rem;
 }
 
 .btn-primary:hover {
-    background-color: #0b5ed7;
-    transform: translateY(-1px);
-    box-shadow: 0 0.25rem 0.5rem rgba(13, 110, 253, 0.15);
+    background: linear-gradient(135deg, #0b5ed7 0%, #0a58ca 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(13, 110, 253, 0.2);
 }
 
 .btn-primary .material-icons {
     font-size: 1.25rem !important;
+}
+
+/* Signup button styling */
+.btn-outline-primary {
+    color: #0d6efd;
+    border: 1px solid #0d6efd;
+    background-color: transparent;
+    padding: 0.75rem;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    height: 52px;
+}
+
+.btn-outline-primary:hover {
+    background-color: #f0f7ff;
+    border-color: #0d6efd;
+    color: #0b5ed7;
+    transform: translateY(-1px);
+    box-shadow: 0 0.25rem 0.5rem rgba(13, 110, 253, 0.1);
+}
+
+/* Separator styling */
+.separator-text {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: #adb5bd;
+    margin: 1rem 0;
+}
+
+.separator-text::before,
+.separator-text::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.separator-text span {
+    padding: 0 1rem;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .text-center.mt-3 {
@@ -451,6 +553,26 @@
 @keyframes mmslideOut {
   from { transform: translateY(0); }
   to { transform: translateY(-10%); }
+}
+
+/* Auth links */
+.auth-link {
+    color: #0d6efd;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.auth-link:hover {
+    color: #0b5ed7;
+    text-decoration: underline;
+}
+
+.auth-link .material-icons {
+    font-size: 0.9rem !important;
 }
 </style>
 

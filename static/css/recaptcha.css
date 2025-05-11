@@ -1,0 +1,87 @@
+/**
+ * reCAPTCHA Styling for Traffic Violation System
+ * 
+ * Provides consistent styling for Google reCAPTCHA v2 widgets
+ * ensuring proper centering and responsive display.
+ */
+
+/* Container styling */
+.recaptcha-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 1rem auto;
+    padding: 0.5rem 0;
+}
+
+.recaptcha-container .g-recaptcha {
+    transform-origin: center;
+    -webkit-transform-origin: center;
+}
+
+.recaptcha-message {
+    color: #dc3545;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    text-align: center;
+    min-height: 20px;
+    font-weight: 500;
+}
+
+/* Wrapper for the actual widget */
+.g-recaptcha-wrapper {
+    display: inline-block;
+    margin: 0 auto;
+}
+
+/* Make sure iframe is centered */
+.g-recaptcha > div {
+    margin: 0 auto;
+}
+
+/* Placeholder styling */
+.recaptcha-placeholder-slot {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 78px; /* Height of the standard reCAPTCHA */
+    width: 100%;
+    margin: 15px 0;
+}
+
+/* Success indicator styling */
+.recaptcha-verification-status {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 5px;
+}
+
+.recaptcha-verification-status .material-icons {
+    font-size: 16px;
+    margin-right: 5px;
+}
+
+/* Error message styling */
+.recaptcha-error {
+    margin: 10px auto;
+    max-width: 320px;
+    transition: opacity 0.3s ease-in-out;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 302px) {
+    .recaptcha-container .g-recaptcha {
+        transform: scale(0.85);
+        -webkit-transform: scale(0.85);
+    }
+}
+
+/* Dark mode support for reCAPTCHA */
+@media (prefers-color-scheme: dark) {
+    .recaptcha-container {
+        background-color: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+    }
+} 

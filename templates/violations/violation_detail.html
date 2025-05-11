@@ -37,20 +37,6 @@
                     <p><strong>Enforcer ID:</strong> {{ violation.enforcer.userprofile.enforcer_id }}</p>
                 </div>
             </div>
-            
-            {% if violation.status == 'PENDING' %}
-                <div class="mt-4">
-                    <h6>Payment Options</h6>
-                    <div class="payment-methods">
-                        <button class="btn btn-primary" onclick="initiatePayment('card')">
-                            <i class="fas fa-credit-card me-2"></i>Pay with Card
-                        </button>
-                        <button class="btn btn-success ms-2" onclick="initiatePayment('gcash')">
-                            <i class="fas fa-mobile-alt me-2"></i>Pay with GCash
-                        </button>
-                    </div>
-                </div>
-            {% endif %}
         </div>
     </div>
 </div>
@@ -59,52 +45,6 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const violationId = '{{ violation.id }}';
-
-    window.initiatePayment = async function(method) {
-        try {
-            // Show loading state
-            const button = event.target.closest('button');
-            const originalText = button.innerHTML;
-            button.disabled = true;
-            button.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
-
-            console.log('Initiating payment for violation:', violationId);
-
-            // Get checkout session URL from backend
-            const response = await fetch(`/violation/${violationId}/process-payment/`);
-            const data = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(data.error || 'Failed to create checkout session');
-            }
-
-            // Redirect to checkout URL
-            if (data.checkout_url) {
-                window.location.href = data.checkout_url;
-            } else {
-                throw new Error('No checkout URL received');
-            }
-
-        } catch (error) {
-            console.error('Payment Error:', error);
-            showErrorMessage(error, button);
-            restoreButton(button, originalText);
-        }
-    }
-
-    function showErrorMessage(error, button) {
-        const errorAlert = document.createElement('div');
-        errorAlert.className = 'alert alert-danger mt-3';
-        errorAlert.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i>Payment failed: ${error.message}`;
-        button.closest('.payment-methods').after(errorAlert);
-    }
-
-    function restoreButton(button, originalText) {
-        button.disabled = false;
-        button.innerHTML = originalText;
-    }
-
     // Check for payment status in URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     const status = urlParams.get('status');
@@ -136,26 +76,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <style>
-.payment-methods {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-}
-
-.btn {
-    min-width: 150px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
-}
-
-.alert {
-    margin-top: 1rem;
-    text-align: center;
-}
-
 .badge {
     padding: 0.5em 1em;
 }

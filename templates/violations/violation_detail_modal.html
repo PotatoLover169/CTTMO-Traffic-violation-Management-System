@@ -621,12 +621,6 @@
         <div id="qrCode" class="me-auto d-none d-md-block">
             <!-- QR code would be generated here -->
         </div>
-        {% if violation.status == 'PENDING' %}
-        <button class="btn btn-primary" id="payNowBtn">
-            <span class="material-icons me-1">payment</span>
-            Pay Now
-        </button>
-        {% endif %}
     </div>
 </div>
 
@@ -1266,17 +1260,6 @@ document.addEventListener('DOMContentLoaded', function() {
             // In a real implementation, this would open a print dialog or download a receipt
             const toast = new bootstrap.Toast(document.getElementById('successToast'));
             document.getElementById('toastMessage').innerText = 'Receipt printing functionality will be implemented soon';
-            toast.show();
-        });
-    }
-    
-    // Pay Now button click handler
-    const payBtn = document.getElementById('payNowBtn');
-    if (payBtn) {
-        payBtn.addEventListener('click', function() {
-            // In a real implementation, this would redirect to payment page
-            const toast = new bootstrap.Toast(document.getElementById('successToast'));
-            document.getElementById('toastMessage').innerText = 'Payment functionality will be implemented soon';
             toast.show();
         });
     }

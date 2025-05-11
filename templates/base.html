@@ -22,6 +22,9 @@
     <!-- SweetAlert2 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css">
     
+    <!-- reCAPTCHA Styling -->
+    <link rel="stylesheet" href="{% static 'css/recaptcha.css' %}">
+    
     <!-- SweetAlert2 JS (with default configuration) -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
     <script>
@@ -4449,6 +4452,10 @@
     
     <!-- MicroModal.js -->
     <script src="https://unpkg.com/micromodal/dist/micromodal.min.js"></script>
+    
+    <!-- reCAPTCHA Scripts -->
+    <script src="{% static 'js/recaptcha-handler.js' %}"></script>
+    <script src="{% static 'js/auto-protect-forms.js' %}"></script>
     
     <!-- Block for page specific scripts -->
     {% block scripts %}{% endblock %}

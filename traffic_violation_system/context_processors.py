@@ -1,5 +1,6 @@
 from django.db.models import Q
 from traffic_violation_system.user_portal.models import UserNotification
+from django.conf import settings
 
 def user_notifications(request):
     """Add unread notification count and recent notifications to the context"""
@@ -20,4 +21,10 @@ def user_notifications(request):
             user=request.user
         ).order_by('-created_at')[:10]
     
-    return context 
+    return context
+
+def recaptcha_settings(request):
+    """Add reCAPTCHA site key to all templates"""
+    return {
+        'recaptcha_site_key': getattr(settings, 'RECAPTCHA_SITE_KEY', '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'),  # Using test key as fallback
+    } 

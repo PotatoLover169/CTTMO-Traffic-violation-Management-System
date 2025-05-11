@@ -3654,13 +3654,10 @@ async function generateTicketContent(ticketData) {
     // Header
     content += CENTER;
     content += DOUBLE_STRIKE_ON;
-    content += 'CITY TRANSPORT AND TRAFFIC MANAGEMENT OFFICE\n';
-    content += 'TRAFFIC VIOLATION MANAGEMENT SYSTEM\n';
-    content += 'VIOLATION TICKET\n';
     content += DOUBLE_STRIKE_OFF;
     content += LINE_SPACE;
     content += `Date: ${ticketData.violation_date}\n`;
-    content += `Ticket No: ${ticketData.id}\n`;
+    content += `Ticket No: ${String(ticketData.id).padStart(8, '0')}\n`;
     content += '-'.repeat(42) + '\n';
     
     // Violator Information

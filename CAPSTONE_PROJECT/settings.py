@@ -89,6 +89,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'traffic_violation_system.context_processors.user_notifications',
+                'traffic_violation_system.context_processors.recaptcha_settings',
             ],
         },
     },
@@ -269,3 +270,7 @@ EMAIL_VERIFICATION_EXEMPT_URLS = [
     r'^/admin/',
     r'^/api/',
 ]
+
+# reCAPTCHA settings
+RECAPTCHA_SITE_KEY = os.environ.get('RECAPTCHA_SITE_KEY', '6LcooDUrAAAAAFKBOKmvx5DgMXp2GyuckuLlWLt4')  # Test key
+RECAPTCHA_SECRET_KEY = os.environ.get('RECAPTCHA_SECRET_KEY', '6LcooDUrAAAAAKq8h5bPT6l2JCIlAl6QksJA-Oig')  # Test key

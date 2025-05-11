@@ -11,6 +11,7 @@
         --primary-light: #EEF3FF;
         --success-color: #0CAA1D;
         --danger-color: #F53D3D;
+        --danger-light: #FFF0F0;
         --warning-color: #FFB800;
         --info-color: #4DA7FF;
         --dark-blue: #0F1C3F;
@@ -36,6 +37,11 @@
         background-color: var(--primary-light);
     }
 
+    .file-upload-wrapper.is-invalid {
+        border-color: var(--danger-color);
+        background-color: var(--danger-light);
+    }
+
     .file-upload-input {
         position: absolute;
         top: 0;
@@ -50,6 +56,10 @@
         font-size: 2.5rem;
         color: var(--primary-color);
         margin-bottom: 0.5rem;
+    }
+
+    .file-upload-wrapper.is-invalid .file-upload-icon {
+        color: var(--danger-color);
     }
 
     .file-upload-text {
@@ -132,6 +142,18 @@
     .driver-app-card:hover {
         box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.1);
     }
+    
+    /* Error styles */
+    .error-text {
+        color: var(--danger-color);
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+        display: none;
+    }
+    
+    .file-upload-wrapper.is-invalid + .error-text {
+        display: block;
+    }
 </style>
 {% endblock %}
 
@@ -164,7 +186,7 @@
                     <h2 class="h4 mb-4">Required Documents</h2>
                     <p class="text-muted mb-4">Please upload the following documents to complete your application. All documents must be in PDF, JPG, or PNG format and should not exceed 5MB each.</p>
 
-                    <form method="post" enctype="multipart/form-data">
+                    <form method="post" enctype="multipart/form-data" id="driverApplicationForm">
                         {% csrf_token %}
 
                         <!-- CTTMO Seminar Certificate -->
@@ -190,6 +212,7 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="error-text" id="cttmo-seminar-error">CTTMO Seminar Certificate is required</div>
                         </div>
 
                         <!-- X-Ray Results -->
@@ -215,6 +238,7 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="error-text" id="xray-error">X-Ray Results are required</div>
                         </div>
 
                         <!-- Medical Certificate -->
@@ -240,6 +264,7 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="error-text" id="medical-error">Medical Certificate is required</div>
                         </div>
 
                         <!-- Police Clearance -->
@@ -265,6 +290,7 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="error-text" id="police-error">Police Clearance is required</div>
                         </div>
 
                         <!-- Mayor's Permit -->
@@ -290,6 +316,7 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="error-text" id="mayors-error">Mayor's Permit is required</div>
                         </div>
 
                         <!-- Other Supporting Documents (Optional) -->
@@ -321,7 +348,7 @@
                             <a href="{% url 'user_portal:user_dashboard' %}" class="btn btn-outline-secondary">
                                 <span class="material-icons me-1">arrow_back</span> Cancel
                             </a>
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary" id="submitButton">
                                 <span class="material-icons me-1">send</span> Submit Application
                             </button>
                         </div>
@@ -334,6 +361,7 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // File upload preview functionality
@@ -343,30 +371,58 @@
             const inputId = input.id;
             const previewId = inputId.replace('-input', '-preview');
             const nameId = inputId.replace('-input', '-name');
+            const wrapperId = inputId.replace('-input', '-wrapper');
+            const errorId = inputId.replace('-input', '-error');
+            
             const preview = document.getElementById(previewId);
             const nameElement = document.getElementById(nameId);
+            const wrapper = document.getElementById(wrapperId);
+            const errorElement = document.getElementById(errorId);
             
             input.addEventListener('change', function(e) {
                 const file = e.target.files[0];
                 if (file) {
                     // Validate file size (5MB max)
                     if (file.size > 5 * 1024 * 1024) {
-                        alert('File size exceeds 5MB. Please choose a smaller file.');
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'File Too Large',
+                            text: `The file size exceeds the 5MB limit. Current size: ${(file.size / (1024 * 1024)).toFixed(2)}MB`,
+                            confirmButtonColor: 'var(--primary-color)'
+                        });
+                        
                         this.value = '';
+                        preview.style.display = 'none';
+                        
+                        // Mark as invalid
+                        wrapper.classList.add('is-invalid');
                         return;
                     }
                     
                     // Validate file type
                     const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
                     if (!validTypes.includes(file.type)) {
-                        alert('Invalid file type. Please upload a PDF, JPG, or PNG file.');
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Invalid File Type',
+                            text: 'Please upload a PDF, JPG, or PNG file.',
+                            confirmButtonColor: 'var(--primary-color)'
+                        });
+                        
                         this.value = '';
+                        preview.style.display = 'none';
+                        
+                        // Mark as invalid
+                        wrapper.classList.add('is-invalid');
                         return;
                     }
                     
                     // Show preview
                     nameElement.textContent = file.name;
                     preview.style.display = 'block';
+                    
+                    // Remove invalid state
+                    wrapper.classList.remove('is-invalid');
                 } else {
                     // Hide preview if no file selected
                     preview.style.display = 'none';
@@ -383,11 +439,156 @@
                 const input = document.getElementById(inputId);
                 const previewId = inputId.replace('-input', '-preview');
                 const preview = document.getElementById(previewId);
+                const wrapperId = inputId.replace('-input', '-wrapper');
+                const wrapper = document.getElementById(wrapperId);
                 
                 input.value = '';
                 preview.style.display = 'none';
+                
+                // Mark as invalid if required
+                if (input.hasAttribute('required')) {
+                    wrapper.classList.add('is-invalid');
+                }
             });
         });
+        
+        // Form validation and submission
+        const form = document.getElementById('driverApplicationForm');
+        const submitButton = document.getElementById('submitButton');
+        
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            // Reset error states
+            document.querySelectorAll('.file-upload-wrapper').forEach(wrapper => {
+                wrapper.classList.remove('is-invalid');
+            });
+            
+            // Validate all required file inputs
+            let isValid = true;
+            let firstInvalidElement = null;
+            const requiredInputs = [
+                { id: 'cttmo-seminar-input', name: 'CTTMO Seminar Certificate' },
+                { id: 'xray-input', name: 'X-Ray Results' },
+                { id: 'medical-input', name: 'Medical Certificate' },
+                { id: 'police-input', name: 'Police Clearance' },
+                { id: 'mayors-input', name: 'Mayor\'s Permit' }
+            ];
+            
+            const missingDocuments = [];
+            
+            requiredInputs.forEach(input => {
+                const inputElem = document.getElementById(input.id);
+                const wrapper = document.getElementById(input.id.replace('-input', '-wrapper'));
+                
+                if (!inputElem.files || !inputElem.files[0]) {
+                    isValid = false;
+                    missingDocuments.push(input.name);
+                    wrapper.classList.add('is-invalid');
+                    
+                    if (!firstInvalidElement) {
+                        firstInvalidElement = wrapper;
+                    }
+                }
+            });
+            
+            if (!isValid) {
+                // Show error alert
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Required Documents Missing',
+                    html: `
+                        <p>Please upload the following required documents:</p>
+                        <ul style="text-align: left; display: inline-block;">
+                            ${missingDocuments.map(doc => `<li>${doc}</li>`).join('')}
+                        </ul>
+                    `,
+                    confirmButtonColor: 'var(--primary-color)'
+                }).then(() => {
+                    // Scroll to the first invalid element
+                    if (firstInvalidElement) {
+                        firstInvalidElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                });
+                return;
+            }
+            
+            // Show loading state
+            submitButton.disabled = true;
+            const originalButtonText = submitButton.innerHTML;
+            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Submitting...';
+            
+            // Show processing message
+            const loadingSwal = Swal.fire({
+                title: 'Submitting Application',
+                html: 'Please wait while we process your application...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            // Submit the form
+            const formData = new FormData(this);
+            
+            fetch(window.location.href, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text();
+            })
+            .then(html => {
+                loadingSwal.close();
+                
+                // Check if the response contains a success message
+                if (html.includes('success') || html.includes('application_status')) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Application Submitted',
+                        text: 'Your driver application has been successfully submitted and is pending review.',
+                        confirmButtonColor: 'var(--primary-color)'
+                    }).then(() => {
+                        window.location.href = "{% url 'user_portal:driver_application_status' %}";
+                    });
+                } else {
+                    // If there's no success indicator, assume there was an error
+                    throw new Error('Application submission failed');
+                }
+            })
+            .catch(error => {
+                loadingSwal.close();
+                
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Submission Failed',
+                    text: 'There was a problem submitting your application. Please try again.',
+                    confirmButtonColor: 'var(--primary-color)'
+                });
+                
+                // Reset button state
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonText;
+            });
+        });
+        
+        // Handle server-side errors
+        {% if messages %}
+            {% for message in messages %}
+                Swal.fire({
+                    icon: '{% if message.tags == "error" %}error{% elif message.tags == "success" %}success{% elif message.tags == "warning" %}warning{% else %}info{% endif %}',
+                    title: '{% if message.tags == "error" %}Error{% elif message.tags == "success" %}Success{% elif message.tags == "warning" %}Warning{% else %}Information{% endif %}',
+                    text: "{{ message }}",
+                    confirmButtonColor: 'var(--primary-color)'
+                });
+            {% endfor %}
+        {% endif %}
     });
 </script>
 {% endblock %} 

@@ -46,7 +46,7 @@
             </div>
             
             <div class="track-body">
-                <form method="post" action="{% url 'track_violation' %}" id="trackViolationForm">
+                <form method="post" action="{% url 'track_violation' %}" id="trackViolationForm" class="protect-form">
                     {% csrf_token %}
                     <div class="ticket-form">
                         <div class="form-group">
@@ -65,6 +65,14 @@
                             <div class="form-text">
                                 You can find your ticket number on your violation receipt
                             </div>
+                        </div>
+                    </div>
+                    
+                    <!-- reCAPTCHA container -->
+                    <div class="mt-3">
+                        <div class="recaptcha-container">
+                            <div class="g-recaptcha" data-sitekey="{{ recaptcha_site_key }}" data-callback="onRecaptchaSuccess" data-expired-callback="onRecaptchaExpired" data-error-callback="onRecaptchaError"></div>
+                            <div class="recaptcha-message text-danger mt-1"></div>
                         </div>
                     </div>
                 </form>
@@ -130,6 +138,9 @@
 <!-- SweetAlert2 Library -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+<!-- Google reCAPTCHA API -->
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
 <script>
     // Ensure ticket number persists after form submission
     document.addEventListener('DOMContentLoaded', function() {
@@ -142,8 +153,29 @@
             ticketInput.value = storedTicketNumber;
         }
         
-        // Show SweetAlert loading animation when form is submitted
+        // Form submission validation with reCAPTCHA
         document.getElementById('trackViolationForm').addEventListener('submit', function(e) {
+            // Check if reCAPTCHA has been completed
+            const recaptchaResponse = grecaptcha.getResponse();
+            
+            // If reCAPTCHA hasn't been completed
+            if (!recaptchaResponse) {
+                e.preventDefault(); // Stop the form from submitting
+                
+                // Show error message
+                document.querySelector('.recaptcha-message').textContent = 'Please complete the reCAPTCHA verification.';
+                
+                // Show error in SweetAlert
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Verification Required',
+                    text: 'Please complete the reCAPTCHA verification to proceed.',
+                    confirmButtonText: 'OK'
+                });
+                
+                return false;
+            }
+            
             // Save the ticket number to sessionStorage
             sessionStorage.setItem('lastSearchedTicketNumber', ticketInput.value.trim());
             
@@ -167,6 +199,19 @@
             sessionStorage.setItem('lastSearchedTicketNumber', ticketInput.value.trim());
         }
     });
+    
+    // reCAPTCHA callbacks
+    function onRecaptchaSuccess() {
+        document.querySelector('.recaptcha-message').textContent = '';
+    }
+    
+    function onRecaptchaExpired() {
+        document.querySelector('.recaptcha-message').textContent = 'reCAPTCHA verification expired. Please verify again.';
+    }
+    
+    function onRecaptchaError() {
+        document.querySelector('.recaptcha-message').textContent = 'Error loading reCAPTCHA. Please refresh and try again.';
+    }
 </script>
 
 <style>
@@ -470,6 +515,22 @@
         border-radius: 0;
         max-width: 720px;
         margin: 1rem auto 0;
+    }
+    
+    /* reCAPTCHA Container */
+    .recaptcha-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin: 0.5rem auto;
+    }
+    
+    .recaptcha-message {
+        font-size: 0.85rem;
+        margin-top: 0.35rem;
+        text-align: center;
+        min-height: 20px;
     }
     
     /* Responsive styles */

@@ -1465,5 +1465,28 @@ function getCookie(name) {
 }
 </script>
 
+<!-- Remove reCAPTCHA from search form if it was added -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Find all search forms
+        const searchForms = document.querySelectorAll('form.search-form');
+        
+        // Remove any reCAPTCHA containers that might have been added
+        searchForms.forEach(form => {
+            // Remove any reCAPTCHA containers that might have been added
+            const recaptchaContainer = form.querySelector('.recaptcha-container, .g-recaptcha');
+            if (recaptchaContainer) {
+                recaptchaContainer.remove();
+            }
+            
+            // Ensure the form doesn't have protect-form class
+            form.classList.remove('protect-form');
+            
+            // Add data-novalidate-recaptcha attribute
+            form.setAttribute('data-novalidate-recaptcha', 'true');
+        });
+    });
+</script>
+
 {% include 'includes/pagination.html' %}
 {% endblock %}
