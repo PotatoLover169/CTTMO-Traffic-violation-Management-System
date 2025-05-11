@@ -186,43 +186,89 @@
         }
         
         // Form submission validation with reCAPTCHA
-        document.getElementById('trackViolationForm').addEventListener('submit', function(e) {
-            // Check if reCAPTCHA has been completed
-            const recaptchaResponse = grecaptcha.getResponse();
+        const trackForm = document.getElementById('trackViolationForm');
+        if (trackForm) {
+            console.log('Track violation form found - adding reCAPTCHA validation');
             
-            // If reCAPTCHA hasn't been completed
-            if (!recaptchaResponse) {
-                e.preventDefault(); // Stop the form from submitting
-                
-                // Show error message
-                document.querySelector('.recaptcha-message').textContent = 'Please complete the reCAPTCHA verification.';
-                
-                // Show error in SweetAlert
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Verification Required',
-                    text: 'Please complete the reCAPTCHA verification to proceed.',
-                    confirmButtonText: 'OK'
-                });
-                
-                return false;
-            }
-            
-            // Save the ticket number to sessionStorage
-            sessionStorage.setItem('lastSearchedTicketNumber', ticketInput.value.trim());
-            
-            // Show loading animation
-            Swal.fire({
-                title: 'Searching...',
-                html: 'Looking for violation information',
-                timer: 10000, // Timeout after 10 seconds
-                timerProgressBar: true,
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
+            // Store ticket number on submission
+            trackForm.addEventListener('submit', function(e) {
+                const ticketNumber = document.getElementById('ticket_number').value.trim();
+                if (ticketNumber) {
+                    sessionStorage.setItem('lastSearchedTicketNumber', ticketNumber);
                 }
-            });
-        });
+                
+                // Check if reCAPTCHA is loaded
+                if (typeof grecaptcha === 'undefined') {
+                    console.error('reCAPTCHA not loaded yet');
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    
+                    alert('Please wait for reCAPTCHA to load or refresh the page.');
+                    return false;
+                }
+                
+                // Get reCAPTCHA response
+                const recaptchaResponse = grecaptcha.getResponse();
+                console.log('reCAPTCHA response:', recaptchaResponse ? 'Present' : 'Missing');
+                
+                // If not completed, prevent submission
+                if (!recaptchaResponse) {
+                    console.error('reCAPTCHA not completed!');
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    
+                    // Show error message
+                    const recaptchaMessage = document.querySelector('.recaptcha-message');
+                    if (recaptchaMessage) {
+                        recaptchaMessage.textContent = 'Please complete the reCAPTCHA verification.';
+                        recaptchaMessage.style.display = 'block';
+                        recaptchaMessage.style.color = 'red';
+                    }
+                    
+                    // Show alert using SweetAlert2
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Verification Required',
+                        text: 'Please complete the reCAPTCHA verification to proceed.',
+                        confirmButtonText: 'OK'
+                    });
+                    
+                    // Scroll to reCAPTCHA
+                    const recaptchaElement = document.querySelector('.g-recaptcha');
+                    if (recaptchaElement) {
+                        recaptchaElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                    
+                    return false;
+                }
+                
+                console.log('reCAPTCHA validation passed - continuing with form submission');
+                return true;
+            }, true); // true makes this run at capturing phase, before other handlers
+            
+            // Override form submit method for programmatic submissions
+            const originalSubmit = trackForm.submit;
+            trackForm.submit = function() {
+                console.log('Form submit method called - checking reCAPTCHA');
+                
+                if (typeof grecaptcha === 'undefined' || !grecaptcha.getResponse()) {
+                    console.error('reCAPTCHA validation failed during programmatic submit');
+                    
+                    // Show error using SweetAlert2
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Verification Required',
+                        text: 'Please complete the reCAPTCHA verification before proceeding.',
+                        confirmButtonText: 'OK'
+                    });
+                    
+                    return false;
+                }
+                
+                console.log('reCAPTCHA passed - calling original submit');
+                return originalSubmit.apply(this, arguments);
+            };
+        }
         
         // If we have a violation shown, make sure that ID is in the search box
         const ticketNumberValue = document.querySelector('.ticket-number-value');

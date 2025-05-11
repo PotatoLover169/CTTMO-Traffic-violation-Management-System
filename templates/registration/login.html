@@ -51,8 +51,11 @@
             </div>
 
             <!-- reCAPTCHA placeholder - explicit position -->
-            <div class="mt-3 mb-3 d-flex justify-content-center">
-                <div class="g-recaptcha" data-sitekey="6LdPGjUrAAAAAIwQo_5ZnIW_lSEWqB16xK3lm5PG" data-callback="onRecaptchaSuccess" data-expired-callback="onRecaptchaExpired" data-error-callback="onRecaptchaError"></div>
+            <div class="mt-3 mb-3">
+                <div class="d-flex justify-content-center">
+                    <div class="g-recaptcha" data-sitekey="6LdPGjUrAAAAAIwQo_5ZnIW_lSEWqB16xK3lm5PG" data-callback="onRecaptchaSuccess" data-expired-callback="onRecaptchaExpired" data-error-callback="onRecaptchaError"></div>
+                </div>
+                <div class="recaptcha-message text-danger text-center mt-1"></div>
             </div>
 
             <button type="submit" class="btn btn-primary w-100 mb-3">
@@ -759,6 +762,95 @@ document.addEventListener('DOMContentLoaded', function() {
             element.style.transform = 'translateY(0)';
         }, 100 + (index * 100));
     });
+
+    // ADDED: Direct form validation for reCAPTCHA - This will ensure the form cannot be submitted without reCAPTCHA
+    const loginForm = document.querySelector('form.auth-form[data-protected="true"]');
+    if (loginForm) {
+        console.log('Login form found - adding validation');
+        
+        // Override the form's submit event with a super high priority
+        loginForm.addEventListener('submit', function(e) {
+            console.log('Login form submit intercepted');
+            
+            // Make sure the reCAPTCHA is loaded
+            if (typeof grecaptcha === 'undefined') {
+                console.error('reCAPTCHA not loaded yet!');
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                
+                alert('Please wait for reCAPTCHA to load or refresh the page.');
+                return false;
+            }
+            
+            // Check if reCAPTCHA was completed
+            const recaptchaResponse = grecaptcha.getResponse();
+            console.log('reCAPTCHA response:', recaptchaResponse ? 'Present' : 'Missing');
+            
+            if (!recaptchaResponse) {
+                console.error('reCAPTCHA not completed!');
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                
+                // Show error message
+                const recaptchaMessage = document.querySelector('.recaptcha-message');
+                if (recaptchaMessage) {
+                    recaptchaMessage.textContent = 'Please complete the reCAPTCHA verification.';
+                    recaptchaMessage.style.display = 'block';
+                    recaptchaMessage.style.color = 'red';
+                }
+                
+                // Use SweetAlert2 if available
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Verification Required',
+                        text: 'Please complete the reCAPTCHA verification to proceed.',
+                        confirmButtonText: 'OK'
+                    });
+                } else {
+                    alert('Please complete the reCAPTCHA verification to proceed.');
+                }
+                
+                // Scroll to reCAPTCHA
+                const recaptchaElement = document.querySelector('.g-recaptcha');
+                if (recaptchaElement) {
+                    recaptchaElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                
+                return false;
+            }
+            
+            console.log('reCAPTCHA validation passed - allowing form submission');
+            return true;
+        }, true); // true makes this run at the capturing phase, before other handlers
+        
+        // Also override form's submit method (for programmatic submissions)
+        const originalSubmit = loginForm.submit;
+        loginForm.submit = function() {
+            console.log('Form submit method called - checking reCAPTCHA');
+            
+            if (typeof grecaptcha === 'undefined' || !grecaptcha.getResponse()) {
+                console.error('reCAPTCHA validation failed during programmatic submit');
+                
+                // Show error using SweetAlert or regular alert
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Verification Required',
+                        text: 'Please complete the reCAPTCHA verification before proceeding.',
+                        confirmButtonText: 'OK'
+                    });
+                } else {
+                    alert('Please complete the reCAPTCHA verification before proceeding.');
+                }
+                
+                return false;
+            }
+            
+            console.log('reCAPTCHA passed - calling original submit');
+            return originalSubmit.apply(this, arguments);
+        };
+    }
 });
 </script>
 {% endblock %}

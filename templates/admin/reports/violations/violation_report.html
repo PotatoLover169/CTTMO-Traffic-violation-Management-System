@@ -250,6 +250,128 @@
             padding-right: 0.75rem !important;
         }
     }
+    
+    /* Make table responsive with fixed header and scrollable body */
+    .table-container {
+        position: relative;
+        max-height: 65vh; /* Limit height to 65% of viewport height */
+        overflow-y: auto;
+        border-radius: 8px;
+        margin-bottom: 0;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    
+    /* Ensure the header stays fixed at the top while scrolling */
+    .table-container thead th {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #e9ecef;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    /* Add scrollbar styling for better UX */
+    .table-container::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    
+    .table-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+    
+    .table-container::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 4px;
+    }
+    
+    .table-container::-webkit-scrollbar-thumb:hover {
+        background: #999;
+    }
+    
+    /* Ensure mobile responsiveness */
+    @media (max-width: 768px) {
+        .table-container {
+            max-height: 50vh; /* Smaller height on mobile */
+        }
+    }
+    
+    /* Limit content in table cells */
+    .table-container td {
+        max-height: 120px;
+        overflow: hidden;
+    }
+    
+    /* Specifically handle the violations column which might have lengthy content */
+    .table-container td ul.list-unstyled {
+        max-height: 100px;
+        overflow-y: auto;
+        margin-bottom: 0;
+        padding-right: 5px;
+    }
+    
+    /* Add scrollbar to violation lists when they exceed the max-height */
+    .table-container td ul.list-unstyled::-webkit-scrollbar {
+        width: 4px;
+    }
+    
+    .table-container td ul.list-unstyled::-webkit-scrollbar-thumb {
+        background: #ddd;
+        border-radius: 4px;
+    }
+    
+    /* Truncate long text in all cells with ellipsis */
+    .table-container td {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    /* Allow the violations column to display multiple lines */
+    .table-container td:nth-child(4) {
+        white-space: normal;
+    }
+    
+    /* Limit height of list items in the violations column */
+    .table-container td ul.list-unstyled li {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+    }
+    
+    /* Add tooltips on hover for truncated content */
+    .table-container td span.truncate {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: inline-block;
+        max-width: 100%;
+        vertical-align: middle;
+    }
+    
+    /* Add hover effect to show that content is viewable */
+    .table-container td[title]:hover {
+        cursor: help;
+        background-color: rgba(0,0,0,0.02);
+    }
+    
+    /* Collapsed list style */
+    .collapsed-list li:nth-child(n+4) {
+        display: none;
+    }
+    
+    /* Button styles */
+    .toggle-violations {
+        color: #007bff;
+        text-decoration: none;
+    }
+    
+    .toggle-violations:hover {
+        text-decoration: underline;
+    }
 </style>
 {% endblock %}
 
@@ -476,7 +598,7 @@
     <div class="card shadow-sm border-0 rounded-3">
         <div class="card-body p-0">
             <!-- Desktop Table View -->
-            <div class="table-responsive">
+            <div class="table-container">
                 <table class="table table-system table-fixed table-hover align-middle mb-0" id="violationsTable">
                     <thead class="bg-light">
                         <tr>
@@ -529,29 +651,34 @@
                         {% for violation in violations %}
                         <tr>
                             <td class="id-column text-center fw-bold">{{ violation.id }}</td>
-                            <td>
+                            <td title="{{ violation.violator.first_name }} {{ violation.violator.last_name }}">
                                 <div class="d-flex flex-column">
-                                    <span class="fw-medium">{{ violation.violator.first_name }} {{ violation.violator.last_name }}</span>
+                                    <span class="fw-medium truncate">{{ violation.violator.first_name }} {{ violation.violator.last_name }}</span>
                                 </div>
                             </td>
-                            <td class="text-center">
+                            <td class="text-center" title="{{ violation.violator.license_number|default:'No License' }}">
                                 {% if violation.violator.license_number %}
-                                <span class="badge bg-light text-dark">{{ violation.violator.license_number }}</span>
+                                <span class="badge bg-light text-dark truncate">{{ violation.violator.license_number }}</span>
                                 {% else %}
                                 <span class="badge bg-secondary">No License</span>
                                 {% endif %}
                             </td>
                             <td>
-                                <ul class="list-unstyled mb-0">
+                                <ul class="list-unstyled mb-0 violation-list">
                                     {% for vtype in violation.get_violation_types %}
-                                    <li class="mb-1 d-flex align-items-center">
+                                    <li class="mb-1 d-flex align-items-center" title="{{ vtype }}">
                                         <span class="material-icons me-1 text-primary" style="font-size: 14px;">circle</span>
-                                        {{ vtype }}
+                                        <span class="truncate">{{ vtype }}</span>
                                     </li>
                                     {% empty %}
                                     <li class="text-muted">No violations specified</li>
                                     {% endfor %}
                                 </ul>
+                                {% if violation.get_violation_types|length > 3 %}
+                                <button class="btn btn-sm btn-link p-0 mt-1 toggle-violations" type="button">
+                                    <small>Show all <span class="material-icons" style="font-size: 14px;">expand_more</span></small>
+                                </button>
+                                {% endif %}
                             </td>
                             <td class="text-center">
                                 {% if violation.original_fine_amount %}
@@ -766,6 +893,56 @@
         if (exportStatus) {
             document.getElementById('exportStatus').value = exportStatus;
         }
+    });
+
+    // Add tooltip functionality for truncated content
+    document.addEventListener('DOMContentLoaded', function() {
+        // Create tooltip functionality using Bootstrap tooltips
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+        const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl, {
+                placement: 'top',
+                trigger: 'hover'
+            });
+        });
+        
+        // Detect truncated content and add titles dynamically if not already present
+        const truncatedElements = document.querySelectorAll('.truncate');
+        truncatedElements.forEach(function(element) {
+            if (element.offsetWidth < element.scrollWidth && !element.hasAttribute('title') && element.textContent.trim() !== '') {
+                // Only add title if content is actually truncated and no title already exists
+                const parentWithTitle = element.closest('[title]');
+                if (!parentWithTitle) {
+                    element.setAttribute('title', element.textContent);
+                }
+            }
+        });
+    });
+
+    // Toggle for expanding/collapsing long violation lists
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add CSS class for collapsed lists
+        const violationLists = document.querySelectorAll('.violation-list');
+        violationLists.forEach(list => {
+            if (list.querySelectorAll('li').length > 3) {
+                list.classList.add('collapsed-list');
+            }
+        });
+        
+        // Toggle functionality
+        const toggleButtons = document.querySelectorAll('.toggle-violations');
+        toggleButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const list = this.previousElementSibling;
+                if (list.classList.contains('collapsed-list')) {
+                    list.classList.remove('collapsed-list');
+                    this.innerHTML = '<small>Show less <span class="material-icons" style="font-size: 14px;">expand_less</span></small>';
+                } else {
+                    list.classList.add('collapsed-list');
+                    this.innerHTML = '<small>Show all <span class="material-icons" style="font-size: 14px;">expand_more</span></small>';
+                }
+            });
+        });
     });
 </script>
 {% endblock %}

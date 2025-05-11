@@ -243,7 +243,7 @@
                     </div>
                 </div>
                 
-                <form id="paymentForm" class="p-3">
+                <form id="paymentForm" class="p-3" data-protected="false" data-novalidate-recaptcha="true">
                     <div class="mb-3">
                         <label for="receiptNumber" class="form-label">Receipt Number</label>
                         <input type="text" class="form-control" id="receiptNumber" required>
@@ -263,15 +263,9 @@
                         <label for="paymentRemarks" class="form-label">Remarks</label>
                         <textarea class="form-control" id="paymentRemarks" rows="2"></textarea>
                     </div>
-                    <div class="d-flex justify-content-between gap-2">
-                        <button type="button" class="btn btn-outline-success" onclick="printCurrentViolation()">
-                            <span class="material-icons">print</span>
-                            Print Receipt
-                        </button>
-                        <div>
-                            <button type="button" class="btn btn-light" data-micromodal-close>Cancel</button>
-                            <button type="submit" class="btn btn-primary">Submit Payment</button>
-                        </div>
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-light" data-micromodal-close>Cancel</button>
+                        <button type="submit" class="btn btn-primary">Submit Payment</button>
                     </div>
                 </form>
             </main>
@@ -1336,6 +1330,38 @@ document.addEventListener('DOMContentLoaded', function() {
             processSinglePayment(data);
         }
     });
+    
+    // Remove any reCAPTCHA elements from the payment form
+    function removeRecaptchaFromPaymentForm() {
+        const paymentForm = document.getElementById('paymentForm');
+        if (paymentForm) {
+            // Remove any reCAPTCHA container
+            const recaptchaContainer = paymentForm.querySelector('.recaptcha-container, .g-recaptcha');
+            if (recaptchaContainer) {
+                recaptchaContainer.remove();
+                console.log('Removed reCAPTCHA from payment form');
+            }
+            
+            // Remove any reCAPTCHA message element
+            const recaptchaMessage = paymentForm.querySelector('.recaptcha-message');
+            if (recaptchaMessage) {
+                recaptchaMessage.remove();
+            }
+            
+            // Ensure the form is explicitly marked as not protected
+            paymentForm.setAttribute('data-protected', 'false');
+            paymentForm.setAttribute('data-novalidate-recaptcha', 'true');
+            
+            // Remove any protect-form class if it was added
+            paymentForm.classList.remove('protect-form');
+        }
+    }
+    
+    // Call initially
+    removeRecaptchaFromPaymentForm();
+    
+    // Also call after a short delay to catch any dynamically added elements
+    setTimeout(removeRecaptchaFromPaymentForm, 1000);
 });
 
 // Show batch violation details in a modal
@@ -1586,6 +1612,13 @@ function showBatchPaymentModal(batchIds) {
     
     // Show the modal
     MicroModal.show('modal-payment-form');
+    
+    // Ensure no reCAPTCHA is present
+    if (typeof removeRecaptchaFromPaymentForm === 'function') {
+        removeRecaptchaFromPaymentForm();
+        // Call again after a delay to catch any elements added by scripts
+        setTimeout(removeRecaptchaFromPaymentForm, 200);
+    }
     
     // Get violation details
     const violationDetailsElement = document.getElementById('violation-payment-details');
@@ -1956,6 +1989,13 @@ function showPaymentModal(violationId) {
     
     // Show the modal
     MicroModal.show('modal-payment-form');
+    
+    // Ensure no reCAPTCHA is present
+    if (typeof removeRecaptchaFromPaymentForm === 'function') {
+        removeRecaptchaFromPaymentForm();
+        // Call again after a delay to catch any elements added by scripts
+        setTimeout(removeRecaptchaFromPaymentForm, 200);
+    }
     
     // Get violation details
     const violationDetailsElement = document.getElementById('violation-payment-details');

@@ -2132,14 +2132,18 @@
                 })
                 .then(response => {
                     if (response.ok) {
+                        // Update UI - desktop view
+                        updateOperatorRow(operatorId, 'disable');
+                        
+                        // Update UI - mobile view
+                        updateOperatorCard(operatorId, 'disable');
+                        
+                        // Show success message
                         Swal.fire({
                             title: 'Disabled!',
                             text: 'The operator has been disabled successfully.',
                             icon: 'success',
                             confirmButtonColor: '#2563eb'
-                        }).then(() => {
-                            // Reload the page to update the list
-                            window.location.reload();
                         });
                     } else {
                         return response.json().then(data => {
@@ -2200,14 +2204,18 @@
                 })
                 .then(response => {
                     if (response.ok) {
+                        // Update UI - desktop view
+                        updateOperatorRow(operatorId, 'enable');
+                        
+                        // Update UI - mobile view
+                        updateOperatorCard(operatorId, 'enable');
+                        
+                        // Show success message
                         Swal.fire({
                             title: 'Enabled!',
                             text: 'The operator has been enabled successfully.',
                             icon: 'success',
                             confirmButtonColor: '#2563eb'
-                        }).then(() => {
-                            // Reload the page to update the list
-                            window.location.reload();
                         });
                     } else {
                         return response.json().then(data => {
@@ -2225,6 +2233,162 @@
                 });
             }
         });
+    }
+    
+    // Helper function to update operator row in desktop view
+    function updateOperatorRow(operatorId, action) {
+        // Find the operator row that matches this ID
+        const rows = document.querySelectorAll('table tbody tr');
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            const buttons = row.querySelectorAll('button');
+            
+            // Check each button to see if it has this operator ID in its onclick
+            let found = false;
+            for (let j = 0; j < buttons.length; j++) {
+                const onclick = buttons[j].getAttribute('onclick') || '';
+                if (onclick.includes(operatorId)) {
+                    found = true;
+                    break;
+                }
+            }
+            
+            if (found) {
+                // Found the row for this operator
+                if (action === 'disable') {
+                    // Add inactive class
+                    row.classList.add('table-secondary');
+                    
+                    // Update status badge
+                    const cells = row.querySelectorAll('td');
+                    if (cells.length >= 5) {
+                        cells[4].innerHTML = '<span class="badge bg-danger">Inactive</span>';
+                    }
+                    
+                    // Replace disable button with enable button
+                    const actionCell = row.querySelector('td:last-child');
+                    if (actionCell) {
+                        const disableBtn = actionCell.querySelector('.btn-warning');
+                        if (disableBtn) {
+                            const enableBtn = document.createElement('button');
+                            enableBtn.type = 'button';
+                            enableBtn.className = 'btn btn-success action-btn';
+                            enableBtn.title = 'Enable Operator';
+                            enableBtn.innerHTML = '<span class="material-icons">check_circle</span>';
+                            enableBtn.setAttribute('onclick', 'confirmEnable(' + operatorId + ', "' + encodeURIComponent(row.querySelector('td:first-child').textContent + ' ' + row.querySelector('td:nth-child(2)').textContent) + '")');
+                            
+                            disableBtn.parentNode.replaceChild(enableBtn, disableBtn);
+                        }
+                    }
+                } else if (action === 'enable') {
+                    // Remove inactive class
+                    row.classList.remove('table-secondary');
+                    
+                    // Update status badge
+                    const cells = row.querySelectorAll('td');
+                    if (cells.length >= 5) {
+                        cells[4].innerHTML = '<span class="badge bg-success">Active</span>';
+                    }
+                    
+                    // Replace enable button with disable button
+                    const actionCell = row.querySelector('td:last-child');
+                    if (actionCell) {
+                        const enableBtn = actionCell.querySelector('.btn-success');
+                        if (enableBtn) {
+                            const disableBtn = document.createElement('button');
+                            disableBtn.type = 'button';
+                            disableBtn.className = 'btn btn-warning action-btn';
+                            disableBtn.title = 'Disable Operator';
+                            disableBtn.innerHTML = '<span class="material-icons">block</span>';
+                            disableBtn.setAttribute('onclick', 'confirmDisable(' + operatorId + ', "' + encodeURIComponent(row.querySelector('td:first-child').textContent + ' ' + row.querySelector('td:nth-child(2)').textContent) + '")');
+                            
+                            enableBtn.parentNode.replaceChild(disableBtn, enableBtn);
+                        }
+                    }
+                }
+                
+                break; // Stop searching once we've found and updated the row
+            }
+        }
+    }
+    
+    // Helper function to update operator card in mobile view
+    function updateOperatorCard(operatorId, action) {
+        // Find the operator card that matches this ID
+        const cards = document.querySelectorAll('.operator-card');
+        for (let i = 0; i < cards.length; i++) {
+            const card = cards[i];
+            const buttons = card.querySelectorAll('button');
+            
+            // Check each button to see if it has this operator ID in its onclick
+            let found = false;
+            for (let j = 0; j < buttons.length; j++) {
+                const onclick = buttons[j].getAttribute('onclick') || '';
+                if (onclick.includes(operatorId)) {
+                    found = true;
+                    break;
+                }
+            }
+            
+            if (found) {
+                // Found the card for this operator
+                const cardElement = card.querySelector('.card');
+                const cardHeader = card.querySelector('.card-header');
+                const operatorName = card.querySelector('.card-header h6').textContent;
+                
+                if (action === 'disable') {
+                    // Add border-danger class to card
+                    if (cardElement) {
+                        cardElement.classList.add('border-danger');
+                    }
+                    
+                    // Add inactive badge if it doesn't exist
+                    if (cardHeader && !cardHeader.querySelector('.badge')) {
+                        const badge = document.createElement('span');
+                        badge.className = 'badge bg-danger';
+                        badge.textContent = 'Inactive';
+                        cardHeader.appendChild(badge);
+                    }
+                    
+                    // Replace disable button with enable button
+                    const disableBtn = card.querySelector('.mobile-action-btn.btn-warning');
+                    if (disableBtn) {
+                        const enableBtn = document.createElement('button');
+                        enableBtn.type = 'button';
+                        enableBtn.className = 'btn mobile-action-btn btn-success';
+                        enableBtn.innerHTML = '<span class="material-icons">check_circle</span><span class="view-text">Enable</span>';
+                        enableBtn.setAttribute('onclick', 'confirmEnable(' + operatorId + ', "' + encodeURIComponent(operatorName) + '")');
+                        
+                        disableBtn.parentNode.replaceChild(enableBtn, disableBtn);
+                    }
+                } else if (action === 'enable') {
+                    // Remove border-danger class from card
+                    if (cardElement) {
+                        cardElement.classList.remove('border-danger');
+                    }
+                    
+                    // Remove inactive badge
+                    const badge = cardHeader ? cardHeader.querySelector('.badge') : null;
+                    if (badge) {
+                        badge.remove();
+                    }
+                    
+                    // Replace enable button with disable button
+                    const enableBtn = card.querySelector('.mobile-action-btn.btn-success');
+                    if (enableBtn) {
+                        const disableBtn = document.createElement('button');
+                        disableBtn.type = 'button';
+                        disableBtn.className = 'btn mobile-action-btn btn-warning';
+                        disableBtn.innerHTML = '<span class="material-icons">block</span><span class="view-text">Disable</span>';
+                        disableBtn.setAttribute('onclick', 'confirmDisable(' + operatorId + ', "' + encodeURIComponent(operatorName) + '")');
+                        
+                        enableBtn.parentNode.replaceChild(disableBtn, enableBtn);
+                    }
+                }
+                
+                break; // Stop searching once we've found and updated the card
+            }
+        }
     }
 </script>
 

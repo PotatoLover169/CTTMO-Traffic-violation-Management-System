@@ -18,35 +18,27 @@
                         <p class="text-muted mb-0 small">Total Records: {{ total_count }}</p>
                     </div>
                 </div>
-                <div class="d-flex gap-2 export-buttons">
-                    <a href="{% url 'export_payment_records_pdf' %}{% if search_query %}?search={{ search_query }}{% endif %}" class="btn btn-outline-danger d-flex align-items-center justify-content-center">
-                        <span class="material-icons me-1" style="font-size: 18px;">picture_as_pdf</span>
-                        <span class="export-text">Export PDF</span>
-                    </a>
+                <div class="d-flex align-items-center">
+                    <div class="search-container me-3">
+                        <form method="get">
+                            <div class="search-input">
+                                <span class="material-icons">search</span>
+                                <input type="text" 
+                                    name="search" 
+                                    class="form-control" 
+                                    placeholder="Search payment records..."
+                                    value="{{ search_query|default:'' }}">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="d-flex gap-2 export-buttons">
+                        <a href="{% url 'export_payment_records_pdf' %}{% if search_query %}?search={{ search_query }}{% endif %}" class="btn btn-outline-danger d-flex align-items-center justify-content-center">
+                            <span class="material-icons me-1" style="font-size: 18px;">picture_as_pdf</span>
+                            <span class="export-text">Export PDF</span>
+                        </a>
+                    </div>
                 </div>
             </div>
-
-            <!-- Search Form -->
-            <form method="get" class="mt-4">
-                <div class="row g-2">
-                    <div class="col-md-10">
-                        <div class="search-input">
-                            <span class="material-icons">search</span>
-                            <input type="text" 
-                                   name="search" 
-                                   class="form-control" 
-                                   placeholder="Search payment records..."
-                                   value="{{ search_query|default:'' }}">
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-primary w-100 h-100 d-flex align-items-center justify-content-center">
-                            <span class="material-icons me-2">search</span>
-                            Search
-                        </button>
-                    </div>
-                </div>
-            </form>
         </div>
     </div>
 
@@ -375,6 +367,10 @@
     width: 100%;
 }
 
+.search-container {
+    width: 300px;
+}
+
 .search-input .material-icons {
     position: absolute;
     left: 12px;
@@ -395,6 +391,78 @@
 .search-input .form-control:focus {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.1);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 992px) {
+    .d-flex.justify-content-between {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    
+    .search-container {
+        width: 100%;
+        margin-bottom: 10px;
+        margin-right: 0 !important;
+    }
+    
+    .export-buttons {
+        width: 100%;
+        display: flex;
+        justify-content: flex-end;
+    }
+}
+
+@media (max-width: 768px) {
+    .card-body {
+        padding: 0.75rem !important;
+    }
+    
+    .d-flex.justify-content-between {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .d-flex.align-items-center {
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start !important;
+    }
+    
+    .search-container {
+        width: 100%;
+        margin-bottom: 10px;
+        margin-right: 0 !important;
+    }
+    
+    .export-buttons {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        margin-top: 10px;
+    }
+
+    .export-buttons .btn {
+        flex: 1;
+        margin: 0 5px;
+        font-size: 12px;
+    }
+    
+    /* For very small screens */
+    @media (max-width: 360px) {
+        .mobile-action-btn {
+            padding: 6px 0;
+        }
+        
+        .mobile-action-btn i {
+            font-size: 0.8rem;
+        }
+        
+        .mobile-action-btn span {
+            font-size: 0.8rem;
+        }
+    }
 }
 
 /* Table Styles */
@@ -487,50 +555,6 @@
 /* Empty State */
 .text-muted .material-icons {
     opacity: 0.5;
-}
-
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-    .card-body {
-        padding: 0.75rem !important;
-    }
-    
-    .d-flex.justify-content-between {
-        flex-direction: column;
-        gap: 1rem;
-    }
-    
-    .search-box {
-        width: 100%;
-    }
-    
-    .export-buttons {
-        width: 100%;
-        display: flex;
-        justify-content: space-between;
-        margin-top: 10px;
-    }
-
-    .export-buttons .btn {
-        flex: 1;
-        margin: 0 5px;
-        font-size: 12px;
-    }
-    
-    /* For very small screens */
-    @media (max-width: 360px) {
-        .mobile-action-btn {
-            padding: 6px 0;
-        }
-        
-        .mobile-action-btn i {
-            font-size: 0.8rem;
-        }
-        
-        .mobile-action-btn span {
-            font-size: 0.8rem;
-        }
-    }
 }
 
 /* Table Container Styles */
@@ -1064,6 +1088,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const paymentCards = document.querySelectorAll('.payment-card');
     
     if (searchInput && paymentCards.length > 0) {
+        // Setup search filtering without a submit button
         searchInput.addEventListener('keyup', function() {
             const searchTerm = this.value.toLowerCase();
             
@@ -1071,6 +1096,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 const text = card.textContent.toLowerCase();
                 card.style.display = text.includes(searchTerm) ? '' : 'none';
             });
+        });
+        
+        // Auto-submit form when pressing Enter
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                this.closest('form').submit();
+            }
         });
     }
 

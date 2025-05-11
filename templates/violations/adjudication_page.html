@@ -13,18 +13,28 @@
 window.violationTypeAmounts = {};
 </script>
 
-<div class="container-fluid py-4">
+<div class="container-fluid py-4 px-3 fade-in">
     <!-- Header Section -->
     <div class="card shadow-sm border-0 rounded-3 mb-4">
-        <div class="card-body p-4">
-            <div class="d-flex justify-content-between align-items-center">
+        <div class="card-body p-3 p-md-4">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                 <div class="d-flex align-items-center">
-                    <span class="material-icons me-2" style="color: var(--primary-color)">gavel</span>
-                    <h4 class="mb-0">Adjudication Form: {{ violator.first_name }} {{ violator.last_name }}</h4>
+                    <div class="icon-circle bg-primary text-white me-3">
+                        <span class="material-icons">gavel</span>
+                    </div>
+                    <div>
+                        <h4 class="mb-0 fs-5 fs-md-4 fw-bold">Adjudication Form</h4>
+                        <p class="text-muted mb-0 small">
+                            <span class="badge bg-light text-dark me-2">
+                                <i class="material-icons align-middle" style="font-size: 14px;">person</i> 
+                                {{ violator.first_name }} {{ violator.last_name }}
+                            </span>
+                        </p>
+                    </div>
                 </div>
-                <div class="d-flex align-items-center">
-                    <a href="{% url 'adjudication_list' %}" class="btn btn-outline-secondary">
-                        <span class="material-icons me-1">arrow_back</span>
+                <div>
+                    <a href="{% url 'adjudication_list' %}" class="btn btn-outline-primary d-flex align-items-center">
+                        <span class="material-icons me-2">arrow_back</span>
                         Back to List
                     </a>
                 </div>
@@ -35,25 +45,34 @@ window.violationTypeAmounts = {};
     <!-- Violator Info Card -->
     <div class="card shadow-sm border-0 rounded-3 mb-4">
         <div class="card-header bg-light py-3">
-            <h5 class="mb-0">Violator Information</h5>
+            <div class="d-flex align-items-center">
+                <span class="material-icons text-primary me-2" style="font-size: 1.25rem;">person</span>
+                <h5 class="mb-0 fw-bold">Violator Information</h5>
+            </div>
         </div>
-        <div class="card-body p-4">
+        <div class="card-body p-3 p-md-4">
             <div class="row g-4">
                 <div class="col-md-4">
-                    <div class="mb-3">
-                        <label class="form-label text-muted">Full Name</label>
+                    <div class="info-group">
+                        <label class="form-label small text-uppercase fw-medium text-muted">Full Name</label>
                         <div class="fs-5 fw-medium">{{ violator.first_name }} {{ violator.last_name }}</div>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="mb-3">
-                        <label class="form-label text-muted">License Number</label>
-                        <div class="fs-5 fw-medium">{{ violator.license_number|default:"Not Provided" }}</div>
+                    <div class="info-group">
+                        <label class="form-label small text-uppercase fw-medium text-muted">License Number</label>
+                        <div class="fs-5 fw-medium">
+                            {% if violator.license_number %}
+                            <span class="badge bg-light text-dark px-3 py-2">{{ violator.license_number }}</span>
+                            {% else %}
+                            <span class="badge bg-secondary px-3 py-2">Not Provided</span>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="mb-3">
-                        <label class="form-label text-muted">Address</label>
+                    <div class="info-group">
+                        <label class="form-label small text-uppercase fw-medium text-muted">Address</label>
                         <div class="fs-5 fw-medium">{{ violator.address|default:"Not Provided" }}</div>
                     </div>
                 </div>
@@ -65,13 +84,16 @@ window.violationTypeAmounts = {};
     <div class="card shadow-sm border-0 rounded-3 mb-4">
         <div class="card-header bg-light py-3">
             <div class="d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Pending Violations ({{ violations_count }})</h5>
-                <span class="badge bg-primary rounded-pill">{{ violations_count }}</span>
+                <div class="d-flex align-items-center">
+                    <span class="material-icons text-primary me-2" style="font-size: 1.25rem;">assignment</span>
+                    <h5 class="mb-0 fw-bold">Pending Violations</h5>
+                </div>
+                <span class="badge bg-primary rounded-pill fs-6 px-3">{{ violations_count }}</span>
             </div>
         </div>
-        <div class="card-body p-4">
+        <div class="card-body p-3 p-md-4">
             {% if violations %}
-                <div class="row">
+                <div class="row g-4">
                     <div class="col-md-7">
                         <!-- Violation Cards -->
                         <div class="violation-cards" id="pendingViolationsContainer">
@@ -85,35 +107,40 @@ window.violationTypeAmounts = {};
                                     data-is-rejected="{{ violation.is_rejected|lower }}"
                                     data-rejection-reason="{{ violation.rejection_reason|default:'' }}">
                                     <div class="card">
-                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                        <div class="card-header d-flex justify-content-between align-items-center py-3">
                                             <div>
                                                 <span class="fw-bold">Ticket #{{ violation.ticket_id }}</span>
-                                                <span class="badge bg-{{ violation.status|lower }} ms-2">{{ violation.status }}</span>
+                                                <span class="badge bg-{{ violation.status|lower }} ms-2 px-3">{{ violation.status }}</span>
                                             </div>
                                             <div>
                                                 <span class="text-muted">{{ violation.violation_date|date:"M d, Y" }}</span>
                                             </div>
                                         </div>
-                                        <div class="card-body">
+                                        <div class="card-body p-3">
                                             <div class="violation-details">
-                                                <div class="mb-2 fw-medium text-primary violation-types-display"></div>
-                                                <div class="mb-2">
-                                                    <span class="text-muted">Location:</span> 
+                                                <div class="mb-3 fw-medium text-primary violation-types-display"></div>
+                                                <div class="mb-3 d-flex align-items-center">
+                                                    <span class="material-icons text-muted me-2" style="font-size: 1rem;">location_on</span>
                                                     <span>{{ violation.location }}</span>
                                                 </div>
                                                 <div class="d-flex justify-content-between align-items-center">
                                                     <div>
                                                         <span class="text-muted">Fine Amount:</span>
-                                                        <span class="fw-medium">₱{{ violation.fine_amount|floatformat:2 }}</span>
+                                                        <span class="fw-semibold fs-5">₱{{ violation.fine_amount|floatformat:2 }}</span>
                                                     </div>
-                                                    <button class="btn btn-sm btn-primary select-violation-btn">
+                                                    <button class="btn btn-primary select-violation-btn">
                                                         <span class="material-icons me-1">gavel</span>
                                                         Adjudicate
                                                     </button>
                                                 </div>
                                                 {% if violation.is_rejected %}
                                                 <div class="alert alert-danger mt-3 mb-0">
-                                                    <strong>Previously Rejected:</strong> {{ violation.rejection_reason }}
+                                                    <div class="d-flex align-items-start">
+                                                        <span class="material-icons text-danger me-2" style="font-size: 1rem;">warning</span>
+                                                        <div>
+                                                            <strong>Previously Rejected:</strong> {{ violation.rejection_reason }}
+                                                        </div>
+                                                    </div>
                                                 </div>
                                                 {% endif %}
                                             </div>
@@ -127,15 +154,18 @@ window.violationTypeAmounts = {};
                         <!-- Adjudication Form -->
                         <div class="card h-100" id="adjudicationFormCard">
                             <div class="card-header bg-primary text-white py-3">
-                                <h5 class="mb-0">Adjudication Decision</h5>
+                                <div class="d-flex align-items-center">
+                                    <span class="material-icons me-2">gavel</span>
+                                    <h5 class="mb-0 fw-bold">Adjudication Decision</h5>
+                                </div>
                             </div>
-                            <div class="card-body">
+                            <div class="card-body p-3 p-md-4">
                                 <div id="noViolationSelectedMessage" class="text-center py-5">
                                     <div class="mb-3">
                                         <span class="material-icons text-muted" style="font-size: 4rem;">gavel</span>
                                     </div>
-                                    <h5>No Violation Selected</h5>
-                                    <p class="text-muted">Select a violation from the left panel to begin adjudication.</p>
+                                    <h5 class="mb-2">No Violation Selected</h5>
+                                    <p class="text-muted mb-0">Select a violation from the left panel to begin adjudication.</p>
                                 </div>
                                 
                                 <div id="adjudicationFormContent" style="display: none;">
@@ -153,36 +183,36 @@ window.violationTypeAmounts = {};
                                         <input type="hidden" id="ticketId" name="ticket_id">
                                         
                                         <div class="mb-4">
-                                            <label class="form-label">Violation Types</label>
+                                            <label class="form-label fw-medium">Violation Types</label>
                                             <div id="violationTypesList" class="mb-3">
                                                 <!-- Violation types will be populated here -->
                                             </div>
                                         </div>
                                         
                                         <div class="mb-4">
-                                            <div class="d-flex justify-content-between">
-                                                <label for="penaltyAmount" class="form-label">Penalty Amount</label>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <label for="penaltyAmount" class="form-label fw-medium">Penalty Amount</label>
                                                 <small class="text-muted" id="originalAmountLabel" style="display: none;">
                                                     Original: ₱<span id="originalAmount">0.00</span>
                                                 </small>
                                             </div>
-                                            <div class="input-group">
+                                            <div class="input-group input-group-lg">
                                                 <span class="input-group-text">₱</span>
-                                                <input type="number" step="0.01" class="form-control" id="penaltyAmount" name="penalty_amount" required>
+                                                <input type="number" step="0.01" class="form-control fw-medium" id="penaltyAmount" name="penalty_amount" required>
                                             </div>
-                                            <div class="mt-1">
+                                            <div class="mt-2">
                                                 <small class="text-info" id="amountChangeInfo" style="display: none;"></small>
                                             </div>
                                         </div>
                                         
                                         <div class="mb-4">
-                                            <label for="adjudicationNotes" class="form-label">Adjudication Notes</label>
+                                            <label for="adjudicationNotes" class="form-label fw-medium">Adjudication Notes</label>
                                             <textarea class="form-control" id="adjudicationNotes" name="notes" rows="4" placeholder="Enter notes or remarks about this adjudication decision..."></textarea>
                                         </div>
                                         
                                         <div class="d-grid gap-2">
-                                            <button type="submit" class="btn btn-success">
-                                                <span class="material-icons me-1">check_circle</span>
+                                            <button type="submit" class="btn btn-success btn-lg">
+                                                <span class="material-icons me-2">check_circle</span>
                                                 Submit Adjudication
                                             </button>
                                         </div>
@@ -194,7 +224,10 @@ window.violationTypeAmounts = {};
                 </div>
             {% else %}
                 <div class="alert alert-info">
-                    <p class="mb-0">No pending violations found for this violator.</p>
+                    <div class="d-flex align-items-center">
+                        <span class="material-icons me-2">info</span>
+                        <p class="mb-0">No pending violations found for this violator.</p>
+                    </div>
                 </div>
             {% endif %}
         </div>
@@ -204,41 +237,51 @@ window.violationTypeAmounts = {};
     <div class="card shadow-sm border-0 rounded-3">
         <div class="card-header bg-light py-3">
             <div class="d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Adjudicated Violations</h5>
-                <span class="badge bg-success rounded-pill">{{ adjudicated_count }}</span>
+                <div class="d-flex align-items-center">
+                    <span class="material-icons text-success me-2" style="font-size: 1.25rem;">fact_check</span>
+                    <h5 class="mb-0 fw-bold">Adjudicated Violations</h5>
+                </div>
+                <span class="badge bg-success rounded-pill fs-6 px-3">{{ adjudicated_count }}</span>
             </div>
         </div>
-        <div class="card-body p-4">
+        <div class="card-body p-0">
             {% if adjudicated_violations %}
-                <div class="table-responsive">
-                    <table class="table table-hover">
+                <div class="table-container">
+                    <table class="table table-hover mb-0">
                         <thead>
                             <tr>
-                                <th>Ticket #</th>
-                                <th>Date Adjudicated</th>
-                                <th>Violation Types</th>
-                                <th>Penalty</th>
-                                <th>Adjudicated By</th>
-                                <th>Status</th>
+                                <th class="fw-semibold">TICKET #</th>
+                                <th class="fw-semibold">DATE ADJUDICATED</th>
+                                <th class="fw-semibold">VIOLATION TYPES</th>
+                                <th class="fw-semibold">PENALTY</th>
+                                <th class="fw-semibold">ADJUDICATED BY</th>
+                                <th class="fw-semibold">STATUS</th>
                             </tr>
                         </thead>
                         <tbody id="adjudicatedViolationsBody">
                             {% for violation in adjudicated_violations %}
                                 <tr>
-                                    <td>{{ violation.ticket_id }}</td>
+                                    <td class="fw-medium">{{ violation.ticket_id }}</td>
                                     <td>{{ violation.adjudication_date|date:"M d, Y" }}</td>
-                                    <td class="adjudicated-violation-types" data-violation-types="{{ violation.violation_types }}"></td>
-                                    <td>₱{{ violation.fine_amount|floatformat:2 }}</td>
-                                    <td>{{ violation.adjudicated_by }}</td>
-                                    <td><span class="badge bg-{{ violation.status|lower }}">{{ violation.status }}</span></td>
+                                    <td class="adjudicated-violation-types" data-violation-types="{{ violation.violation_types }}" title="{{ violation.violation_types }}"></td>
+                                    <td class="fw-semibold">₱{{ violation.fine_amount|floatformat:2 }}</td>
+                                    <td title="{{ violation.adjudicated_by }}">
+                                        <span class="truncate">{{ violation.adjudicated_by }}</span>
+                                    </td>
+                                    <td><span class="badge bg-{{ violation.status|lower }} px-3 py-2">{{ violation.status }}</span></td>
                                 </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
             {% else %}
-                <div class="alert alert-info">
-                    <p class="mb-0">No adjudicated violations found for this violator.</p>
+                <div class="p-4">
+                    <div class="alert alert-info">
+                        <div class="d-flex align-items-center">
+                            <span class="material-icons me-2">info</span>
+                            <p class="mb-0">No adjudicated violations found for this violator.</p>
+                        </div>
+                    </div>
                 </div>
             {% endif %}
         </div>
@@ -247,19 +290,59 @@ window.violationTypeAmounts = {};
 
 <!-- Styles -->
 <style>
+    /* Animation */
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    .fade-in {
+        animation: fadeIn 0.5s ease-in-out;
+    }
+    
+    /* Icon Circle */
+    .icon-circle {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Enhanced card styling */
+    .card {
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05) !important;
+        transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+    
+    .card-header {
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    
     /* Border for rejected violations */
     .border-left-danger {
         border-left: 4px solid #dc3545;
     }
     
+    /* Info Group */
+    .info-group {
+        margin-bottom: 1.5rem;
+    }
+    
     /* Violation Cards Styling */
     .violation-card {
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.3s ease;
     }
     
     .violation-card:hover {
-        transform: translateY(-2px);
+        transform: translateY(-3px);
     }
     
     .violation-card.active {
@@ -377,11 +460,135 @@ window.violationTypeAmounts = {};
         font-size: 14px !important;
         color: #dc3545;
     }
+    
+    /* Table styling */
+    .table {
+        font-size: 0.9rem;
+        margin-bottom: 0;
+    }
+    
+    .table thead th {
+        font-weight: 600;
+        color: #495057;
+        border-bottom: 2px solid #e9ecef;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 0.75rem;
+        background-color: #f8f9fa;
+    }
+    
+    .table tbody td {
+        padding: 0.75rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .table tbody tr:hover {
+        background-color: rgba(0,0,0,0.02);
+    }
+    
+    /* Make table responsive with fixed header and scrollable body */
+    .table-container {
+        position: relative;
+        max-height: 50vh; /* Limit height to 50% of viewport height */
+        overflow-y: auto;
+        border-radius: 8px;
+        margin-bottom: 0;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    
+    /* Ensure the header stays fixed at the top while scrolling */
+    .table-container thead th {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #e9ecef;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    /* Add scrollbar styling for better UX */
+    .table-container::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    
+    .table-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+    
+    .table-container::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 4px;
+    }
+    
+    .table-container::-webkit-scrollbar-thumb:hover {
+        background: #999;
+    }
+    
+    /* Truncate long text in cells with ellipsis */
+    .truncate {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: inline-block;
+        max-width: 100%;
+        vertical-align: middle;
+    }
+    
+    /* Add hover effect to show that content is viewable */
+    td[title]:hover {
+        cursor: help;
+        background-color: rgba(0,0,0,0.02);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .container-fluid {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+        
+        .card-body {
+            padding: 0.75rem;
+        }
+        
+        .table-container {
+            max-height: 50vh; /* Smaller height on mobile */
+        }
+    }
+    
+    /* Animation for new row highlight */
+    @keyframes highlightNewRow {
+        0% { background-color: rgba(var(--primary-color-rgb, 37, 99, 235), 0.3); transform: translateY(-10px); opacity: 0; }
+        10% { background-color: rgba(var(--primary-color-rgb, 37, 99, 235), 0.3); transform: translateY(0); opacity: 1; }
+        20% { background-color: rgba(var(--primary-color-rgb, 37, 99, 235), 0.1); }
+        30% { background-color: rgba(var(--primary-color-rgb, 37, 99, 235), 0.3); }
+        100% { background-color: transparent; }
+    }
+    
+    /* Animation for card removal */
+    @keyframes fadeOutCard {
+        0% { opacity: 1; transform: translateX(0); }
+        100% { opacity: 0; transform: translateX(-20px); }
+    }
+    
+    /* Animation for success message */
+    @keyframes pulseMessage {
+        0% { background-color: #d1e7dd; }
+        50% { background-color: #e8f5e9; }
+        100% { background-color: #d1e7dd; }
+    }
 </style>
 
 <!-- Scripts -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize tooltips for truncated content
+    initializeTooltips();
+    
     // Debug information
     console.log('Adjudication form loaded');
     console.log('window.violationTypeAmounts defined:', typeof window.violationTypeAmounts !== 'undefined');
@@ -404,7 +611,17 @@ document.addEventListener('DOMContentLoaded', function() {
         
         try {
             const types = JSON.parse(typesData);
-            typesDisplay.textContent = types.join(', ');
+            
+            // Create a more visually appealing display of types with badges
+            if (types && types.length > 0) {
+                let typesHTML = '';
+                types.forEach(type => {
+                    typesHTML += `<span class="badge bg-light text-primary me-2 mb-1 px-2 py-1">${type}</span>`;
+                });
+                typesDisplay.innerHTML = typesHTML;
+            } else {
+                typesDisplay.textContent = 'No violation types specified';
+            }
         } catch (error) {
             console.error('Error parsing violation types:', error);
             typesDisplay.textContent = 'Error loading violation types';
@@ -417,12 +634,50 @@ document.addEventListener('DOMContentLoaded', function() {
         
         try {
             const types = JSON.parse(typesData);
-            cell.textContent = types.join(', ');
+            
+            // Create a more visually appealing display of types with badges
+            if (types && types.length > 0) {
+                let typesHTML = '';
+                types.forEach(type => {
+                    typesHTML += `<span class="badge bg-light text-dark me-1 mb-1">${type}</span>`;
+                });
+                cell.innerHTML = typesHTML;
+            } else {
+                cell.textContent = 'N/A';
+            }
         } catch (error) {
             console.error('Error parsing adjudicated violation types:', error);
             cell.textContent = 'Error loading violation types';
         }
     });
+    
+    // Helper function to initialize tooltips
+    function initializeTooltips() {
+        // Initialize tooltips
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+        if (tooltipTriggerList.length > 0) {
+            if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+                tooltipTriggerList.map(function(tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl, {
+                        placement: 'top',
+                        trigger: 'hover'
+                    });
+                });
+            }
+        }
+        
+        // Detect truncated content and add titles dynamically
+        const truncatedElements = document.querySelectorAll('.truncate');
+        truncatedElements.forEach(function(element) {
+            if (element.offsetWidth < element.scrollWidth && !element.hasAttribute('title') && element.textContent.trim() !== '') {
+                // Only add title if content is actually truncated and no title already exists
+                const parentWithTitle = element.closest('[title]');
+                if (!parentWithTitle) {
+                    element.setAttribute('title', element.textContent);
+                }
+            }
+        });
+    }
     
     // Handle violation card selection
     const violationCards = document.querySelectorAll('.violation-card');

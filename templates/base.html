@@ -20,6 +20,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     
+    <!-- Google reCAPTCHA API -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    
     <!-- CSS Dependencies -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -4464,5 +4467,130 @@
     
     <!-- Block for page specific scripts -->
     {% block scripts %}{% endblock %}
+
+    <!-- Add right before the closing </body> tag -->
+    <!-- Global reCAPTCHA validation -->
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('reCAPTCHA validation script loaded');
+            
+            // Get all forms marked as protected (requiring reCAPTCHA)
+            const protectedForms = document.querySelectorAll('form[data-protected="true"]');
+            console.log('Protected forms found:', protectedForms.length);
+            
+            // For each protected form, add a submit event handler
+            protectedForms.forEach(function(form, index) {
+                console.log('Adding submit handler to form:', index);
+                
+                // Override the default submit method
+                const originalSubmit = form.submit;
+                form.submit = function() {
+                    console.log('Custom submit method called');
+                    if (validateRecaptcha(form)) {
+                        originalSubmit.apply(this, arguments);
+                    }
+                };
+                
+                form.addEventListener('submit', function(e) {
+                    console.log('Form submit event triggered');
+                    if (!validateRecaptcha(form)) {
+                        console.log('reCAPTCHA validation failed - preventing submission');
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return false;
+                    }
+                    console.log('reCAPTCHA validation passed - allowing submission');
+                }, true); // Use capturing to ensure this runs before other handlers
+            });
+            
+            // Function to validate reCAPTCHA
+            function validateRecaptcha(form) {
+                // Check if reCAPTCHA is on this page
+                if (typeof grecaptcha === 'undefined') {
+                    console.warn('grecaptcha is not defined - skipping validation');
+                    return true; // Skip validation if reCAPTCHA is not on page
+                }
+                
+                try {
+                    // Get the reCAPTCHA response
+                    const recaptchaResponse = grecaptcha.getResponse();
+                    console.log('reCAPTCHA response:', recaptchaResponse ? 'present' : 'missing');
+                    
+                    // If no response, show error and return false
+                    if (!recaptchaResponse) {
+                        // Show error message near the reCAPTCHA
+                        const recaptchaMessage = form.querySelector('.recaptcha-message') || 
+                                                document.querySelector('.recaptcha-message');
+                        if (recaptchaMessage) {
+                            recaptchaMessage.textContent = 'Please complete the reCAPTCHA verification.';
+                            recaptchaMessage.style.color = 'red';
+                            recaptchaMessage.style.display = 'block';
+                        }
+                        
+                        // Show SweetAlert if available, otherwise show browser alert
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Verification Required',
+                                text: 'Please complete the reCAPTCHA verification to proceed.',
+                                confirmButtonText: 'OK'
+                            });
+                        } else {
+                            alert('Please complete the reCAPTCHA verification to proceed.');
+                        }
+                        
+                        // Scroll to the reCAPTCHA if it's not visible
+                        const recaptchaElement = form.querySelector('.g-recaptcha');
+                        if (recaptchaElement) {
+                            recaptchaElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                        
+                        return false;
+                    }
+                    
+                    return true;
+                } catch (error) {
+                    console.error('Error validating reCAPTCHA:', error);
+                    return false; // Prevent submission on error
+                }
+            }
+            
+            // Define global reCAPTCHA callback functions if they don't exist
+            if (typeof window.onRecaptchaSuccess !== 'function') {
+                window.onRecaptchaSuccess = function() {
+                    console.log('reCAPTCHA validated successfully');
+                    const messages = document.querySelectorAll('.recaptcha-message');
+                    messages.forEach(function(message) {
+                        message.textContent = '';
+                        message.style.display = 'none';
+                    });
+                };
+            }
+            
+            if (typeof window.onRecaptchaExpired !== 'function') {
+                window.onRecaptchaExpired = function() {
+                    console.log('reCAPTCHA validation expired');
+                    const messages = document.querySelectorAll('.recaptcha-message');
+                    messages.forEach(function(message) {
+                        message.textContent = 'reCAPTCHA verification expired. Please verify again.';
+                        message.style.display = 'block';
+                        message.style.color = 'red';
+                    });
+                };
+            }
+            
+            if (typeof window.onRecaptchaError !== 'function') {
+                window.onRecaptchaError = function() {
+                    console.log('reCAPTCHA validation error');
+                    const messages = document.querySelectorAll('.recaptcha-message');
+                    messages.forEach(function(message) {
+                        message.textContent = 'Error loading reCAPTCHA. Please refresh and try again.';
+                        message.style.display = 'block';
+                        message.style.color = 'red';
+                    });
+                };
+            }
+        });
+    </script>
 </body>
 </html>
