@@ -1,5 +1,9 @@
 <!-- Google reCAPTCHA v2 Integration -->
 {% load static %}
+
+<!-- Direct inclusion of reCAPTCHA script - Add this tag BEFORE your forms -->
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
 <!-- Load optimization script first for preconnect hints -->
 <script src="{% static 'js/recaptcha-optimization.js' %}"></script>
 <script src="{% static 'js/recaptcha-handler.js' %}"></script>

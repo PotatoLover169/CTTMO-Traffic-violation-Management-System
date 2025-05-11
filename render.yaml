@@ -23,6 +23,10 @@ services:
         value: "True"
       - key: MEDIA_URL
         value: "/media/"
+      - key: RECAPTCHA_SITE_KEY
+        value: "6LdPGjUrAAAAAIwQo_5ZnIW_lSEWqB16xK3lm5PG"
+      - key: RECAPTCHA_SECRET_KEY
+        value: "6LdPGjUrAAAAAIg7w66Wu6ejYHT4K4Vp0YoqSN56"
     disk:
       name: media
       mountPath: /opt/render/project/src/media

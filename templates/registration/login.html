@@ -51,9 +51,8 @@
             </div>
 
             <!-- reCAPTCHA placeholder - explicit position -->
-            <div class="recaptcha-placeholder-slot mt-3 mb-3 d-flex justify-content-center">
-                <!-- Direct reCAPTCHA implementation with explicit key -->
-                <div class="g-recaptcha" data-sitekey="6LcooDUrAAAAAFKBOKmvx5DgMXp2GyuckuLlWLt4"></div>
+            <div class="mt-3 mb-3 d-flex justify-content-center">
+                <div class="g-recaptcha" data-sitekey="6LdPGjUrAAAAAIwQo_5ZnIW_lSEWqB16xK3lm5PG" data-callback="onRecaptchaSuccess" data-expired-callback="onRecaptchaExpired" data-error-callback="onRecaptchaError"></div>
             </div>
 
             <button type="submit" class="btn btn-primary w-100 mb-3">
@@ -579,9 +578,6 @@
 }
 </style>
 
-<!-- Load reCAPTCHA API directly without conditional -->
-<script src="https://www.google.com/recaptcha/api.js" async defer></script>
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize Micromodal
@@ -593,6 +589,26 @@ document.addEventListener('DOMContentLoaded', function() {
         awaitOpenAnimation: true,
         awaitCloseAnimation: true
     });
+
+    // Debug reCAPTCHA configuration
+    console.log('reCAPTCHA Configuration:', {
+        siteKey: document.querySelector('meta[name="recaptcha-site-key"]')?.content,
+        currentDomain: document.querySelector('meta[name="recaptcha-current-domain"]')?.content,
+        allowedDomains: document.querySelector('meta[name="recaptcha-allowed-domains"]')?.content,
+        directSiteKey: '6LdPGjUrAAAAAIwQo_5ZnIW_lSEWqB16xK3lm5PG'
+    });
+    
+    // reCAPTCHA error handler
+    window.onRecaptchaError = function() {
+        console.error('reCAPTCHA error occurred');
+        // Add visible error notification
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'alert alert-danger';
+        errorDiv.innerHTML = 'reCAPTCHA could not be loaded. Please refresh the page and try again.';
+        
+        const recaptchaContainer = document.querySelector('.g-recaptcha').parentElement;
+        recaptchaContainer.appendChild(errorDiv);
+    };
 
     // Update forgot password link to include username for email lookup
     const forgotPasswordLink = document.getElementById('forgot-password-link');
@@ -658,10 +674,6 @@ document.addEventListener('DOMContentLoaded', function() {
             element.style.transform = 'translateY(0)';
         }, 100 + (index * 100));
     });
-
-    // Debugging reCAPTCHA setup
-    console.log('Current domain:', window.location.hostname);
-    console.log('Using explicit reCAPTCHA site key: 6LcooDUrAAAAAFKBOKmvx5DgMXp2GyuckuLlWLt4');
 });
 </script>
 {% endblock %}
