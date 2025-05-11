@@ -9,8 +9,8 @@
 
 // Configuration
 const RECAPTCHA_CONFIG = {
-    // Get site key from meta tag with no fallback - we want to fail clearly if not set
-    siteKey: document.querySelector('meta[name="recaptcha-site-key"]')?.content || '',
+    // Set explicit site key that matches Google reCAPTCHA console
+    siteKey: '6LcooDUrAAAAAFKBOKmvx5DgMXp2GyuckuLlWLt4',
     theme: 'light',
     size: 'normal',
     // Forms to protect with reCAPTCHA (selector patterns)
@@ -41,7 +41,11 @@ const RECAPTCHA_CONFIG = {
     },
     domainConfig: {
         currentDomain: window.location.hostname,
-        allowedDomains: ['localhost', '127.0.0.1', 'onrender.com']
+        allowedDomains: [
+            'localhost', 
+            '127.0.0.1', 
+            'traffic-violation-system.onrender.com'
+        ]
     }
 };
 

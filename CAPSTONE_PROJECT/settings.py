@@ -272,12 +272,12 @@ EMAIL_VERIFICATION_EXEMPT_URLS = [
 ]
 
 # reCAPTCHA settings
-RECAPTCHA_SITE_KEY = os.environ.get('RECAPTCHA_SITE_KEY', '6LcooDUrAAAAAFKBOKmvx5DgMXp2GyuckuLlWLt4')  # Test key
-RECAPTCHA_SECRET_KEY = os.environ.get('RECAPTCHA_SECRET_KEY', '6LcooDUrAAAAAKq8h5bPT6l2JCIlAl6QksJA-Oig')  # Test key
+RECAPTCHA_SITE_KEY = os.environ.get('RECAPTCHA_SITE_KEY', '6LcooDUrAAAAAFKBOKmvx5DgMXp2GyuckuLlWLt4')
+RECAPTCHA_SECRET_KEY = os.environ.get('RECAPTCHA_SECRET_KEY', '6LcooDUrAAAAAKq8h5bPT6l2JCIlAl6QksJA-Oig')
 
 # Define allowed domains for reCAPTCHA to work on
-# This should match what you've configured in the Google reCAPTCHA admin console
-RECAPTCHA_ALLOWED_DOMAINS = os.environ.get('RECAPTCHA_ALLOWED_DOMAINS', 'https://traffic-violation-system.onrender.com').split(',')
-if not RECAPTCHA_ALLOWED_DOMAINS or RECAPTCHA_ALLOWED_DOMAINS == ['https://traffic-violation-system.onrender.com']:
-    # Default to the configured hosts if no explicit domains are set
-    RECAPTCHA_ALLOWED_DOMAINS = [host.strip("^$") for host in ALLOWED_HOSTS if not host.startswith('*')]
+RECAPTCHA_ALLOWED_DOMAINS = [
+    'localhost',
+    '127.0.0.1',
+    'traffic-violation-system.onrender.com'
+]
