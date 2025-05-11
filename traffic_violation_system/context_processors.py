@@ -1,6 +1,7 @@
 from django.db.models import Q
 from traffic_violation_system.user_portal.models import UserNotification
 from django.conf import settings
+import json
 
 def user_notifications(request):
     """Add unread notification count and recent notifications to the context"""
@@ -28,8 +29,26 @@ def recaptcha_settings(request):
     # Get the current domain from the request
     current_domain = request.get_host().split(':')[0]  # Remove port if present
     
+    # Get the allowed domains from settings
+    allowed_domains = getattr(settings, 'RECAPTCHA_ALLOWED_DOMAINS', [])
+    
+    # Ensure allowed_domains is a list of strings
+    if isinstance(allowed_domains, str):
+        allowed_domains = [d.strip() for d in allowed_domains.split(',') if d.strip()]
+    
+    # Always include the current domain in the allowed domains
+    if current_domain and current_domain not in allowed_domains:
+        allowed_domains.append(current_domain)
+    
+    # Include Render domain if it's the host
+    if '.onrender.com' in current_domain and current_domain not in allowed_domains:
+        allowed_domains.append(current_domain)
+    
+    # Convert allowed_domains to a JSON string for the template
+    allowed_domains_json = json.dumps(allowed_domains)
+    
     return {
         'recaptcha_site_key': getattr(settings, 'RECAPTCHA_SITE_KEY', '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'),  # Using test key as fallback
         'recaptcha_current_domain': current_domain,
-        'recaptcha_allowed_domains': getattr(settings, 'RECAPTCHA_ALLOWED_DOMAINS', []),
+        'recaptcha_allowed_domains': allowed_domains_json,
     } 
