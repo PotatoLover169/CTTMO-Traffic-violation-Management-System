@@ -8,6 +8,8 @@
 <script src="https://unpkg.com/micromodal/dist/micromodal.min.js"></script>
 <!-- Add Axios for AJAX requests -->
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<!-- Add Google reCAPTCHA API -->
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
 <div class="auth-container">
     <div class="register-card">
@@ -220,7 +222,10 @@
             </div>
 
             <!-- reCAPTCHA placeholder - explicit position -->
-            <div class="recaptcha-placeholder-slot my-3 d-flex justify-content-center"></div>
+            <div class="my-3 d-flex justify-content-center">
+                <div class="g-recaptcha" data-sitekey="6LdPGjUrAAAAAIwQo_5ZnIW_lSEWqB16xK3lm5PG" data-callback="onRecaptchaSuccess" data-expired-callback="onRecaptchaExpired" data-error-callback="onRecaptchaError"></div>
+                <div class="recaptcha-message text-danger mt-1"></div>
+            </div>
 
             <!-- Action Buttons -->
             <div class="d-flex justify-content-between align-items-center mt-3 gap-3">
@@ -707,21 +712,118 @@
         max-width: 580px;
         padding: 1.75rem;
     }
+    
+    /* Improve accordion layout on mobile */
+    .accordion-button {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.95rem;
+    }
+    
+    .accordion-body {
+        padding: 1rem 0.8rem;
+    }
+    
+    /* Adjust form elements */
+    .form-label {
+        font-size: 0.85rem;
+    }
+    
+    .input-group-text {
+        padding: 0.5rem 0.6rem;
+    }
+    
+    .form-control {
+        font-size: 0.9rem;
+        padding: 0.5rem 0.6rem;
+    }
 }
 
 @media (max-width: 576px) {
     .register-card {
-        padding: 1.5rem;
+        padding: 1.25rem;
         margin: 0.5rem;
-        max-width: 360px;
+        max-width: 100%; /* Change from fixed 360px to fluid width */
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
     }
     
     .register-title {
-        font-size: 1.5rem;
+        font-size: 1.4rem;
     }
     
     .register-logo {
-        width: 70px;
+        width: 60px;
+    }
+    
+    .register-subtitle {
+        font-size: 0.85rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    /* Make reCAPTCHA responsive for smaller screens */
+    .g-recaptcha {
+        transform-origin: left top;
+        transform: scale(0.85);
+    }
+    
+    .recaptcha-message {
+        font-size: 0.8rem;
+    }
+    
+    /* Stack buttons vertically on very small screens */
+    .d-flex.justify-content-between.align-items-center.mt-3.gap-3 {
+        flex-direction: column;
+        gap: 0.75rem !important;
+    }
+    
+    .btn-outline-secondary, .btn-primary {
+        width: 100%;
+        font-size: 0.9rem;
+        padding: 0.6rem;
+    }
+    
+    /* Simplify alerts on mobile */
+    .alert {
+        padding: 0.75rem;
+        margin-bottom: 1rem;
+    }
+    
+    .alert-icon-container {
+        min-width: 30px;
+        width: 30px;
+        height: 30px;
+    }
+    
+    .alert-heading {
+        font-size: 0.9rem;
+    }
+    
+    .alert p {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 375px) {
+    .register-card {
+        padding: 1rem;
+    }
+    
+    .register-title {
+        font-size: 1.3rem;
+    }
+    
+    /* Further reduce reCAPTCHA size for very small screens */
+    .g-recaptcha {
+        transform: scale(0.77);
+        margin-left: -20px; /* Adjust position after scaling */
+    }
+    
+    /* Simplify progress display */
+    #progressPercentage {
+        font-size: 0.7rem;
+    }
+    
+    .progress {
+        height: 5px;
     }
 }
 
@@ -943,6 +1045,34 @@
 </style>
 
 <script>
+// Add reCAPTCHA callback functions
+window.onRecaptchaSuccess = function() {
+    console.log('reCAPTCHA validated successfully');
+    document.querySelector('.recaptcha-message').textContent = '';
+};
+
+window.onRecaptchaExpired = function() {
+    console.log('reCAPTCHA validation expired');
+    document.querySelector('.recaptcha-message').textContent = 'reCAPTCHA verification expired. Please verify again.';
+};
+
+window.onRecaptchaError = function() {
+    console.log('reCAPTCHA validation error');
+    document.querySelector('.recaptcha-message').textContent = 'Error loading reCAPTCHA. Please refresh and try again.';
+};
+
+// Improve reCAPTCHA container positioning for mobile
+function fixRecaptchaContainerOnMobile() {
+    const recaptchaContainer = document.querySelector('.g-recaptcha');
+    if (recaptchaContainer && window.innerWidth <= 375) {
+        const parent = recaptchaContainer.parentElement;
+        parent.style.display = 'flex';
+        parent.style.justifyContent = 'center';
+        recaptchaContainer.style.margin = '0 auto';
+        recaptchaContainer.style.transformOrigin = 'center';
+    }
+}
+
 // Add this function to update the progress display
 function updateProgressDisplay() {
     const percent = calculateProgress();
@@ -960,6 +1090,10 @@ document.addEventListener('DOMContentLoaded', function() {
         awaitCloseAnimation: true,
         debugMode: true // Add debug mode to help troubleshoot
     });
+    
+    // Fix reCAPTCHA on mobile
+    fixRecaptchaContainerOnMobile();
+    window.addEventListener('resize', fixRecaptchaContainerOnMobile);
     
     // Add direct event handler for Terms and Conditions link
     const termsLink = document.querySelector('a[data-micromodal-trigger="modal-terms"]');
@@ -1190,49 +1324,54 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Function to submit the form after validations
     const submitForm = function() {
-        if (form && !form.checkValidity()) {
+        // Validate the form
+        if (!form.checkValidity()) {
+            event.stopPropagation();
             form.classList.add('was-validated');
-            return false;
+            return;
         }
         
-        form.submit();
-    };
-    
-    // Set up form submission handler
-    if (form) {
-        form.addEventListener('submit', function(event) {
-            // Prevent the default form submission
+        // Check reCAPTCHA
+        const recaptchaResponse = grecaptcha.getResponse();
+        if (!recaptchaResponse) {
             event.preventDefault();
             
-            // Don't submit again if already in progress
-            if (formSubmitting) return;
-            
-            // Validate the form
-            if (!form.checkValidity()) {
-                event.stopPropagation();
-                form.classList.add('was-validated');
-                return;
+            // Show error message
+            const errorContainer = document.querySelector('.recaptcha-message');
+            if (errorContainer) {
+                errorContainer.textContent = 'Please complete the reCAPTCHA verification.';
+                
+                // Display a more visible alert
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Verification Required',
+                        text: 'Please complete the reCAPTCHA verification to proceed.'
+                    });
+                }
             }
             
-            // Mark form as submitting and update UI
-            formSubmitting = true;
-            if (registerBtn) {
-                registerBtn.disabled = true;
-                registerBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Checking...';
-            }
-            
-            // Create object with form data for API
-            const formData = {
-                first_name: document.getElementById('first_name').value,
-                last_name: document.getElementById('last_name').value,
-                email: document.getElementById('email').value,
-                license_number: document.getElementById('license_number').value || ''
-            };
-            
-            // Check for violations
-            checkViolations(formData);
-        });
-    }
+            return;
+        }
+        
+        // Mark form as submitting and update UI
+        formSubmitting = true;
+        if (registerBtn) {
+            registerBtn.disabled = true;
+            registerBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Checking...';
+        }
+        
+        // Create object with form data for API
+        const formData = {
+            first_name: document.getElementById('first_name').value,
+            last_name: document.getElementById('last_name').value,
+            email: document.getElementById('email').value,
+            license_number: document.getElementById('license_number').value || ''
+        };
+        
+        // Check for violations
+        checkViolations(formData);
+    };
     
     // Function to check for violations before form submission
     const checkViolations = function(userData) {

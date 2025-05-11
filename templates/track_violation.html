@@ -71,7 +71,7 @@
                     <!-- reCAPTCHA container -->
                     <div class="mt-3">
                         <div class="recaptcha-container">
-                            <div class="g-recaptcha" data-sitekey="{{ recaptcha_site_key }}" data-callback="onRecaptchaSuccess" data-expired-callback="onRecaptchaExpired" data-error-callback="onRecaptchaError"></div>
+                            <div class="g-recaptcha" data-sitekey="6LdPGjUrAAAAAIwQo_5ZnIW_lSEWqB16xK3lm5PG" data-callback="onRecaptchaSuccess" data-expired-callback="onRecaptchaExpired" data-error-callback="onRecaptchaError"></div>
                             <div class="recaptcha-message text-danger mt-1"></div>
                         </div>
                     </div>
@@ -144,6 +144,38 @@
 <script>
     // Ensure ticket number persists after form submission
     document.addEventListener('DOMContentLoaded', function() {
+        // Fix reCAPTCHA container on mobile
+        function fixRecaptchaContainerOnMobile() {
+            const recaptchaContainer = document.querySelector('.g-recaptcha');
+            if (recaptchaContainer && window.innerWidth <= 375) {
+                const parent = recaptchaContainer.parentElement;
+                parent.style.display = 'flex';
+                parent.style.justifyContent = 'center';
+                recaptchaContainer.style.margin = '0 auto';
+                recaptchaContainer.style.transformOrigin = 'center';
+            }
+        }
+        
+        // Apply the fix on load and window resize
+        fixRecaptchaContainerOnMobile();
+        window.addEventListener('resize', fixRecaptchaContainerOnMobile);
+
+        // reCAPTCHA callbacks (add these explicitly here to ensure they're defined)
+        window.onRecaptchaSuccess = function() {
+            console.log('reCAPTCHA validated successfully');
+            document.querySelector('.recaptcha-message').textContent = '';
+        };
+        
+        window.onRecaptchaExpired = function() {
+            console.log('reCAPTCHA validation expired');
+            document.querySelector('.recaptcha-message').textContent = 'reCAPTCHA verification expired. Please verify again.';
+        };
+        
+        window.onRecaptchaError = function() {
+            console.log('reCAPTCHA validation error');
+            document.querySelector('.recaptcha-message').textContent = 'Error loading reCAPTCHA. Please refresh and try again.';
+        };
+
         // Check if there's a stored ticket number in sessionStorage
         const storedTicketNumber = sessionStorage.getItem('lastSearchedTicketNumber');
         const ticketInput = document.getElementById('ticket_number');
@@ -199,19 +231,6 @@
             sessionStorage.setItem('lastSearchedTicketNumber', ticketInput.value.trim());
         }
     });
-    
-    // reCAPTCHA callbacks
-    function onRecaptchaSuccess() {
-        document.querySelector('.recaptcha-message').textContent = '';
-    }
-    
-    function onRecaptchaExpired() {
-        document.querySelector('.recaptcha-message').textContent = 'reCAPTCHA verification expired. Please verify again.';
-    }
-    
-    function onRecaptchaError() {
-        document.querySelector('.recaptcha-message').textContent = 'Error loading reCAPTCHA. Please refresh and try again.';
-    }
 </script>
 
 <style>
@@ -561,6 +580,25 @@
         .details-value {
             flex: 0 0 100%;
         }
+        
+        /* Improve form layout */
+        .track-body {
+            padding: 1.25rem;
+        }
+        
+        .form-control {
+            font-size: 0.9rem;
+        }
+        
+        /* Make reCAPTCHA responsive */
+        .recaptcha-container {
+            overflow-x: hidden;
+        }
+        
+        .g-recaptcha {
+            transform-origin: left top;
+            transform: scale(0.9);
+        }
     }
     
     @media (max-width: 576px) {
@@ -585,6 +623,94 @@
         }
         
         .govt-office-subtitle {
+            font-size: 0.85rem;
+        }
+        
+        .govt-office-address {
+            font-size: 0.75rem;
+        }
+        
+        /* Improve track card for mobile */
+        .track-card {
+            margin: 0 0.5rem;
+        }
+        
+        .track-header h2 {
+            font-size: 1.2rem;
+        }
+        
+        .track-header p {
+            font-size: 0.8rem;
+        }
+        
+        .track-body {
+            padding: 1rem;
+        }
+        
+        /* Improve form elements */
+        .form-label {
+            font-size: 0.85rem;
+        }
+        
+        .input-group {
+            flex-direction: column;
+        }
+        
+        .input-group .btn-search {
+            border-radius: 0.375rem;
+            margin-top: 0.5rem;
+            width: 100%;
+        }
+        
+        .form-text {
+            font-size: 0.75rem;
+        }
+        
+        /* Make reCAPTCHA responsive for smaller screens */
+        .g-recaptcha {
+            transform: scale(0.85);
+        }
+        
+        .recaptcha-message {
+            font-size: 0.8rem;
+        }
+        
+        /* Adjust violation card */
+        .violation-title {
+            font-size: 1.1rem;
+            padding: 0.6rem;
+        }
+        
+        .details-row {
+            padding: 0.6rem 0.8rem;
+        }
+        
+        .status-badge {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.6rem;
+        }
+    }
+    
+    @media (max-width: 375px) {
+        /* Further optimize for very small screens */
+        .g-recaptcha {
+            transform: scale(0.77);
+            margin-left: -20px;
+        }
+        
+        .track-body {
+            padding: 0.8rem;
+        }
+        
+        .violation-card {
+            margin-top: 0.75rem;
+        }
+        
+        .details-label, .details-value {
+            font-size: 0.8rem;
+        }
+        
+        .form-control, .btn {
             font-size: 0.85rem;
         }
     }

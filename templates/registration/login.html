@@ -378,12 +378,24 @@
         padding: 2rem;
         max-width: 420px;
     }
+    
+    /* Make reCAPTCHA responsive */
+    .g-recaptcha {
+        transform-origin: left top;
+        transform: scale(0.9);
+    }
 }
 
 @media (max-width: 576px) {
+    .auth-container {
+        padding: 0.75rem;
+    }
+    
     .auth-card {
-        padding: 1.75rem;
-        max-width: 360px;
+        padding: 1.5rem;
+        margin: 0 0.5rem;
+        max-width: 100%;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     }
     
     .auth-logo {
@@ -408,6 +420,63 @@
         height: 48px;
         padding: 0.6rem;
         font-size: 1rem;
+    }
+    
+    /* Make reCAPTCHA responsive for smaller screens */
+    .g-recaptcha {
+        transform: scale(0.85);
+        margin-left: -10px;
+    }
+    
+    .recaptcha-message {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 375px) {
+    .auth-card {
+        padding: 1.25rem;
+    }
+    
+    .auth-logo {
+        width: 60px;
+    }
+    
+    .auth-title {
+        font-size: 1.4rem;
+    }
+    
+    .auth-subtitle {
+        font-size: 0.85rem;
+        margin-bottom: 1.25rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1rem !important;
+    }
+    
+    .input-group {
+        min-height: 45px;
+    }
+    
+    /* Further reduce reCAPTCHA size for very small screens */
+    .g-recaptcha {
+        transform: scale(0.77);
+        margin-left: -20px;
+    }
+    
+    .btn-primary {
+        height: 45px;
+        font-size: 0.95rem;
+    }
+    
+    .btn-outline-primary {
+        height: 45px;
+        font-size: 0.9rem;
+    }
+    
+    .separator-text span {
+        font-size: 0.8rem;
     }
 }
 
@@ -580,6 +649,22 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Fix reCAPTCHA container on mobile
+    function fixRecaptchaContainerOnMobile() {
+        const recaptchaContainer = document.querySelector('.g-recaptcha');
+        if (recaptchaContainer && window.innerWidth <= 375) {
+            const parent = recaptchaContainer.parentElement;
+            parent.style.display = 'flex';
+            parent.style.justifyContent = 'center';
+            recaptchaContainer.style.margin = '0 auto';
+            recaptchaContainer.style.transformOrigin = 'center';
+        }
+    }
+    
+    // Apply the fix on load and window resize
+    fixRecaptchaContainerOnMobile();
+    window.addEventListener('resize', fixRecaptchaContainerOnMobile);
+
     // Initialize Micromodal
     MicroModal.init({
         openTrigger: 'data-micromodal-trigger',
