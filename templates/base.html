@@ -12,7 +12,7 @@
     <!-- reCAPTCHA Configuration Meta Tags -->
     <meta name="recaptcha-site-key" content="{{ recaptcha_site_key }}">
     <meta name="recaptcha-current-domain" content="{{ recaptcha_current_domain }}">
-    <meta name="recaptcha-allowed-domains" content="{{ recaptcha_allowed_domains }}">
+    <meta name="recaptcha-allowed-domains" content='{{ recaptcha_allowed_domains|safe|stringformat:"s"|escapejs }}'>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

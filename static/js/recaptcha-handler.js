@@ -7,8 +7,6 @@
  * Optimized for low bandwidth environments.
  */
 
-console.log('reCAPTCHA Handler script loaded');
-
 // Configuration
 const RECAPTCHA_CONFIG = {
     siteKey: document.querySelector('meta[name="recaptcha-site-key"]')?.content || '6LdPGjUrAAAAAIwQo_5ZnIW_lSEWqB16xK3lm5PG',
@@ -36,36 +34,7 @@ const RECAPTCHA_CONFIG = {
     // Domain configuration
     domainConfig: {
         currentDomain: document.querySelector('meta[name="recaptcha-current-domain"]')?.content || window.location.hostname,
-        allowedDomains: (() => {
-            try {
-                const metaTag = document.querySelector('meta[name="recaptcha-allowed-domains"]');
-                if (!metaTag || !metaTag.content) {
-                    console.log('No allowed domains meta tag found, allowing all domains');
-                    return [];
-                }
-                
-                console.log('Raw allowed domains from meta tag:', metaTag.content);
-                
-                // Try to parse as JSON first
-                try {
-                    if (metaTag.content.trim().startsWith('[')) {
-                        const parsed = JSON.parse(metaTag.content);
-                        console.log('Parsed allowed domains as JSON:', parsed);
-                        return parsed;
-                    }
-                } catch (e) {
-                    console.log('Not valid JSON, will try as comma-separated list');
-                }
-                
-                // Fall back to comma-separated list
-                const domains = metaTag.content.split(',').map(d => d.trim()).filter(d => d);
-                console.log('Parsed allowed domains as comma-separated list:', domains);
-                return domains;
-            } catch (e) {
-                console.error('Error parsing allowed domains:', e);
-                return [];
-            }
-        })()
+        allowedDomains: JSON.parse(document.querySelector('meta[name="recaptcha-allowed-domains"]')?.content || '[]')
     },
     // Fallback settings
     fallbackSettings: {
@@ -98,13 +67,28 @@ function loadReCaptchaScript() {
         return Promise.resolve();
     }
     
-    // Always set domain validation to true - we'll validate in another way
-    // rather than preventing reCAPTCHA from loading
-    reCAPTCHAState.domainValidated = true;
-    
-    // We're checking the domain validation, but not blocking loading
-    const isValidDomain = validateDomain();
-    console.log('Domain validation result (non-blocking):', isValidDomain);
+    // Validate domain before loading
+    if (!validateDomain()) {
+        console.warn('reCAPTCHA domain validation failed:', RECAPTCHA_CONFIG.domainConfig.currentDomain);
+        
+        // Still allow the form to work by activating fallback for all forms
+        document.querySelectorAll(RECAPTCHA_CONFIG.protectedForms.join(',')).forEach(form => {
+            const formId = generateFormId(form);
+            reCAPTCHAState.fallbackActivated.add(formId);
+            
+            // Show domain error message
+            const recaptchaContainer = form.querySelector('.recaptcha-container');
+            if (recaptchaContainer) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'alert alert-warning small';
+                errorDiv.textContent = RECAPTCHA_CONFIG.errorMessages.domainError;
+                recaptchaContainer.innerHTML = '';
+                recaptchaContainer.appendChild(errorDiv);
+            }
+        });
+        
+        return Promise.reject(new Error('Domain validation failed'));
+    }
     
     reCAPTCHAState.isLoading = true;
     reCAPTCHAState.loadAttempts++;
@@ -128,10 +112,9 @@ function loadReCaptchaScript() {
             resolve();
         };
         
-        script.onerror = (error) => {
+        script.onerror = () => {
             clearTimeout(timeoutId);
             reCAPTCHAState.isLoading = false;
-            console.error('Failed to load reCAPTCHA script:', error);
             reject(new Error('Failed to load reCAPTCHA script'));
         };
         
@@ -433,22 +416,14 @@ function renderReCaptchaInForm(form, container) {
         };
         
         try {
-            // Get the site key, falling back to meta tag or default
-            const siteKey = RECAPTCHA_CONFIG.siteKey || 
-                           document.querySelector('meta[name="recaptcha-site-key"]')?.content || 
-                           '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'; // Google test key as last resort
-            
-            console.log('Using reCAPTCHA site key:', siteKey);
-            
             // Render the widget
             const widgetId = window.grecaptcha.render(widgetContainer, {
-                sitekey: siteKey,
+                sitekey: RECAPTCHA_CONFIG.siteKey,
                 theme: RECAPTCHA_CONFIG.theme,
                 size: RECAPTCHA_CONFIG.size,
                 callback: reCAPTCHAState.callbacks[formId]
             });
             
-            console.log('reCAPTCHA widget rendered with ID:', widgetId);
             form.setAttribute('data-recaptcha-id', widgetId);
             
             // Add a success indicator for when verification completes
@@ -486,7 +461,6 @@ function renderReCaptchaInForm(form, container) {
                     <span class="material-icons fs-6">warning</span>
                     Could not initialize security verification. Please refresh the page.
                 </div>
-                <div class="small text-muted mt-2">Error details: ${error.message}</div>
             `;
         }
     }
@@ -630,38 +604,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Setup network status monitoring
     setupNetworkMonitoring();
-
-    // Check for popup announcements when page loads
-    console.log('DOM loaded - checking for reCAPTCHA elements');
-    
-    // Check for recaptcha placeholders
-    const placeholders = document.querySelectorAll('.recaptcha-placeholder-slot');
-    console.log('Found recaptcha placeholders:', placeholders.length);
-    
-    // Check if we're on a page with protected forms
-    const protectedForms = findProtectedForms();
-    console.log('Found protected forms:', protectedForms.length);
-    
-    // Initialize reCAPTCHA on all protected forms immediately
-    protectedForms.forEach(form => {
-        console.log('Processing form:', form.id || '(unnamed form)');
-        addReCaptchaToForm(form);
-    });
-
-    // Force immediate rendering for all placeholder slots
-    placeholders.forEach((placeholder, index) => {
-        console.log(`Processing placeholder ${index + 1}:`, placeholder);
-        const form = placeholder.closest('form');
-        if (form) {
-            console.log('Found parent form for placeholder:', form.id || '(unnamed form)');
-            const container = document.createElement('div');
-            container.className = 'recaptcha-container mb-3 d-flex justify-content-center';
-            placeholder.parentNode.replaceChild(container, placeholder);
-            renderReCaptchaInForm(form, container);
-        } else {
-            console.log('No parent form found for placeholder!');
-        }
-    });
 });
 
 // Reinitialize on AJAX navigation or content changes
@@ -766,83 +708,25 @@ function initializeProtectedForms() {
  * Check if the current domain is valid for reCAPTCHA
  */
 function validateDomain() {
-    // Get domain information
-    const currentDomain = RECAPTCHA_CONFIG.domainConfig.currentDomain;
-    const allowedDomains = RECAPTCHA_CONFIG.domainConfig.allowedDomains;
+    const { currentDomain, allowedDomains } = RECAPTCHA_CONFIG.domainConfig;
     
-    console.log('Domain validation check - current domain:', currentDomain);
-    console.log('Domain validation check - allowed domains:', allowedDomains);
-    
-    // Always validate these environments
+    // If we're running locally, always validate
     if (currentDomain === 'localhost' || currentDomain === '127.0.0.1') {
-        console.log('Development environment detected, domain validated');
         reCAPTCHAState.domainValidated = true;
         return true;
     }
     
-    // IMPORTANT: If no domains are configured or domain list is empty, 
-    // don't block reCAPTCHA - allow all domains
-    if (!allowedDomains || allowedDomains.length === 0 || 
-        (allowedDomains.length === 1 && !allowedDomains[0])) {
-        console.log('No domain restrictions configured, allowing all domains');
+    // If no allowed domains are configured, assume it's valid
+    if (!allowedDomains || allowedDomains.length === 0) {
         reCAPTCHAState.domainValidated = true;
         return true;
     }
     
-    // For testing - always allow onrender.com domains
-    if (currentDomain.includes('onrender.com')) {
-        console.log('Render domain detected, automatically allowing');
-        reCAPTCHAState.domainValidated = true;
-        return true;
-    }
-    
-    // Standard domain validation
-    let isValid = false;
-    
-    // If allowedDomains is a string, try to parse it
-    if (typeof allowedDomains === 'string') {
-        try {
-            // Try parsing as JSON
-            if (allowedDomains.startsWith('[')) {
-                const parsedDomains = JSON.parse(allowedDomains);
-                isValid = parsedDomains.some(domain => {
-                    const matches = currentDomain === domain || 
-                              (domain.startsWith('*.') && currentDomain.endsWith(domain.substring(1)));
-                    console.log(`Checking domain ${currentDomain} against ${domain}: ${matches}`);
-                    return matches;
-                });
-            } 
-            // Try parsing as comma-separated list
-            else {
-                const domainList = allowedDomains.split(',').map(d => d.trim());
-                isValid = domainList.some(domain => {
-                    const matches = currentDomain === domain || 
-                              (domain.startsWith('*.') && currentDomain.endsWith(domain.substring(1)));
-                    console.log(`Checking domain ${currentDomain} against ${domain}: ${matches}`);
-                    return matches;
-                });
-            }
-        } catch (e) {
-            console.error('Error parsing allowed domains:', e);
-            // If parsing fails, default to permissive behavior
-            isValid = true;
-        }
-    } 
-    // If allowedDomains is an array, check each domain
-    else if (Array.isArray(allowedDomains)) {
-        isValid = allowedDomains.some(domain => {
-            const matches = currentDomain === domain || 
-                     (domain.startsWith('*.') && currentDomain.endsWith(domain.substring(1)));
-            console.log(`Checking domain ${currentDomain} against ${domain}: ${matches}`);
-            return matches;
-        });
-    }
-    
-    console.log('Domain validation result:', isValid);
-    
-    // TEMPORARY FIX: Override validation result to always return true
-    // Remove this line when domain validation is working correctly
-    isValid = true;
+    // Check if current domain is in the allowed list
+    const isValid = allowedDomains.some(domain => 
+        currentDomain === domain || 
+        (domain.startsWith('*.') && currentDomain.endsWith(domain.substring(1)))
+    );
     
     reCAPTCHAState.domainValidated = isValid;
     return isValid;
