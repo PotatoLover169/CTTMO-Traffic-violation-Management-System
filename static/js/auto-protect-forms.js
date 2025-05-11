@@ -220,8 +220,10 @@ document.addEventListener('DOMContentLoaded', function() {
             recaptchaDiv.className = 'g-recaptcha';
             
             // Get site key from data attribute or use default
-            const siteKey = document.querySelector('meta[name="recaptcha-site-key"]')?.getAttribute('content') || 
-                            '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'; // Test key as fallback
+            const siteKeyMeta = document.querySelector('meta[name="recaptcha-site-key"]');
+            const siteKey = siteKeyMeta ? siteKeyMeta.getAttribute('content') : '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'; // Test key as fallback
+            
+            console.log('Using reCAPTCHA site key:', siteKey);
             
             // Set reCAPTCHA attributes
             recaptchaDiv.setAttribute('data-sitekey', siteKey);

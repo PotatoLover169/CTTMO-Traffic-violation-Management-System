@@ -51,7 +51,10 @@
             </div>
 
             <!-- reCAPTCHA placeholder - explicit position -->
-            <div class="recaptcha-placeholder-slot mt-3 mb-3 d-flex justify-content-center"></div>
+            <div class="recaptcha-placeholder-slot mt-3 mb-3 d-flex justify-content-center">
+                <!-- Direct reCAPTCHA implementation -->
+                <div class="g-recaptcha" data-sitekey="{{ recaptcha_site_key }}"></div>
+            </div>
 
             <button type="submit" class="btn btn-primary w-100 mb-3">
                 <span class="material-icons fs-6 me-1">login</span>
@@ -576,6 +579,8 @@
 }
 </style>
 
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize Micromodal
@@ -652,6 +657,20 @@ document.addEventListener('DOMContentLoaded', function() {
             element.style.transform = 'translateY(0)';
         }, 100 + (index * 100));
     });
+
+    // Debugging reCAPTCHA setup
+    console.log('reCAPTCHA site key:', document.querySelector('meta[name="recaptcha-site-key"]')?.content);
+    console.log('Current domain:', document.querySelector('meta[name="recaptcha-current-domain"]')?.content);
+    console.log('Allowed domains:', document.querySelector('meta[name="recaptcha-allowed-domains"]')?.content);
+    
+    // Force reCAPTCHA to render if it's not already visible
+    setTimeout(function() {
+        if (!document.querySelector('.g-recaptcha iframe') && typeof grecaptcha !== 'undefined') {
+            grecaptcha.render(document.querySelector('.g-recaptcha'), {
+                'sitekey': '{{ recaptcha_site_key }}'
+            });
+        }
+    }, 1000);
 });
 </script>
 {% endblock %}

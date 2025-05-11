@@ -9,7 +9,7 @@
 
 // Configuration
 const RECAPTCHA_CONFIG = {
-    siteKey: document.querySelector('meta[name="recaptcha-site-key"]')?.content || '6LdPGjUrAAAAAIwQo_5ZnIW_lSEWqB16xK3lm5PG',
+    siteKey: '6LdPGjUrAAAAAIwQo_5ZnIW_lSEWqB16xK3lm5PG',
     theme: 'light',
     size: 'normal',
     // Forms to protect with reCAPTCHA (selector patterns)
@@ -28,13 +28,7 @@ const RECAPTCHA_CONFIG = {
     errorMessages: {
         notVerified: 'Please complete the reCAPTCHA verification.',
         networkError: 'Network error. Please try again.',
-        alreadyVerified: 'Already verified.',
-        domainError: 'Domain validation error. Administrator has been notified.'
-    },
-    // Domain configuration
-    domainConfig: {
-        currentDomain: document.querySelector('meta[name="recaptcha-current-domain"]')?.content || window.location.hostname,
-        allowedDomains: JSON.parse(document.querySelector('meta[name="recaptcha-allowed-domains"]')?.content || '[]')
+        alreadyVerified: 'Already verified.'
     },
     // Fallback settings
     fallbackSettings: {
@@ -43,6 +37,10 @@ const RECAPTCHA_CONFIG = {
         enableFallback: true,    // Whether to allow fallback (form submission without reCAPTCHA)
         fallbackMessage: 'Security verification could not be loaded. You may continue without it.',
         fallbackWarning: 'Warning: Continuing without verification increases vulnerability to automated submissions.'
+    },
+    domainConfig: {
+        currentDomain: window.location.hostname,
+        allowedDomains: ['localhost', '127.0.0.1', 'onrender.com']
     }
 };
 
@@ -65,29 +63,6 @@ const reCAPTCHAState = {
 function loadReCaptchaScript() {
     if (reCAPTCHAState.isLoaded || reCAPTCHAState.isLoading) {
         return Promise.resolve();
-    }
-    
-    // Validate domain before loading
-    if (!validateDomain()) {
-        console.warn('reCAPTCHA domain validation failed:', RECAPTCHA_CONFIG.domainConfig.currentDomain);
-        
-        // Still allow the form to work by activating fallback for all forms
-        document.querySelectorAll(RECAPTCHA_CONFIG.protectedForms.join(',')).forEach(form => {
-            const formId = generateFormId(form);
-            reCAPTCHAState.fallbackActivated.add(formId);
-            
-            // Show domain error message
-            const recaptchaContainer = form.querySelector('.recaptcha-container');
-            if (recaptchaContainer) {
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'alert alert-warning small';
-                errorDiv.textContent = RECAPTCHA_CONFIG.errorMessages.domainError;
-                recaptchaContainer.innerHTML = '';
-                recaptchaContainer.appendChild(errorDiv);
-            }
-        });
-        
-        return Promise.reject(new Error('Domain validation failed'));
     }
     
     reCAPTCHAState.isLoading = true;
@@ -710,14 +685,26 @@ function initializeProtectedForms() {
 function validateDomain() {
     const { currentDomain, allowedDomains } = RECAPTCHA_CONFIG.domainConfig;
     
+    console.log('Validating domain:', currentDomain);
+    console.log('Allowed domains:', allowedDomains);
+    
     // If we're running locally, always validate
     if (currentDomain === 'localhost' || currentDomain === '127.0.0.1') {
+        console.log('Local development detected, domain validated');
+        reCAPTCHAState.domainValidated = true;
+        return true;
+    }
+    
+    // If domain includes onrender.com, always validate (for Render hosting)
+    if (currentDomain.includes('onrender.com')) {
+        console.log('Render hosting detected, domain validated');
         reCAPTCHAState.domainValidated = true;
         return true;
     }
     
     // If no allowed domains are configured, assume it's valid
     if (!allowedDomains || allowedDomains.length === 0) {
+        console.log('No allowed domains configured, assuming valid');
         reCAPTCHAState.domainValidated = true;
         return true;
     }
@@ -727,6 +714,12 @@ function validateDomain() {
         currentDomain === domain || 
         (domain.startsWith('*.') && currentDomain.endsWith(domain.substring(1)))
     );
+    
+    if (isValid) {
+        console.log('Domain validated successfully');
+    } else {
+        console.error('Domain validation failed. Current domain not in allowed list.');
+    }
     
     reCAPTCHAState.domainValidated = isValid;
     return isValid;
