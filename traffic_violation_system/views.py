@@ -16764,9 +16764,17 @@ def scan_document(request):
                     first_name = data_result.get('firstName', '')
                     last_name = data_result.get('lastName', '')
                     if not first_name and not last_name and data_result.get('fullName'):
-                        names = data_result['fullName'].split(' ', 1)
-                        first_name = names[0]
-                        last_name = names[1] if len(names) > 1 else ''
+                        # Improved handling for multi-word first names
+                        full_name = data_result['fullName'].strip()
+                        name_parts = full_name.split()
+                        if len(name_parts) > 1:
+                            # Assume last part is surname, everything else is first name
+                            last_name = name_parts[-1]
+                            first_name = ' '.join(name_parts[:-1])
+                        else:
+                            # If only one word, treat as first name
+                            first_name = full_name
+                            last_name = ''
 
                     response_data = {
                         'success': True,

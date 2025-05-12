@@ -4368,79 +4368,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 
                 if (currentScanMode === 'license') {
-                    // Fill license form fields with improved name handling
+                    // Fill license form fields
                     const licenseNumber = document.getElementById('license_number');
                     const firstName = document.getElementById('first_name');
                     const lastName = document.getElementById('last_name');
                     const address = document.getElementById('address');
                     const phoneNumber = document.getElementById('phone_number');
 
-                    // Improved name handling - process the full name if available
-                    let processedFirstName = data.first_name || '';
-                    let processedLastName = data.last_name || '';
-                    
-                    // If both first and last name are present, use smart name processing
-                    if (data.first_name && data.last_name) {
-                        console.log('Processing name with smart algorithm');
-                        
-                        // Check if the data contains a full_name field
-                        if (data.full_name) {
-                            console.log('Using full_name field for better name processing:', data.full_name);
-                            // Process the full name intelligently
-                            const nameParts = processFullName(data.full_name, data.first_name, data.last_name);
-                            processedFirstName = nameParts.firstName;
-                            processedLastName = nameParts.lastName;
-                        } else {
-                            // Check if first_name might contain only part of a multi-word first name
-                            // by looking at raw_text or other potential fields
-                            if (data.raw_text) {
-                                console.log('Using raw_text to check for multi-word names');
-                                const extractedName = extractBetterNameFromRawText(data.raw_text, data.first_name, data.last_name);
-                                if (extractedName) {
-                                    processedFirstName = extractedName.firstName;
-                                    processedLastName = extractedName.lastName;
-                                }
-                            }
-                            
-                            // If first_name appears to be a single word but last_name has multiple words,
-                            // check if the first word of last_name should be part of first_name
-                            const firstNameWords = processedFirstName.trim().split(/\s+/);
-                            const lastNameWords = processedLastName.trim().split(/\s+/);
-                            
-                            if (firstNameWords.length === 1 && lastNameWords.length > 1) {
-                                // Common name patterns suggest the second word might be a middle name
-                                // that should be part of the first name
-                                console.log('First name appears to be single word with multi-word last name, checking patterns');
-                                
-                                // Check for common name patterns
-                                const potentialMiddleName = lastNameWords[0];
-                                const potentialSurname = lastNameWords.slice(1).join(' ');
-                                
-                                // If the potential middle name is not a common surname prefix,
-                                // move it to the first name
-                                const commonSurnamePrefixes = ['de', 'van', 'von', 'der', 'el', 'al', 'bin', 'ibn', 'san', 'dos', 'las', 'los'];
-                                if (!commonSurnamePrefixes.includes(potentialMiddleName.toLowerCase())) {
-                                    processedFirstName = `${processedFirstName} ${potentialMiddleName}`;
-                                    processedLastName = potentialSurname;
-                                    console.log('Adjusted name parts:', { processedFirstName, processedLastName });
-                                }
-                            }
-                        }
-                    }
-                    
-                    console.log('Final processed name:', { processedFirstName, processedLastName });
-
                     // Set values and trigger change event for validation
                     if (data.license_number) {
                         licenseNumber.value = data.license_number;
                         licenseNumber.dispatchEvent(new Event('input'));
                     }
-                    if (processedFirstName) {
-                        firstName.value = processedFirstName;
+                    if (data.first_name) {
+                        firstName.value = data.first_name;
                         firstName.dispatchEvent(new Event('change'));
                     }
-                    if (processedLastName) {
-                        lastName.value = processedLastName;
+                    if (data.last_name) {
+                        lastName.value = data.last_name;
                         lastName.dispatchEvent(new Event('change'));
                     }
                     if (data.address) {
@@ -6151,136 +6096,5 @@ document.addEventListener('DOMContentLoaded', function() {
         noLicenseCheckbox.addEventListener('change', toggleLicenseInput);
     }
 });
-
-// Add smart name processing functions
-function processFullName(fullName, suggestedFirstName, suggestedLastName) {
-    if (!fullName) return { firstName: suggestedFirstName, lastName: suggestedLastName };
-    
-    console.log('Processing full name:', fullName);
-    fullName = fullName.trim();
-    
-    // Try to find where the last name likely starts using the suggested last name
-    if (suggestedLastName && fullName.includes(suggestedLastName)) {
-        const lastNameIndex = fullName.lastIndexOf(suggestedLastName);
-        if (lastNameIndex > 0) {
-            return {
-                firstName: fullName.substring(0, lastNameIndex).trim(),
-                lastName: fullName.substring(lastNameIndex).trim()
-            };
-        }
-    }
-    
-    // If we can't use the suggested last name, split by spaces and use heuristics
-    const words = fullName.split(/\s+/);
-    
-    // If only two words, assume first and last name
-    if (words.length === 2) {
-        return { firstName: words[0], lastName: words[1] };
-    }
-    
-    // With more words, attempt to intelligently separate first and last names
-    // Common case: Multiple first names (including middle) + last name
-    // Assume last word is surname if there are 3+ words
-    if (words.length >= 3) {
-        // Check for compound last names (with common prefixes)
-        const commonLastNamePrefixes = ['de', 'van', 'von', 'der', 'el', 'al', 'bin', 'ibn', 'san', 'dos', 'las', 'los'];
-        
-        let lastNameStartIndex = words.length - 1;
-        
-        // Check if the word before the last name is a common prefix
-        if (lastNameStartIndex > 0 && commonLastNamePrefixes.includes(words[lastNameStartIndex - 1].toLowerCase())) {
-            lastNameStartIndex--;
-        }
-        
-        // If suggested last name has multiple words, try to find its parts
-        if (suggestedLastName) {
-            const suggestedLastWords = suggestedLastName.split(/\s+/);
-            if (suggestedLastWords.length > 1) {
-                // Try to find the last word of the suggested last name in the full name
-                const lastWord = suggestedLastWords[suggestedLastWords.length - 1];
-                const index = words.findIndex(w => w.toLowerCase() === lastWord.toLowerCase());
-                if (index > 0) {
-                    lastNameStartIndex = index - (suggestedLastWords.length - 1);
-                    if (lastNameStartIndex < 0) lastNameStartIndex = 0;
-                }
-            }
-        }
-        
-        return {
-            firstName: words.slice(0, lastNameStartIndex).join(' '),
-            lastName: words.slice(lastNameStartIndex).join(' ')
-        };
-    }
-    
-    // Fallback to suggested values
-    return { firstName: suggestedFirstName, lastName: suggestedLastName };
-}
-
-function extractBetterNameFromRawText(rawText, suggestedFirstName, suggestedLastName) {
-    if (!rawText) return null;
-    
-    console.log('Extracting better name from raw text');
-    
-    // Convert to lowercase for case-insensitive matching
-    const lowerRawText = rawText.toLowerCase();
-    const lowerSuggestedFirst = suggestedFirstName.toLowerCase();
-    const lowerSuggestedLast = suggestedLastName.toLowerCase();
-    
-    // Try to find a name pattern in the raw text
-    // Look for patterns like "Name: John David Smith" or "Name John David Smith"
-    const namePatterns = [
-        /name\s*:\s*([^,\n\r]+)/i,
-        /name\s+([^,\n\r]+)/i,
-        /holder\s*:\s*([^,\n\r]+)/i,
-        /holder\s+([^,\n\r]+)/i,
-        /licensee\s*:\s*([^,\n\r]+)/i,
-        /licensee\s+([^,\n\r]+)/i
-    ];
-    
-    for (const pattern of namePatterns) {
-        const match = rawText.match(pattern);
-        if (match && match[1]) {
-            const fullName = match[1].trim();
-            console.log('Found potential full name in raw text:', fullName);
-            
-            // Use the processFullName function to analyze the found name
-            return processFullName(fullName, suggestedFirstName, suggestedLastName);
-        }
-    }
-    
-    // If we couldn't find a clear name pattern, try another approach:
-    // Look for the exact first name and last name in the text and check what's between them
-    if (lowerSuggestedFirst && lowerSuggestedLast && 
-        lowerRawText.includes(lowerSuggestedFirst) && 
-        lowerRawText.includes(lowerSuggestedLast)) {
-        
-        // Find indices of first and last name
-        const firstIndex = lowerRawText.indexOf(lowerSuggestedFirst);
-        let lastIndex = lowerRawText.indexOf(lowerSuggestedLast);
-        
-        // Make sure the last name appears after the first name
-        if (firstIndex >= 0 && lastIndex > firstIndex) {
-            // Extract the text between first and last name
-            const startPos = firstIndex + lowerSuggestedFirst.length;
-            const textBetween = rawText.substring(startPos, lastIndex).trim();
-            
-            if (textBetween && textBetween.length > 0 && textBetween.length < 30) {
-                // If there's text between them, it might be a middle name
-                // Remove any common separators or noise
-                const cleanedMiddle = textBetween.replace(/[,\.;:]/g, ' ').trim();
-                
-                if (cleanedMiddle) {
-                    console.log('Found potential middle name:', cleanedMiddle);
-                    return {
-                        firstName: `${suggestedFirstName} ${cleanedMiddle}`,
-                        lastName: suggestedLastName
-                    };
-                }
-            }
-        }
-    }
-    
-    return null;
-}
 </script>
 {% endblock %}
