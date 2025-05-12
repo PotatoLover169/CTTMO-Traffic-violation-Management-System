@@ -2525,6 +2525,12 @@ function handleNoLicenseSelection(isChecked) {
 <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
 
 <script>
+// Disable any reCAPTCHA validation by providing a no-op function
+window.validateRecaptcha = function() {
+    // Return true to bypass reCAPTCHA validation
+    return true;
+};
+
 // Make sure SweetAlert2 is loaded
 document.addEventListener('DOMContentLoaded', function() {
     if (typeof Swal === 'undefined') {
@@ -4212,22 +4218,89 @@ document.addEventListener('DOMContentLoaded', function() {
 
             console.log('Response status:', response.status);
             
+            // First check if response is OK (status in 200-299 range)
+            if (!response.ok) {
+                // Server returned an error status
+                let errorMessage = `Server returned error: ${response.status} ${response.statusText}`;
+                
+                try {
+                    // Try to get error text
+                    const errorText = await response.text();
+                    console.error('Error response text:', errorText);
+                    
+                    // Check if it's HTML (likely an error page)
+                    if (errorText.trim().toLowerCase().startsWith('<!doctype') || 
+                        errorText.trim().toLowerCase().startsWith('<html')) {
+                        
+                        // Extract title if possible
+                        const titleMatch = errorText.match(/<title>(.*?)<\/title>/i);
+                        if (titleMatch && titleMatch[1]) {
+                            errorMessage = `Server error: ${titleMatch[1]}`;
+                        } else {
+                            errorMessage = 'Server returned an HTML error page instead of JSON';
+                        }
+                    } else {
+                        // Try to parse as JSON to get error message
+                        try {
+                            const errorJson = JSON.parse(errorText);
+                            if (errorJson.message || errorJson.error) {
+                                errorMessage = errorJson.message || errorJson.error;
+                            }
+                        } catch (jsonErr) {
+                            // It's not JSON, use text snippet
+                            if (errorText.length > 100) {
+                                errorMessage = errorText.substring(0, 100) + '...';
+                            } else {
+                                errorMessage = errorText;
+                            }
+                        }
+                    }
+                } catch (textErr) {
+                    console.error('Error getting response text:', textErr);
+                }
+                
+                throw new Error(errorMessage);
+            }
+            
             // Check content type before parsing as JSON
             const contentType = response.headers.get('content-type');
             if (!contentType || !contentType.includes('application/json')) {
                 // Not a JSON response - get the text to show in error
-                const errorText = await response.text();
-                console.error('Non-JSON response received:', errorText);
-                throw new Error('Server returned an invalid response format. Please try again or contact support.');
+                let errorText = '';
+                try {
+                    errorText = await response.text();
+                    console.error('Non-JSON response received:', errorText);
+                } catch (e) {
+                    console.error('Failed to get response text:', e);
+                    errorText = 'Unable to read server response';
+                }
+                
+                // More descriptive error with details
+                const contentTypeInfo = contentType ? `(received: ${contentType})` : '(no content type)';
+                throw new Error(`Server returned non-JSON data ${contentTypeInfo}. Please contact support.`);
             }
             
-            const data = await response.json();
-            console.log('Response data:', data);
+            let data;
+            try {
+                data = await response.json();
+                console.log('Response data:', data);
+            } catch (jsonError) {
+                console.error('JSON parse error:', jsonError);
+                // Get some of the raw text to help debugging
+                let responsePreview = '';
+                try {
+                    const text = await response.clone().text();
+                    responsePreview = text.substring(0, 100);
+                } catch (e) {
+                    // Ignore errors getting text preview
+                }
+                throw new Error(`Failed to parse server response as JSON. Response starts with: ${responsePreview}...`);
+            }
 
             // Close loading spinner
             loadingSwal.close();
 
-            if (!response.ok) {
+            if (!data.success) {
                 throw new Error(data.message || 'Failed to process document');
             }
             

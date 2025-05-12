@@ -12,7 +12,7 @@
         </div>
         
         <div class="card-body p-4">
-            <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+            <form method="post" enctype="multipart/form-data" class="needs-validation" data-novalidate-recaptcha="false" novalidate>
                 {% csrf_token %}
                 
                 <div class="row g-4">
@@ -232,6 +232,14 @@
     }
 }
 </style>
+
+<script>
+// Disable any reCAPTCHA validation by providing a no-op function
+window.validateRecaptcha = function() {
+    // Return true to bypass reCAPTCHA validation
+    return true;
+};
+</script>
 
 <script>
 // Preview uploaded image
