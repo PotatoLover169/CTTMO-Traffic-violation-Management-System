@@ -91,7 +91,12 @@ def adjudication_page(request, violator_id):
         violation_type_amounts = {}
         for vtype in violation_types:
             if vtype in violation_types_data:
-                violation_type_amounts[vtype] = violation_types_data[vtype]
+                # Apply TDZ doubling at the individual violation level if needed
+                base_amount = violation_types_data[vtype]
+                if violation.is_tdz_violation:
+                    violation_type_amounts[vtype] = base_amount * 2
+                else:
+                    violation_type_amounts[vtype] = base_amount
         
         # Prepare data structure
         violation_data = {
@@ -107,6 +112,7 @@ def adjudication_page(request, violator_id):
             'is_exact_match': violation.violator.id == violator.id,
             'is_rejected': violation.status == 'REJECTED',
             'rejection_reason': violation.rejection_reason if hasattr(violation, 'rejection_reason') else None,
+            'is_tdz_violation': violation.is_tdz_violation,  # Pass TDZ flag to template
         }
         pending_violations_data.append(violation_data)
     
@@ -124,6 +130,7 @@ def adjudication_page(request, violator_id):
             'adjudicated_by': violation.adjudicated_by.get_full_name() if violation.adjudicated_by else 'Unknown',
             'violator_name': f"{violation.violator.first_name} {violation.violator.last_name}",
             'is_exact_match': violation.violator.id == violator.id,
+            'is_tdz_violation': violation.is_tdz_violation,  # Pass TDZ flag to template
         }
         adjudicated_violations_data.append(violation_data)
     

@@ -105,12 +105,16 @@ window.violationTypeAmounts = {};
                                     data-violation-type-amounts="{{ violation.violation_type_amounts|default:'{}' }}"
                                     data-location="{{ violation.location }}"
                                     data-is-rejected="{{ violation.is_rejected|lower }}"
+                                    data-is-tdz="{{ violation.is_tdz_violation|lower|default:'false' }}"
                                     data-rejection-reason="{{ violation.rejection_reason|default:'' }}">
                                     <div class="card">
                                         <div class="card-header d-flex justify-content-between align-items-center py-3">
                                             <div>
                                                 <span class="fw-bold">Ticket #{{ violation.ticket_id }}</span>
                                                 <span class="badge bg-{{ violation.status|lower }} ms-2 px-3">{{ violation.status }}</span>
+                                                {% if violation.is_tdz_violation %}
+                                                <span class="badge bg-danger ms-1 px-2" title="Traffic Discipline Zone - Fines doubled">TDZ</span>
+                                                {% endif %}
                                             </div>
                                             <div>
                                                 <span class="text-muted">{{ violation.violation_date|date:"M d, Y" }}</span>
@@ -127,6 +131,9 @@ window.violationTypeAmounts = {};
                                                     <div>
                                                         <span class="text-muted">Fine Amount:</span>
                                                         <span class="fw-semibold fs-5">₱{{ violation.fine_amount|floatformat:2 }}</span>
+                                                        {% if violation.is_tdz_violation %}
+                                                        <div class="small text-danger">TDZ penalties applied (2x)</div>
+                                                        {% endif %}
                                                     </div>
                                                     <button class="btn btn-primary select-violation-btn">
                                                         <span class="material-icons me-1">gavel</span>
@@ -694,6 +701,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const violationTypesData = this.getAttribute('data-violation-types');
             const violationAmount = this.getAttribute('data-violation-amount');
             const isRejected = this.getAttribute('data-is-rejected') === 'true';
+            const isTdzViolation = this.getAttribute('data-is-tdz') === 'true';
             const rejectionReason = this.getAttribute('data-rejection-reason');
             
             // Store original amount for reference
@@ -717,6 +725,30 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 rejectionWarning.style.display = 'none';
             }
+            
+            // Show TDZ warning if applicable
+            let tdzWarning = document.getElementById('tdzWarning');
+            if (!tdzWarning) {
+                tdzWarning = document.createElement('div');
+                tdzWarning.id = 'tdzWarning';
+                tdzWarning.className = 'alert alert-danger mb-4';
+                tdzWarning.innerHTML = `
+                    <div class="d-flex">
+                        <span class="material-icons me-2">warning</span>
+                        <div>
+                            <strong>Traffic Discipline Zone Violation</strong>
+                            <p class="mb-0">This violation occurred in a Traffic Discipline Zone. All fines are doubled.</p>
+                        </div>
+                    </div>
+                `;
+                // Insert after the rejection warning
+                const adjudicationFormContent = document.getElementById('adjudicationFormContent');
+                const firstElement = adjudicationFormContent.firstChild;
+                adjudicationFormContent.insertBefore(tdzWarning, firstElement);
+            }
+            
+            // Show/hide TDZ warning
+            tdzWarning.style.display = isTdzViolation ? 'block' : 'none';
             
             // Update form values
             document.getElementById('ticketId').value = violationId;
@@ -787,7 +819,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.log('Card data attributes:', {
                         'types': types,
                         'violationAmount': violationAmount,
-                        'typeAmountsData': this.getAttribute('data-violation-type-amounts')
+                        'typeAmountsData': this.getAttribute('data-violation-type-amounts'),
+                        'isTdzViolation': isTdzViolation
                     });
                     
                     // TEMPORARY FIX: Apply known amounts from the image for the specified violation types
@@ -802,7 +835,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     // First try the fixed amounts as a temporary solution
                     types.forEach(type => {
                         if (fixedAmounts[type]) {
-                            violationAmounts[type] = fixedAmounts[type];
+                            // Apply TDZ multiplier if needed - each individual violation amount should be doubled
+                            let baseAmount = fixedAmounts[type];
+                            violationAmounts[type] = baseAmount;
                             console.log(`Using fixed amount for "${type}": ₱${violationAmounts[type]} (TEMPORARY FIX)`);
                         }
                     });
@@ -810,12 +845,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Attempt to use any values already in the system as backup
                     types.forEach(type => {
                         if (!violationAmounts[type] && window.violationTypeAmounts[type]) {
-                            violationAmounts[type] = parseFloat(window.violationTypeAmounts[type]);
+                            let baseAmount = parseFloat(window.violationTypeAmounts[type]);
+                            violationAmounts[type] = baseAmount;
                             console.log(`Using global amount for "${type}": ₱${violationAmounts[type]}`);
                         }
                     });
                 } else {
                     // Use the provided type-specific amounts from data attribute
+                    // These should already include TDZ doubling if needed, as we modified the backend
                     violationAmounts = typeAmounts;
                 }
                 
@@ -879,6 +916,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     const typeItem = document.createElement('div');
                     typeItem.className = 'violation-type-item checked';
+                    
+                    // Create a note if this is a TDZ violation
+                    let tdzNote = '';
+                    if (isTdzViolation) {
+                        // Calculate the base amount (before doubling)
+                        const baseAmount = typeAmount / 2;
+                        tdzNote = `<small class="d-block text-danger mt-1">Base: ₱${baseAmount.toFixed(2)} × 2 (TDZ)</small>`;
+                    }
+                    
                     typeItem.innerHTML = `
                         <div class="form-check d-flex align-items-center">
                             <input class="form-check-input violation-type-checkbox" 
@@ -886,9 +932,11 @@ document.addEventListener('DOMContentLoaded', function() {
                                    value="${type}" 
                                    id="violationType${index}" 
                                    data-amount="${typeAmount.toFixed(2)}"
+                                   data-is-tdz="${isTdzViolation}"
                                    checked>
                             <label class="form-check-label ms-2" for="violationType${index}">
                                 ${type}
+                                ${tdzNote}
                             </label>
                         </div>
                         <span class="amount-badge">₱${typeAmount.toFixed(2)}</span>
