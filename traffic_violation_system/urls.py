@@ -248,8 +248,14 @@ urlpatterns = [
     path('register/violations/direct/<int:violation_id>/', register_with_direct_violation, name='register_with_direct_violation'),
     
     # Direct ticket issue with session data
-    path('violations/issue-direct-ticket/', direct_ticket_form, name='issue_direct_ticket'),
-    path('violations/issue-direct-ticket/<int:violation_id>/', issue_direct_ticket, name='issue_direct_ticket_with_id'),
+    path('violations/issue-direct/', issue_direct_ticket, name='issue_direct_ticket'),
+    path('violations/direct-form/', direct_ticket_form, name='direct_ticket_form'),
+    
+    # Scanner API endpoint - Add the missing URL pattern
+    path('scan-document/', views.scan_document, name='scan_document'),
+    
+    # Violation Types
+    path('violation-types/', violation_type_views.violation_type_list, name='violation_type_list'),
     
     # API Routes
     path('api/statistics/<str:time_range>/', views.get_statistics, name='get_statistics'),
