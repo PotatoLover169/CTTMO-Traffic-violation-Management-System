@@ -1912,25 +1912,27 @@ document.addEventListener('DOMContentLoaded', function() {
         // Populate PD Number in the operator section if it exists
         const operatorPdNumberField = document.getElementById('operator_pd_number');
         if (operatorPdNumberField) {
-            // Format the poNumber - remove any "PO-" prefix if it exists
-            let formattedPoNumber = operator.po_number || operator.new_pd_number || operator.pd_number || '';
-            if (formattedPoNumber && formattedPoNumber.startsWith('PO-')) {
-                formattedPoNumber = formattedPoNumber.substring(3);
-            }
-            operatorPdNumberField.value = formattedPoNumber;
-            console.log('- Setting field value to:', formattedPoNumber);
-            operatorPdNumberField.dispatchEvent(new Event('input', { bubbles: true }));
-            operatorPdNumberField.dispatchEvent(new Event('change', { bubbles: true }));
-            operatorPdNumberField.classList.add('is-valid');
+            // When selecting an operator, prioritize new_pd_number instead of po_number
+            const poNumber = operator.new_pd_number || operator.pd_number || operator.po_number || '';
+            console.log('DEBUGGING PO NUMBER FIELD:');
+            console.log('- operator.new_pd_number:', operator.new_pd_number);
+            console.log('- operator.pd_number:', operator.pd_number);
+            console.log('- operator.po_number:', operator.po_number);
+            console.log('- Field element found:', operatorPdNumberField ? 'YES' : 'NO');
+            console.log('- Field ID:', operatorPdNumberField ? operatorPdNumberField.id : 'N/A');
+
+            // Set the value and trigger events
+            operatorPdNumberField.value = poNumber;
+            console.log('- Setting field value to:', poNumber);
             
-            // Add visual feedback for PO number
-            if (formattedPoNumber) {
-                // Add visual indicator that PO number was populated
+            // Add visual feedback
+            if (operatorPdNumberField.value) {
+                operatorPdNumberField.classList.add('is-valid');
+                
+                // Add a small check indicator next to the field
                 const feedbackElement = document.createElement('div');
-                feedbackElement.className = 'valid-feedback d-block';
+                feedbackElement.className = 'valid-feedback';
                 feedbackElement.textContent = 'PO Number auto-populated';
-                feedbackElement.style.color = '#198754';
-                feedbackElement.style.fontSize = '0.8rem';
                 
                 // Remove any existing feedback
                 const existingFeedback = operatorPdNumberField.parentNode.querySelector('.valid-feedback');
@@ -1938,11 +1940,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     existingFeedback.remove();
                 }
                 
-                // Insert the feedback after the field
-                const parentElement = operatorPdNumberField.closest('.form-floating');
-                if (parentElement) {
-                    parentElement.appendChild(feedbackElement);
-                }
+                // Add the new feedback
+                operatorPdNumberField.parentNode.appendChild(feedbackElement);
             }
         } else {
             console.error('ERROR: operator_pd_number field not found in the DOM!');
@@ -2837,22 +2836,35 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to update PO number field when an operator is selected
     function updatePONumber(operator) {
         const operatorPdNumberField = document.getElementById('operator_pd_number');
-        if (operatorPdNumberField) {
-            let pdNumber = operator.po_number || '';
-            // Remove "PO-" prefix if it exists
-            if (pdNumber && pdNumber.startsWith('PO-')) {
-                pdNumber = pdNumber.substring(3);
-            }
-            operatorPdNumberField.value = pdNumber;
-            console.log('Updated operator_pd_number field with:', pdNumber || '(empty)');
+        if (operatorPdNumberField && operator) {
+            // Prioritize new_pd_number over po_number
+            operatorPdNumberField.value = operator.new_pd_number || operator.pd_number || operator.po_number || '';
+            console.log('Updated operator_pd_number field with:', operatorPdNumberField.value || '(empty)');
             
-            // Trigger validation
-            if (pdNumber) {
+            // Dispatch events to trigger any listeners
+            operatorPdNumberField.dispatchEvent(new Event('input', { bubbles: true }));
+            operatorPdNumberField.dispatchEvent(new Event('change', { bubbles: true }));
+            
+            // Add visual feedback
+            if (operatorPdNumberField.value) {
                 operatorPdNumberField.classList.add('is-valid');
-                operatorPdNumberField.classList.remove('is-invalid');
+                
+                // Add a small check indicator next to the field
+                const feedbackElement = document.createElement('div');
+                feedbackElement.className = 'valid-feedback';
+                feedbackElement.textContent = 'PO Number auto-populated';
+                
+                // Remove any existing feedback
+                const existingFeedback = operatorPdNumberField.parentNode.querySelector('.valid-feedback');
+                if (existingFeedback) {
+                    existingFeedback.remove();
+                }
+                
+                // Add the new feedback
+                operatorPdNumberField.parentNode.appendChild(feedbackElement);
             }
         } else {
-            console.error('Could not find operator_pd_number field');
+            console.warn('Could not find operator_pd_number field or operator data is missing');
         }
     }
     
@@ -2889,19 +2901,27 @@ document.addEventListener('DOMContentLoaded', function() {
                                 // Try to extract PO number from the result item itself
                                 const poNumberMatch = item.innerHTML.match(/PO:\s*([^<]+)/);
                                 if (poNumberMatch && poNumberMatch[1]) {
-                                    let pdNumber = poNumberMatch[1].trim();
-                                    // Remove "PO-" prefix if it exists
-                                    if (pdNumber && pdNumber.startsWith('PO-')) {
-                                        pdNumber = pdNumber.substring(3);
+                                    // Extract the number but check if it contains operator.new_pd_number first
+                                    const extractedText = poNumberMatch[1].trim();
+                                    
+                                    // Try to check if this operator data is available
+                                    if (operator && operator.new_pd_number) {
+                                        operatorPdNumberField.value = operator.new_pd_number;
+                                    } else {
+                                        // Fall back to extracted text, removing any "PO-" prefix
+                                        let pdNumber = extractedText;
+                                        if (pdNumber && pdNumber.startsWith('PO-')) {
+                                            pdNumber = pdNumber.substring(3);
+                                        }
+                                        operatorPdNumberField.value = pdNumber;
                                     }
-                                    operatorPdNumberField.value = pdNumber;
-                                    console.log('Extracted PO number:', pdNumber);
-                                    operatorPdNumberField.dispatchEvent(new Event('change', { bubbles: true }));
-                    }
-                }
+                                    
+                                    console.log('Extracted PO number from result item:', operatorPdNumberField.value);
+                                }
+                            }
                         }, 100);
                     });
-    }
+                }
             });
         });
         
