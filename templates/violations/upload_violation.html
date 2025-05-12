@@ -1661,26 +1661,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     const resultItem = document.createElement('div');
                     resultItem.className = 'search-result-item';
                     
-                    // Show PO number with special highlight if it's available
-                    const poNumberDisplay = operator.po_number ? 
-                        `<div class="badge bg-success">PO: ${operator.po_number}</div>` :
-                        '';
-                    
-                    // Highlight if the query matches the PO number
-                    const isPOMatch = operator.po_number && query === operator.po_number;
-                    if (isPOMatch) {
-                        resultItem.classList.add('po-match-highlight');
-                    }
+                    // Remove the PO number display logic
                     
                     resultItem.innerHTML = `
                         <div class="item-name">${operator.last_name}, ${operator.first_name}</div>
                         <div class="d-flex mt-1 mb-1">
-                            <div class="badge bg-primary me-2">PD: ${operator.new_pd_number || 'N/A'}</div>
-                            ${operator.old_pd_number ? `<div class="badge bg-secondary me-2">Old PD: ${operator.old_pd_number}</div>` : ''}
-                            ${poNumberDisplay}
+                            <div class="badge bg-primary me-2">PO: ${operator.new_pd_number || 'N/A'}</div>
                         </div>
                         <div class="item-details text-muted small">Address: ${operator.address || 'No address available'}</div>
-                        ${isPOMatch ? '<div class="matched-po-alert">✓ Exact PO Number Match!</div>' : ''}
                     `;
                     
                     // Add click event to select operator
@@ -1712,8 +1700,6 @@ document.addEventListener('DOMContentLoaded', function() {
                             <td>${op.id}</td>
                             <td>${op.last_name}, ${op.first_name}</td>
                             <td>${op.new_pd_number || 'N/A'}</td>
-                            <td>${op.old_pd_number || 'N/A'}</td>
-                            <td>${op.po_number || 'N/A'}</td>
                         </tr>
                     `).join('');
                     
@@ -1726,8 +1712,6 @@ document.addEventListener('DOMContentLoaded', function() {
                                         <tr>
                                             <th>ID</th>
                                             <th>Name</th>
-                                            <th>PD Number</th>
-                                            <th>Old PD</th>
                                             <th>PO Number</th>
                                         </tr>
                                     </thead>
@@ -1913,11 +1897,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const operatorPdNumberField = document.getElementById('operator_pd_number');
         if (operatorPdNumberField) {
             // When selecting an operator, prioritize new_pd_number instead of po_number
-            const poNumber = operator.new_pd_number || operator.pd_number || operator.po_number || '';
+            const poNumber = operator.new_pd_number || '';
             console.log('DEBUGGING PO NUMBER FIELD:');
             console.log('- operator.new_pd_number:', operator.new_pd_number);
-            console.log('- operator.pd_number:', operator.pd_number);
-            console.log('- operator.po_number:', operator.po_number);
             console.log('- Field element found:', operatorPdNumberField ? 'YES' : 'NO');
             console.log('- Field ID:', operatorPdNumberField ? operatorPdNumberField.id : 'N/A');
 
@@ -2837,8 +2819,8 @@ document.addEventListener('DOMContentLoaded', function() {
     function updatePONumber(operator) {
         const operatorPdNumberField = document.getElementById('operator_pd_number');
         if (operatorPdNumberField && operator) {
-            // Prioritize new_pd_number over po_number
-            operatorPdNumberField.value = operator.new_pd_number || operator.pd_number || operator.po_number || '';
+            // Only use new_pd_number, no fallbacks
+            operatorPdNumberField.value = operator.new_pd_number || '';
             console.log('Updated operator_pd_number field with:', operatorPdNumberField.value || '(empty)');
             
             // Dispatch events to trigger any listeners
@@ -2898,25 +2880,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         setTimeout(() => {
                             const operatorPdNumberField = document.getElementById('operator_pd_number');
                             if (operatorPdNumberField && operatorPdNumberField.value === '') {
-                                // Try to extract PO number from the result item itself
-                                const poNumberMatch = item.innerHTML.match(/PO:\s*([^<]+)/);
-                                if (poNumberMatch && poNumberMatch[1]) {
-                                    // Extract the number but check if it contains operator.new_pd_number first
-                                    const extractedText = poNumberMatch[1].trim();
-                                    
-                                    // Try to check if this operator data is available
-                                    if (operator && operator.new_pd_number) {
-                                        operatorPdNumberField.value = operator.new_pd_number;
-                                    } else {
-                                        // Fall back to extracted text, removing any "PO-" prefix
-                                        let pdNumber = extractedText;
-                                        if (pdNumber && pdNumber.startsWith('PO-')) {
-                                            pdNumber = pdNumber.substring(3);
-                                        }
-                                        operatorPdNumberField.value = pdNumber;
-                                    }
-                                    
-                                    console.log('Extracted PO number from result item:', operatorPdNumberField.value);
+                                // Only use new_pd_number, no fallbacks or extractions
+                                if (operator && operator.new_pd_number) {
+                                    operatorPdNumberField.value = operator.new_pd_number;
+                                    console.log('Set PO number field to new_pd_number:', operator.new_pd_number);
                                 }
                             }
                         }, 100);
