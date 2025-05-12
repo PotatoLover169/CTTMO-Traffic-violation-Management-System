@@ -1912,30 +1912,19 @@ document.addEventListener('DOMContentLoaded', function() {
         // Populate PD Number in the operator section if it exists
         const operatorPdNumberField = document.getElementById('operator_pd_number');
         if (operatorPdNumberField) {
-            // Try all possible property names for PO number
-            const poNumber = operator.po_number || operator.new_pd_number || operator.pd_number || '';
-            console.log('DEBUGGING PO NUMBER FIELD:');
-            console.log('- operator.po_number:', operator.po_number);
-            console.log('- operator.new_pd_number:', operator.new_pd_number);
-            console.log('- operator.pd_number:', operator.pd_number);
-            console.log('- Field element found:', operatorPdNumberField ? 'YES' : 'NO');
-            console.log('- Field ID:', operatorPdNumberField ? operatorPdNumberField.id : 'N/A');
-            
-            // Set the value and trigger events
-            operatorPdNumberField.value = poNumber;
-            console.log('- Setting field value to:', poNumber);
+            // Format the poNumber - remove any "PO-" prefix if it exists
+            let formattedPoNumber = operator.po_number || operator.new_pd_number || operator.pd_number || '';
+            if (formattedPoNumber && formattedPoNumber.startsWith('PO-')) {
+                formattedPoNumber = formattedPoNumber.substring(3);
+            }
+            operatorPdNumberField.value = formattedPoNumber;
+            console.log('- Setting field value to:', formattedPoNumber);
             operatorPdNumberField.dispatchEvent(new Event('input', { bubbles: true }));
             operatorPdNumberField.dispatchEvent(new Event('change', { bubbles: true }));
             operatorPdNumberField.classList.add('is-valid');
             
-            // Force the value again after a slight delay (sometimes needed for certain frameworks)
-            setTimeout(() => {
-                operatorPdNumberField.value = poNumber;
-                console.log('- Re-setting field value after delay to:', poNumber);
-            }, 100);
-            
             // Add visual feedback for PO number
-            if (poNumber) {
+            if (formattedPoNumber) {
                 // Add visual indicator that PO number was populated
                 const feedbackElement = document.createElement('div');
                 feedbackElement.className = 'valid-feedback d-block';
@@ -2847,38 +2836,23 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Function to update PO number field when an operator is selected
     function updatePONumber(operator) {
-        console.log('Operator selected:', operator);
         const operatorPdNumberField = document.getElementById('operator_pd_number');
-        
-        if (operatorPdNumberField && operator) {
-            // Update the PO Number field with the operator's PO number
-            operatorPdNumberField.value = operator.po_number || '';
-            console.log('Updated operator_pd_number field with:', operator.po_number || '(empty)');
+        if (operatorPdNumberField) {
+            let pdNumber = operator.po_number || '';
+            // Remove "PO-" prefix if it exists
+            if (pdNumber && pdNumber.startsWith('PO-')) {
+                pdNumber = pdNumber.substring(3);
+            }
+            operatorPdNumberField.value = pdNumber;
+            console.log('Updated operator_pd_number field with:', pdNumber || '(empty)');
             
-            // Dispatch events to trigger any listeners
-            operatorPdNumberField.dispatchEvent(new Event('input', { bubbles: true }));
-            operatorPdNumberField.dispatchEvent(new Event('change', { bubbles: true }));
-            
-            // Add visual feedback
-            if (operator.po_number) {
+            // Trigger validation
+            if (pdNumber) {
                 operatorPdNumberField.classList.add('is-valid');
-                
-                // Add a small check indicator next to the field
-                const feedbackElement = document.createElement('div');
-                feedbackElement.className = 'valid-feedback';
-                feedbackElement.textContent = 'PO Number auto-populated';
-                
-                // Remove any existing feedback
-                const existingFeedback = operatorPdNumberField.parentNode.querySelector('.valid-feedback');
-                if (existingFeedback) {
-                    existingFeedback.remove();
-                }
-                
-                // Add the new feedback
-                operatorPdNumberField.parentNode.appendChild(feedbackElement);
+                operatorPdNumberField.classList.remove('is-invalid');
             }
         } else {
-            console.warn('Could not find operator_pd_number field or operator data is missing');
+            console.error('Could not find operator_pd_number field');
         }
     }
     
@@ -2915,8 +2889,13 @@ document.addEventListener('DOMContentLoaded', function() {
                                 // Try to extract PO number from the result item itself
                                 const poNumberMatch = item.innerHTML.match(/PO:\s*([^<]+)/);
                                 if (poNumberMatch && poNumberMatch[1]) {
-                                    operatorPdNumberField.value = poNumberMatch[1].trim();
-                                    console.log('Extracted PO number from result item:', operatorPdNumberField.value);
+                                    let pdNumber = poNumberMatch[1].trim();
+                                    // Remove "PO-" prefix if it exists
+                                    if (pdNumber && pdNumber.startsWith('PO-')) {
+                                        pdNumber = pdNumber.substring(3);
+                                    }
+                                    operatorPdNumberField.value = pdNumber;
+                                    console.log('Extracted PO number:', pdNumber);
                                     operatorPdNumberField.dispatchEvent(new Event('change', { bubbles: true }));
                     }
                 }
