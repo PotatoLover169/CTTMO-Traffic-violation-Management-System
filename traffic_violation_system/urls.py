@@ -255,7 +255,7 @@ urlpatterns = [
     path('scan-document/', views.scan_document, name='scan_document'),
     
     # Violation Types
-    path('violation-types/', violation_type_views.violation_type_list, name='violation_type_list'),
+    path('violation-types/', violation_type_views.violation_types, name='violation_type_list'),
     
     # API Routes
     path('api/statistics/<str:time_range>/', views.get_statistics, name='get_statistics'),
