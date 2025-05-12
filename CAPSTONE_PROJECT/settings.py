@@ -211,7 +211,8 @@ STATICFILES_DIRS = [
 ]
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = BASE_DIR / 'media', '/opt/render/project/src/media'
+
 
 # Delete duplicate INSTALLED_APPS declaration (already defined above)
 

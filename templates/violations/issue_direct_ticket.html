@@ -46,7 +46,7 @@
 
         <!-- Card body with responsive improvements -->
         <div class="card-body p-4">
-            <form method="POST" id="ticketForm" class="needs-validation" data-novalidate-recaptcha="true" novalidate>
+            <form method="POST" id="ticketForm" class="needs-validation" novalidate>
                 {% csrf_token %}
                 <!-- Hidden field to store user ID if violator is a registered user -->
                 <input type="hidden" id="user_account_id" name="user_account_id" value="">
@@ -4211,6 +4211,16 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             console.log('Response status:', response.status);
+            
+            // Check content type before parsing as JSON
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                // Not a JSON response - get the text to show in error
+                const errorText = await response.text();
+                console.error('Non-JSON response received:', errorText);
+                throw new Error('Server returned an invalid response format. Please try again or contact support.');
+            }
+            
             const data = await response.json();
             console.log('Response data:', data);
 
