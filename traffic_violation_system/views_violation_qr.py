@@ -321,7 +321,7 @@ def violation_qr_code_print_view(request, violation_id):
     except Exception as e:
         logger.error(f"Error rendering QR code print view: {str(e)}")
         messages.error(request, "Error generating QR code for printing.")
-        return redirect('issue_direct_ticket')
+        return redirect('direct_ticket_form')
 
 def get_violation_qr_info(request, hash_id):
     """
@@ -448,305 +448,85 @@ def register_with_violations(request, hash_id=None):
                     # Standardize the license number (remove spaces, uppercase, etc.)
                     if license_number:
                         license_number = license_number.strip().upper().replace(' ', '')
-                        logger.info(f"Standardized license number: {license_number}")
                     
-                    # Set the license number if provided in the form
-                    if license_number:
-                        profile.license_number = license_number
-                        logger.info(f"Setting profile license number to: {license_number}")
-                    # If not in form but in QR hash, use that
-                    elif qr_hash and qr_hash.license_number:
-                        standardized_qr_license = qr_hash.license_number.strip().upper().replace(' ', '')
-                        if standardized_qr_license:
-                            profile.license_number = standardized_qr_license
-                            logger.info(f"Using QR hash license number: {standardized_qr_license}")
-                    
-                    # Update other profile fields
-                    if form.cleaned_data.get('address'):
-                        profile.address = form.cleaned_data.get('address')
-                    if form.cleaned_data.get('phone_number'):
-                        profile.phone_number = form.cleaned_data.get('phone_number')
-                    
-                    # Save the updated profile
+                    # Update profile with additional fields
+                    profile.license_number = license_number
+                    profile.address = form.cleaned_data.get('address', '')
+                    profile.phone_number = form.cleaned_data.get('phone_number', '')
                     profile.save()
-                    logger.info(f"Saved profile with license number: {profile.license_number}")
+                    logger.info(f"Updated profile for user {user.username} with additional data")
                     
-                    # Log whether profile was created or updated
-                    if created:
-                        logger.info(f"Created new UserProfile for user {user.username}")
-                    else:
-                        logger.info(f"Updated existing UserProfile for user {user.username}")
+                    # Mark the QR hash as registered and link it to the user
+                    qr_hash.registered = True
+                    qr_hash.user_account = user
+                    qr_hash.save()
                     
                     # Link all violations to the user
-                    try:
-                        if qr_hash or hash_id:
-                            # If we don't have the qr_hash object yet, get it
-                            if not qr_hash:
-                                qr_hash = ViolatorQRHash.objects.get(hash_id=hash_id)
-                            
-                            # Find all violations associated with this QR hash
-                            associated_violations = Violation.objects.filter(qr_hash=qr_hash)
-                            linked_count = 0
-                            
-                            logger.info(f"Found {associated_violations.count()} violations to link to user {user.username}")
-                            logger.info(f"User license number: {profile.license_number}")
-                            
-                            # Link all violations to the user
-                            for v in associated_violations:
-                                # Debug output to verify the violator's license number
-                                violator_license = getattr(v.violator, 'license_number', 'None') if hasattr(v, 'violator') and v.violator else 'No violator'
-                                logger.info(f"Violation ID {v.id} - Violator license: {violator_license}")
-                                
-                                # Link the user account directly to the violation
-                                v.user_account = user
-                                
-                                # If the user has a license number and the violation has a violator,
-                                # ensure the violator's license number matches the user's
-                                if profile.license_number and hasattr(v, 'violator') and v.violator:
-                                    # Standardize license numbers for comparison
-                                    user_license = profile.license_number.strip().upper().replace(' ', '')
-                                    violator_license_std = v.violator.license_number.strip().upper().replace(' ', '') if v.violator.license_number else None
-                                    
-                                    # Only update if different (using standardized comparison)
-                                    if violator_license_std != user_license:
-                                        logger.info(f"Updating violator's license number from {v.violator.license_number} to {profile.license_number} (Violation ID: {v.id})")
-                                        v.violator.license_number = user_license
-                                        v.violator.save(update_fields=['license_number'])
-                                
-                                # Save the violation with the updated user_account
-                                v.save(update_fields=['user_account'])
-                                linked_count += 1
-                                logger.info(f"Linked violation ID {v.id} to user {user.username}")
-                            
-                            # Check for additional violations with the same violator info but not yet linked to a QR hash
-                            if profile.license_number:
-                                # Standardize the license number
-                                std_license = profile.license_number.strip().upper().replace(' ', '')
-                                
-                                # Find violations with the same license number but not linked to this QR hash
-                                additional_violations = Violation.objects.filter(
-                                    violator__license_number__iexact=std_license,
-                                    qr_hash__isnull=True,
-                                    user_account__isnull=True  # Only get unlinked violations
-                                )
-                                
-                                if additional_violations.exists():
-                                    logger.info(f"Found {additional_violations.count()} additional violations with license {std_license} not linked to QR hash")
-                                    
-                                    for v in additional_violations:
-                                        # Link to QR hash and user account
-                                        v.qr_hash = qr_hash
-                                        v.user_account = user
-                                        v.save(update_fields=['qr_hash', 'user_account'])
-                                        linked_count += 1
-                                        logger.info(f"Linked additional violation ID {v.id} to user {user.username} and QR hash {qr_hash.hash_id}")
-                            
-                            # Check for violations with matching name but no license number
-                            additional_name_violations = Violation.objects.filter(
-                                violator__first_name__iexact=user.first_name,
-                                violator__last_name__iexact=user.last_name,
-                                qr_hash__isnull=True,
-                                user_account__isnull=True  # Only get unlinked violations
-                            )
-                            
-                            if additional_name_violations.exists():
-                                logger.info(f"Found {additional_name_violations.count()} additional violations with name {user.first_name} {user.last_name} not linked to QR hash")
-                                
-                                for v in additional_name_violations:
-                                    # Link to QR hash and user account
-                                    v.qr_hash = qr_hash
-                                    v.user_account = user
-                                    v.save(update_fields=['qr_hash', 'user_account'])
-                                    linked_count += 1
-                                    logger.info(f"Linked additional violation ID {v.id} to user {user.username} and QR hash {qr_hash.hash_id}")
-                            
-                            # Double check that violations are now linked to the user
-                            verification_count = Violation.objects.filter(user_account=user).count()
-                            logger.info(f"Verification: User {user.username} now has {verification_count} violations linked to their account")
-                            
-                            logger.info(f"Successfully linked {linked_count} violations to user {user.username}")
-                            
-                            # Mark QR hash as registered
-                            qr_hash.registered = True
-                            qr_hash.user_account = user
-                            qr_hash.save()
-                            logger.info(f"Updated ViolatorQRHash {hash_id} to mark as registered for user {user.username}")
-                        else:
-                            # Fall back to linking just the current violation if no hash_id
-                            if violations_linked:
-                                violations_linked[0].user_account = user
-                                violations_linked[0].save()
-                                logger.info(f"Linked single violation ID {violations_linked[0].id} to user {user.username}")
-                    except Exception as e:
-                        logger.warning(f"Error linking violations to user: {str(e)}", exc_info=True)
-                        
-                        # Fall back to linking just the current violation if there was an error
-                        if violations_linked:
-                            # Check if this violation is already linked to another user
-                            if violations_linked[0].user_account:
-                                logger.warning(f"Violation ID {violations_linked[0].id} is already linked to user ID {violations_linked[0].user_account.id}")
-                                
-                                # Try to link to this user now
-                                violations_linked[0].user_account = user
-                                violations_linked[0].save()
-                                logger.info(f"Fall back: Linked single violation ID {violations_linked[0].id} to user {user.username}")
-                                
-                                # Also update the violator's license number if needed
-                                if profile.license_number and hasattr(violations_linked[0], 'violator') and violations_linked[0].violator:
-                                    if violations_linked[0].violator.license_number != profile.license_number:
-                                        logger.info(f"Updating violator's license number from {violations_linked[0].violator.license_number} to {profile.license_number}")
-                                        violations_linked[0].violator.license_number = profile.license_number
-                                        violations_linked[0].violator.save()
-                        
-                            # Try to additionally check if this user's license number matches any violations
-                            # This is a backup in case the QR hash linking failed
-                            if profile.license_number:
-                                try:
-                                    # Find violations with matching license number but no user account
-                                    license_violations = Violation.objects.filter(
-                                        violator__license_number=profile.license_number,
-                                        user_account__isnull=True
-                                    )
-                                    
-                                    if license_violations.exists():
-                                        logger.info(f"Found {license_violations.count()} additional violations with license {profile.license_number}")
-                                        for v in license_violations:
-                                            v.user_account = user
-                                            v.save()
-                                            logger.info(f"Additionally linked violation ID {v.id} to user {user.username} by license number")
-                                except Exception as license_error:
-                                    logger.error(f"Error linking by license number: {str(license_error)}", exc_info=True)
+                    violations_count = 0
+                    for violation in violations_linked:
+                        # Only link violations that aren't already linked to a user
+                        if not violation.user_account:
+                            violation.user_account = user
+                            violation.save()
+                            violations_count += 1
                     
-                    # After transaction completes, handle login in a separate step
-                    if user:
-                        try:
-                            # Instead of using login() directly, authenticate first
-                            authenticated_user = authenticate(
-                                username=form.cleaned_data['username'],
-                                password=form.cleaned_data['password1']
-                            )
-                            
-                            if authenticated_user is not None:
-                                # Use login with request argument
-                                login(request, authenticated_user)
-                                logger.info(f"User {authenticated_user.username} logged in successfully")
-                                
-                                messages.success(request, "Registration successful! The violation has been linked to your account.")
-                                return redirect('user_portal:user_dashboard')
-                            else:
-                                logger.warning(f"Authentication failed after user creation for {user.username}")
-                                messages.success(request, "Registration successful! Please log in with your new account.")
-                                return redirect('login')
-                        except Exception as login_error:
-                            logger.error(f"Error during login process: {str(login_error)}", exc_info=True)
-                            messages.success(request, "Registration successful! Please log in with your new account.")
-                            return redirect('login')
-                    else:
-                        messages.error(request, "Registration failed. Please try again.")
+                    logger.info(f"Linked {violations_count} violations to user {user.username}")
+                
+                # Log in the new user
+                raw_password = form.cleaned_data.get('password1')
+                user = authenticate(username=user.username, password=raw_password)
+                login(request, user)
+                
+                # Send a notification mail to the driver about successful registration
+                # try:
+                #     send_registration_notification_email(user, qr_hash, violations_linked)
+                # except Exception as e:
+                #     logger.error(f"Error sending notification email: {str(e)}")
+                
+                # Show a success message
+                messages.success(request, "Your account has been created successfully. Please verify your email address.")
+                return redirect('user_portal:dashboard')
+                
             except Exception as e:
-                logger.error(f"Error during registration: {str(e)}", exc_info=True)
-                messages.error(request, "An error occurred during registration. Please try again.")
-                # Add more specific error message for common issues
-                if "Duplicate entry" in str(e) and "user_id" in str(e):
-                    messages.error(request, "This username is already in use. Please try a different username.")
+                logger.error(f"Error creating user account: {str(e)}")
+                messages.error(request, f"An error occurred: {str(e)}")
+                return redirect('login')
         else:
+            # If the form is not valid, log the errors
             logger.warning(f"Invalid form submission: {form.errors}")
-            for field, errors in form.errors.items():
-                for error in errors:
-                    logger.warning(f"Form error in {field}: {error}")
-                    # Special handling for email errors to provide clearer feedback
-                    if field == 'email' and "already registered" in error:
-                        messages.warning(request, 
-                            "This email address is already registered in our system. "
-                            "If this is your account, please log in instead. "
-                            "If you need help accessing your account, use the password reset feature."
-                        )
-                    else:
-                        messages.error(request, f"{field.capitalize()}: {error}")
     else:
-        logger.info(f"Generating registration form for hash {hash_id}")
-        # Pre-fill form with violator details if available
-        initial_data = {}
+        # Create the form with initial data from the QR hash
+        initial = {}
+        if qr_hash:
+            if qr_hash.first_name and qr_hash.first_name != 'unknown':
+                initial['first_name'] = qr_hash.first_name.title()
+            if qr_hash.last_name and qr_hash.last_name != 'unknown':
+                initial['last_name'] = qr_hash.last_name.title()
+            if qr_hash.license_number:
+                initial['license_number'] = qr_hash.license_number
+            if qr_hash.phone_number:
+                initial['phone_number'] = qr_hash.phone_number
+                
+        # Also try to get data from the violations
+        if violations_linked and not initial.get('first_name'):
+            violation = violations_linked.first()
+            
+            if hasattr(violation, 'violator') and violation.violator:
+                if violation.violator.first_name:
+                    initial['first_name'] = violation.violator.first_name.title()
+                if violation.violator.last_name:
+                    initial['last_name'] = violation.violator.last_name.title()
+                if violation.violator.license_number:
+                    initial['license_number'] = violation.violator.license_number
+                if hasattr(violation.violator, 'phone_number') and violation.violator.phone_number:
+                    initial['phone_number'] = violation.violator.phone_number
+                if hasattr(violation.violator, 'address') and violation.violator.address:
+                    initial['address'] = violation.violator.address
+                    
+        form = ExtendedUserCreationForm(initial=initial)
+        logger.info(f"Created form with initial data: {initial}")
         
-        # First check if we have data in the QR hash record
-        if hash_id:
-            try:
-                if not qr_hash:
-                    qr_hash = ViolatorQRHash.objects.get(hash_id=hash_id)
-                initial_data = {
-                    'first_name': qr_hash.first_name,
-                    'last_name': qr_hash.last_name,
-                    'license_number': qr_hash.license_number,
-                    'phone_number': qr_hash.phone_number
-                }
-                # Add a placeholder username based on first and last name
-                if qr_hash.first_name and qr_hash.last_name:
-                    suggested_username = f"{qr_hash.first_name.lower()}.{qr_hash.last_name.lower()}"
-                    initial_data['username'] = suggested_username
-                    
-                logger.info(f"Pre-filled form with data from QR hash record: {initial_data}")
-            except Exception as e:
-                logger.warning(f"Could not get QR hash record data: {str(e)}")
-        
-        # If we have a violation, use that data instead or complement existing data
-        if violations_linked:
-            # Try to get data from violator relationship
-            try:
-                if hasattr(violations_linked[0], 'violator') and violations_linked[0].violator:
-                    violator_data = {
-                        'first_name': violations_linked[0].violator.first_name,
-                        'last_name': violations_linked[0].violator.last_name,
-                        'license_number': getattr(violations_linked[0].violator, 'license_number', ''),
-                        'phone_number': getattr(violations_linked[0].violator, 'phone_number', ''),
-                        'address': getattr(violations_linked[0].violator, 'address', '')
-                    }
-                    
-                    # Update initial data with violator data
-                    initial_data.update(violator_data)
-                    
-                    # Add a placeholder username if not already set
-                    if 'username' not in initial_data and violations_linked[0].violator.first_name and violations_linked[0].violator.last_name:
-                        suggested_username = f"{violations_linked[0].violator.first_name.lower()}.{violations_linked[0].violator.last_name.lower()}"
-                        initial_data['username'] = suggested_username
-                        
-                    logger.info(f"Updated form with data from violator relationship: {violator_data}")
-                # If no violator relationship, try violation fields
-                else:
-                    # Extract first and last name from driver_name if available
-                    first_name = getattr(violations_linked[0], 'first_name', '')
-                    last_name = getattr(violations_linked[0], 'last_name', '')
-                    
-                    if not first_name and hasattr(violations_linked[0], 'driver_name') and violations_linked[0].driver_name:
-                        name_parts = violations_linked[0].driver_name.split(' ', 1)
-                        first_name = name_parts[0]
-                        last_name = name_parts[1] if len(name_parts) > 1 else ''
-                    
-                    violation_data = {
-                        'first_name': first_name,
-                        'last_name': last_name,
-                        'license_number': getattr(violations_linked[0], 'license_number', ''),
-                        'phone_number': getattr(violations_linked[0], 'phone_number', ''),
-                        'address': getattr(violations_linked[0], 'address', '')
-                    }
-                    
-                    # Update initial data with violation data (only for empty fields)
-                    for field, value in violation_data.items():
-                        if not initial_data.get(field) and value:
-                            initial_data[field] = value
-                    
-                    # Add a placeholder username if not already set
-                    if 'username' not in initial_data and first_name and last_name:
-                        suggested_username = f"{first_name.lower()}.{last_name.lower()}"
-                        initial_data['username'] = suggested_username
-                        
-                    logger.info(f"Updated form with data from violation fields: {violation_data}")
-            except Exception as e:
-                logger.warning(f"Error getting violation field data: {str(e)}")
-        
-        # Create form with initial data
-        form = ExtendedUserCreationForm(initial=initial_data)
-        
-        # Set CSS classes for all form fields
+        # Add Bootstrap classes to form fields
         for field_name, field in form.fields.items():
             field.widget.attrs['class'] = 'form-control'
     
@@ -768,6 +548,63 @@ def register_with_violations(request, hash_id=None):
 def register_with_direct_violation(request, violation_id):
     """Register a new user with a direct violation ID."""
     logger.info(f"register_with_direct_violation called for violation ID: {violation_id}")
+    
+    # Get the violation
+    try:
+        violation = Violation.objects.get(pk=violation_id)
+        logger.info(f"Found violation ID: {violation.id}, status: {violation.status}")
+        
+        # Check if this violation is already linked to a user account
+        if violation.user_account:
+            logger.warning(f"Violation {violation_id} is already linked to user: {violation.user_account.username}")
+            messages.warning(request, 
+                "This violation is already linked to an account. Please log in to that account, or contact support if you need assistance."
+            )
+            return redirect('login')
+            
+        # Check if the violation has a QR hash
+        if violation.qr_hash:
+            hash_id = violation.qr_hash.hash_id
+            logger.info(f"Violation has QR hash: {hash_id}, registered: {violation.qr_hash.registered}")
+            
+            # Check if this QR hash is already registered
+            if violation.qr_hash.registered:
+                logger.warning(f"QR hash {hash_id} for violation {violation_id} is already registered")
+                messages.warning(request, 
+                    "This violation's QR code has already been registered. Please log in to view your violations, or contact support if you need assistance."
+                )
+                return redirect('login')
+                
+            # Check if this QR hash is linked to a user account
+            if violation.qr_hash.user_account:
+                logger.warning(f"QR hash {hash_id} for violation {violation_id} is already linked to user: {violation.qr_hash.user_account.username}")
+                messages.warning(request, 
+                    "This violation is already linked to an account. Please log in to that account, or contact support if you need assistance."
+                )
+                return redirect('login')
+                
+            # Check how many violations are linked to this QR hash
+            linked_violations = list(violation.qr_hash.violations.all())
+            violation_count = len(linked_violations)
+            logger.info(f"QR hash {hash_id} has {violation_count} linked violations")
+            
+    except Violation.DoesNotExist:
+        logger.warning(f"Violation not found: {violation_id}")
+        messages.error(request, "Invalid violation ID. Please try again or contact support.")
+        return redirect('login')
+    except Exception as e:
+        logger.error(f"Error checking violation {violation_id}: {str(e)}")
+        messages.error(request, f"An error occurred: {str(e)}")
+        return redirect('login') 
+    
+    # Use the hash_id to redirect to the register_with_violations view
+    hash_id = violation.qr_hash.hash_id if violation.qr_hash else get_or_create_qr_hash(violation)
+    logger.info(f"Redirecting to register_with_violations with hash: {hash_id}")
+    return redirect('register_with_violations', hash_id=hash_id) 
+
+def issue_direct_ticket(request, violation_id):
+    """Register a new user with a direct violation ID."""
+    logger.info(f"issue_direct_ticket called for violation ID: {violation_id}")
     
     # Get the violation
     try:

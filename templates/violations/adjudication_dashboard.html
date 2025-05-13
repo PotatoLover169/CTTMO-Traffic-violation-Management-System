@@ -757,8 +757,8 @@ document.addEventListener('DOMContentLoaded', function() {
     viewButtons.forEach(button => {
         button.addEventListener('click', function() {
             const adjId = this.getAttribute('data-adj-id');
-            // Navigate to adjudication detail
-            window.location.href = `/adjudication/detail/${adjId}/`;
+            // Navigate to adjudication detail using the correct URL
+            window.location.href = "{% url 'adjudication_detail' 0 %}".replace('0', adjId);
         });
     });
 });

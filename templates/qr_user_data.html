@@ -27,72 +27,6 @@
                     <span class="material-icons me-2 text-success">check_circle</span>
                     <h5 class="mb-0">Valid User Information</h5>
                 </div>
-                
-                <!-- NEW: Alert for existing users with same name or license -->
-                {% if has_existing_users %}
-                <div class="alert alert-warning border-start border-warning border-4 m-3 mb-0">
-                    <div class="d-flex">
-                        <span class="material-icons text-warning me-2">person_search</span>
-                        <div>
-                            <h6 class="mb-1 fw-bold">Existing User Accounts Found</h6>
-                            <p class="mb-0">Found {{ existing_users|length }} existing user(s) with the same name or license number.</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Existing Users Accordion -->
-                <div class="accordion accordion-flush m-3 mt-0" id="existingUsersAccordion">
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="existingUsersHeading">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#existingUsersCollapse" aria-expanded="false" aria-controls="existingUsersCollapse">
-                                Show Existing User Details
-                            </button>
-                        </h2>
-                        <div id="existingUsersCollapse" class="accordion-collapse collapse" aria-labelledby="existingUsersHeading" data-bs-parent="#existingUsersAccordion">
-                            <div class="accordion-body p-0">
-                                <div class="table-responsive">
-                                    <table class="table table-hover mb-0">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th>Name</th>
-                                                <th>Email</th>
-                                                <th>License #</th>
-                                                <th>Registration</th>
-                                                <th>Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for existing_user in existing_users %}
-                                            <tr>
-                                                <td>{{ existing_user.first_name }} {{ existing_user.last_name }}</td>
-                                                <td>{{ existing_user.email }}</td>
-                                                <td>{{ existing_user.license_number }}</td>
-                                                <td>
-                                                    <div>{{ existing_user.registration_date }}</div>
-                                                    <small class="text-muted">{{ existing_user.registration_method }}</small>
-                                                </td>
-                                                <td>
-                                                    <a href="{{ existing_user.profile_url }}" class="btn btn-sm btn-outline-primary">
-                                                        <span class="material-icons small">visibility</span> View
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <div class="p-3 bg-light">
-                                    <div class="alert alert-info mb-0">
-                                        <span class="material-icons me-2 align-middle">info</span>
-                                        <span>These are existing accounts that match the name or license number of this user. This may indicate duplicate accounts or potential identity issues.</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
-                
                 <div class="card-body p-4">
                     <!-- User Personal Info -->
                     <div class="mb-4">
@@ -252,28 +186,50 @@
             
             <!-- Violation History Section -->
             <div class="card shadow-sm border-0 rounded-3 mb-4">
-                <div class="card-header bg-transparent d-flex align-items-center py-3">
-                    <span class="material-icons me-2 text-primary">gavel</span>
-                    <h5 class="mb-0">Pending Violations</h5>
+                <div class="card-header bg-transparent d-flex align-items-center justify-content-between py-3">
+                    <div class="d-flex align-items-center">
+                        <span class="material-icons me-2 text-primary">gavel</span>
+                        <h5 class="mb-0">Pending Violations</h5>
+                        {% if data.has_driver_violations %}
+                        <span class="badge bg-info ms-2">Driver + User Violations</span>
+                        {% endif %}
+                    </div>
+                    {% if data.violations %}
+                    <span class="badge bg-danger rounded-pill">{{ data.violations|length }}</span>
+                    {% endif %}
                 </div>
                 <div class="card-body p-0">
                     <!-- Violation List Section -->
                     <div class="p-4">
                         <div class="mb-4" id="violationsSection">
-                            <div class="d-flex align-items-center mb-3">
-                                <span class="material-icons me-2 text-danger">warning</span>
-                                <h6 class="mb-0">Violations</h6>
-                                <span class="badge bg-danger ms-2 rounded-pill" id="violationsCount">
-                                    {% if data.violations %}{{ data.violations|length }}{% else %}0{% endif %}
-                                </span>
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <div class="d-flex align-items-center">
+                                    <span class="material-icons me-2 text-danger">warning</span>
+                                    <h6 class="mb-0">Violations</h6>
+                                    <span class="badge bg-danger ms-2 rounded-pill" id="violationsCount">
+                                        {% if data.violations %}{{ data.violations|length }}{% else %}0{% endif %}
+                                    </span>
+                                </div>
+                                
+                                {% if data.user_violations_count > 0 and data.driver_violations_count > 0 %}
+                                <div>
+                                    <span class="badge bg-primary me-1">{{ data.user_violations_count }} User</span>
+                                    <span class="badge bg-info">{{ data.driver_violations_count }} Driver</span>
+                                </div>
+                                {% endif %}
                             </div>
                             <div id="violationsList">
                                 {% if data.violations and data.violations|length > 0 %}
                                     {% for violation in data.violations %}
                                     <div class="card shadow-sm mb-3">
                                         <div class="card-body">
+                                            {% if violation.source == 'driver' %}
+                                            <div class="float-end">
+                                                <span class="badge bg-info">Driver Violation</span>
+                                            </div>
+                                            {% endif %}
                                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                                <span class="badge bg-warning">{{ violation.status }}</span>
+                                                <span class="badge {% if violation.status == 'PENDING' %}bg-warning{% else %}bg-danger{% endif %}">{{ violation.status }}</span>
                                                 <small class="text-muted">{{ violation.violation_date|date:"M d, Y" }} at {{ violation.violation_date|time:"g:i A" }}</small>
                                             </div>
                                             <h6 class="card-title">{{ violation.violation_type }}</h6>

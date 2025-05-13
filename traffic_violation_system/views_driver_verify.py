@@ -4,6 +4,9 @@ from .models import Driver, Vehicle, DriverVehicleAssignment, Violation
 from django.db.models import Q
 from django.contrib.auth.models import User
 from django.db import connection
+import logging
+
+logger = logging.getLogger(__name__)
 
 def search_drivers(request):
     """
@@ -89,6 +92,11 @@ def driver_verify(request, driver_id):
     similar_drivers = []
     
     try:
+        # Handle "D:" prefix (common error prefix in failed scans)
+        if driver_id.startswith('D:'):
+            driver_id = driver_id[2:].strip()
+            logger.info(f"Stripped 'D:' prefix from driver ID, now using: {driver_id}")
+        
         # Try to find by Driver.new_pd_number first
         driver = Driver.objects.get(new_pd_number=driver_id)
         
@@ -129,63 +137,85 @@ def driver_verify(request, driver_id):
                 })
         
         # Get all violations associated with this driver 
-        print(f"Querying violations for driver {driver.id}: {driver.first_name} {driver.last_name} (PD: {driver.new_pd_number}, License: {driver.license_number})")
-        driver_violations = Violation.objects.filter(
-            Q(pd_number=driver.new_pd_number) | 
-            Q(pd_number=driver.old_pd_number) | 
-            Q(violator__license_number=driver.license_number)
-        ).order_by('-violation_date')
-        
-        print(f"Initial query found {driver_violations.count()} violations for driver {driver.id}")
-        
-        # Filter to only include pending and adjudicated violations
-        filtered_violations = [
+        logger.info(f"Looking up violations for driver: {driver.id} (PD: {driver.new_pd_number}, Old PD: {driver.old_pd_number}, License: {driver.license_number})")
+
+        # First, get an unfiltered count to check if there's a significant discrepancy
+        all_violations_count = Violation.objects.all().count()
+        logger.info(f"Total violations in database: {all_violations_count}")
+
+        # Construct the query with explicit filtering
+        driver_query = Q(pd_number__exact=driver.new_pd_number) 
+        if driver.old_pd_number:
+            driver_query |= Q(pd_number__exact=driver.old_pd_number)
+        if driver.license_number:
+            driver_query |= Q(violator__license_number__exact=driver.license_number)
+
+        # Log info for debugging
+        logger.info(f"Driver filter query: pd_number__exact={driver.new_pd_number}, old_pd={driver.old_pd_number}, license={driver.license_number}")
+
+        # Execute the query with explicit driver filtering - add even more strict filtering
+        driver_violations = Violation.objects.filter(driver_query).order_by('-violation_date')
+
+        # If we still have issues, check if we need even more explicit filtering:
+        # Try just filtering by the new PD number as an exact match
+        if driver.new_pd_number:
+            pd_only_violations = Violation.objects.filter(pd_number__exact=driver.new_pd_number).order_by('-violation_date')
+            logger.info(f"Testing with new PD exact match only: {len(pd_only_violations)} violations found")
+            
+            # If the more specific filter works better, use it
+            if len(pd_only_violations) < len(driver_violations) and len(pd_only_violations) > 0:
+                logger.info(f"Switching to stricter filtering (PD number only) as it returned fewer results")
+                driver_violations = pd_only_violations
+
+        # Log some sample violations to verify the filtering
+        sample_count = min(3, len(driver_violations))
+        if sample_count > 0:
+            logger.info(f"Sample violations (showing {sample_count}):")
+            for i, v in enumerate(driver_violations[:sample_count]):
+                logger.info(f"  Violation {i+1}: ID={v.id}, PD={getattr(v, 'pd_number', 'N/A')}, Date={getattr(v, 'violation_date', 'N/A')}")
+
+        # Filter to only include pending and adjudicated violations with more explicit code
+        driver_violations = [
             violation for violation in driver_violations 
-            if getattr(violation, 'status', '').lower() in ['pending', 'adjudicated']
+            if hasattr(violation, 'status') and 
+            getattr(violation, 'status', '').lower() in ['pending', 'adjudicated']
         ]
-        
-        print(f"After status filtering: {len(filtered_violations)} violations")
-        
-        # Perform a strict validation to ensure each violation actually belongs to this driver
-        validated_violations = []
-        for violation in filtered_violations:
-            is_driver_violation = False
+        logger.info(f"After status filtering - violations count: {len(driver_violations)}")
+
+        # Final safety check: explicitly verify each violation belongs to this driver
+        filtered_violations = []
+        for violation in driver_violations:
+            belongs_to_driver = False
             
-            # PD number match
-            if (hasattr(violation, 'pd_number') and violation.pd_number and 
-                (violation.pd_number == driver.new_pd_number or 
-                 violation.pd_number == driver.old_pd_number)):
-                is_driver_violation = True
+            # Get PD number from violation (if exists)
+            violation_pd = getattr(violation, 'pd_number', None)
             
-            # License number match
-            elif (hasattr(violation, 'violator') and 
-                  hasattr(violation.violator, 'license_number') and 
-                  violation.violator.license_number and 
-                  driver.license_number and
-                  violation.violator.license_number.lower() == driver.license_number.lower()):
-                is_driver_violation = True
+            # Get violator (if exists)
+            violator = getattr(violation, 'violator', None)
+            violator_license = getattr(violator, 'license_number', None) if violator else None
             
-            # Direct driver link
-            elif hasattr(violation, 'driver') and violation.driver and violation.driver.id == driver.id:
-                is_driver_violation = True
+            # Log the actual data we're checking against
+            logger.info(f"Checking violation {violation.id}: PD={violation_pd}, License={violator_license}")
+            logger.info(f"Comparing to driver: PD={driver.new_pd_number}/{driver.old_pd_number}, License={driver.license_number}")
             
-            # Name match as last resort (less reliable)
-            elif (hasattr(violation, 'violator') and 
-                  hasattr(violation.violator, 'first_name') and 
-                  hasattr(violation.violator, 'last_name') and
-                  violation.violator.first_name and 
-                  violation.violator.last_name and
-                  violation.violator.first_name.lower() == driver.first_name.lower() and
-                  violation.violator.last_name.lower() == driver.last_name.lower()):
-                is_driver_violation = True
+            # Check if this violation belongs to the driver
+            if violation_pd and (violation_pd == driver.new_pd_number or violation_pd == driver.old_pd_number):
+                belongs_to_driver = True
+                logger.info(f"Violation {violation.id} matched by PD number")
+            elif violator_license and violator_license == driver.license_number:
+                belongs_to_driver = True
+                logger.info(f"Violation {violation.id} matched by license number")
             
-            if is_driver_violation:
-                validated_violations.append(violation)
+            # Only include violations that belong to this driver
+            if belongs_to_driver:
+                filtered_violations.append(violation)
             else:
-                print(f"Violation ID {violation.id} was returned but doesn't appear to belong to driver {driver.id}. Skipping.")
-        
-        print(f"After driver validation: {len(validated_violations)} violations are for this driver")
-        
+                logger.warning(f"Excluded violation {violation.id} - does not belong to driver {driver.id}")
+
+        # Use the explicitly filtered list
+        driver_violations = filtered_violations
+        logger.info(f"After explicit verification - final violations count: {len(driver_violations)}")
+
         # Separate violations into regular and NCAP
         ncap_violations = []
         regular_violations = []
@@ -196,7 +226,7 @@ def driver_verify(request, driver_id):
             'speed', 'red light', 'traffic signal', 'stoplight'
         ]
         
-        for violation in validated_violations:
+        for violation in driver_violations:
             # Check if violation has any image fields (a common indicator of NCAP)
             has_images = False
             if hasattr(violation, 'image') and violation.image:
@@ -230,12 +260,12 @@ def driver_verify(request, driver_id):
             'is_valid': True,
             'now': timezone.now(),
             'vehicles': vehicles,
-            'violations': validated_violations,
+            'violations': driver_violations,
             'regular_violations': regular_violations,
             'ncap_violations': ncap_violations,
             'user_profile': user_profile,
             'data': {  # Add a data object for backward compatibility
-                'violations': validated_violations,
+                'violations': driver_violations,
                 'regular_violations': regular_violations,
                 'ncap_violations': ncap_violations,
             }
@@ -244,6 +274,9 @@ def driver_verify(request, driver_id):
         # Try legacy format or handle the error
         try:
             import re
+            
+            # Log original driver_id for debugging
+            logger.info(f"Failed to find driver with ID: {driver_id}, trying alternative lookup methods")
             
             # Check for legacy PD number format (PD-XXX)
             pd_match = re.match(r'PD-(\d+)', driver_id)
@@ -436,6 +469,21 @@ def driver_verify(request, driver_id):
                 
                 raise Driver.DoesNotExist(f"No driver found with ID: {extracted_id}")
             else:
+                # Check for "MultiFormat Readers" error message and clean it
+                if "MultiFormat Readers" in driver_id:
+                    # Log the error
+                    logger.warn(f"Received scanner error in place of driver ID: {driver_id}")
+                    error_message = "The QR code scanner could not read the code. Please ensure the code is clearly visible, well-lit, and try scanning again."
+                    
+                    context = {
+                        'is_valid': False,
+                        'driver_id': "Scanner Error",
+                        'now': timezone.now(),
+                        'error': error_message,
+                        'scanner_error': True
+                    }
+                    return render(request, 'drivers/driver_verify.html', context)
+                
                 # Maybe it's just a number without the PD- prefix
                 if driver_id.isdigit():
                     try:

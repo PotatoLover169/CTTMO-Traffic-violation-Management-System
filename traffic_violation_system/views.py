@@ -8938,8 +8938,24 @@ def ncap_violations_list(request):
     }
     return render(request, 'violations/ncap_violations_list.html', context)
 
+from django.contrib import messages
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.db.models import Q
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from .models import Violation
+from .adjudication_views import is_adjudicator
+
 @login_required
 def adjudication_list(request):
+    # Check if the user has permission to access this page
+    if not is_adjudicator(request.user):
+        messages.warning(request, 'You do not have permission to access the adjudication list.')
+        # Redirect based on user role
+        if hasattr(request.user, 'userprofile') and request.user.userprofile.role == 'ENFORCER':
+            return redirect('enforcer_map')
+        return redirect('dashboard')
+    
     # Get all violations without PAID status
     violations = Violation.objects.select_related('violator', 'enforcer').exclude(status='PAID').order_by('-violation_date')
     
@@ -13573,8 +13589,24 @@ def ncap_violations_list(request):
     }
     return render(request, 'violations/ncap_violations_list.html', context)
 
+from django.contrib import messages
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.db.models import Q
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from .models import Violation
+from .adjudication_views import is_adjudicator
+
 @login_required
 def adjudication_list(request):
+    # Check if the user has permission to access this page
+    if not is_adjudicator(request.user):
+        messages.warning(request, 'You do not have permission to access the adjudication list.')
+        # Redirect based on user role
+        if hasattr(request.user, 'userprofile') and request.user.userprofile.role == 'ENFORCER':
+            return redirect('enforcer_map')
+        return redirect('dashboard')
+    
     # Get all violations without PAID status
     violations = Violation.objects.select_related('violator', 'enforcer').exclude(status='PAID').order_by('-violation_date')
     
@@ -15513,8 +15545,24 @@ def ncap_violations_list(request):
     }
     return render(request, 'violations/ncap_violations_list.html', context)
 
+from django.contrib import messages
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.db.models import Q
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from .models import Violation
+from .adjudication_views import is_adjudicator
+
 @login_required
 def adjudication_list(request):
+    # Check if the user has permission to access this page
+    if not is_adjudicator(request.user):
+        messages.warning(request, 'You do not have permission to access the adjudication list.')
+        # Redirect based on user role
+        if hasattr(request.user, 'userprofile') and request.user.userprofile.role == 'ENFORCER':
+            return redirect('enforcer_map')
+        return redirect('dashboard')
+    
     # Get all violations without PAID status
     violations = Violation.objects.select_related('violator', 'enforcer').exclude(status='PAID').order_by('-violation_date')
     
@@ -16551,6 +16599,8 @@ def reject_adjudication(request, violation_id):
             # Update violation
             violation.status = 'REJECTED'
             violation.rejection_reason = reason
+            violation.rejected_by = request.user
+            violation.rejection_date = timezone.now()
             violation.approved_by = None
             violation.approval_date = None
             violation.save()
@@ -20451,7 +20501,7 @@ def rejected_adjudications(request):
     # Get all rejected adjudications
     rejected_violations = Violation.objects.filter(
         status='REJECTED'
-    ).select_related('violator', 'adjudicated_by', 'approved_by').order_by('-adjudication_date')
+    ).select_related('violator', 'adjudicated_by', 'approved_by', 'rejected_by').order_by('-adjudication_date')
     
     # Enhanced search functionality
     search_query = request.GET.get('search', '').strip()

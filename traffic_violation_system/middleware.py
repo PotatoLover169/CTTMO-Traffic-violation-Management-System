@@ -237,6 +237,11 @@ class AdjudicationAccessMiddleware:
             r'^/dashboard/',
         ]
         
+        # Paths that supervisors should be allowed to access
+        self.supervisor_allowed_paths = [
+            r'^/adjudication-history/',  # Allow access to adjudication history
+        ]
+        
         # URLs related to ticketing
         self.ticketing_paths = [
             r'^/issue-ticket/',
@@ -266,6 +271,10 @@ class AdjudicationAccessMiddleware:
             # Skip restrictions for educators entirely
             if profile.role == 'EDUCATOR':
                 return None
+            
+            # Skip restrictions for ADJUDICATOR role
+            if profile.role == 'ADJUDICATOR':
+                return None
                 
             # For treasurers, block adjudication, ticketing, and QR scanner
             if profile.role == 'TREASURER':
@@ -285,8 +294,14 @@ class AdjudicationAccessMiddleware:
                     messages.warning(request, 'Access to QR scanner is restricted for your role.')
                     return redirect('dashboard')
             
-            # For supervisors, specifically block adjudication-related paths
+            # For supervisors, specifically block adjudication-related paths except allowed ones
             if profile.role == 'SUPERVISOR':
+                # First check if the path is in the allowed list for supervisors
+                if any(re.match(url, path) for url in self.supervisor_allowed_paths):
+                    # Allow access to the path if it's in the allowed list
+                    return None
+                    
+                # Otherwise, block access to adjudication paths as before
                 adjudication_paths = [url for url in self.restricted_paths if 'adjudication' in url]
                 if any(re.match(url, path) for url in adjudication_paths):
                     messages.warning(request, 'Access to adjudication features is restricted for your role.')

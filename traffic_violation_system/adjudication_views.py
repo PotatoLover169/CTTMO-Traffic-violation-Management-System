@@ -18,6 +18,11 @@ def is_adjudicator(user):
     # Prevent enforcers from accessing adjudication
     if hasattr(user, 'userprofile') and user.userprofile.role == 'ENFORCER':
         return False
+    
+    # Allow users with ADJUDICATOR role in their UserProfile
+    if hasattr(user, 'userprofile') and user.userprofile.role == 'ADJUDICATOR':
+        return True
+        
     return user.is_staff or user.groups.filter(name='Adjudicator').exists() or user.is_superuser
 
 

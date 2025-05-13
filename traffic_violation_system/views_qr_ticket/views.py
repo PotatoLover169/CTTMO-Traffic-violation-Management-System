@@ -52,7 +52,7 @@ def prepare_driver_ticket(request, driver_id):
         request.session.modified = True
         
         # Redirect to the issue direct ticket page
-        return redirect('issue_direct_ticket')
+        return redirect('direct_ticket_form')
         
     except Exception as e:
         messages.error(request, f"Error preparing ticket data: {str(e)}")
@@ -131,7 +131,7 @@ def prepare_user_ticket(request, enforcer_id):
         request.session.modified = True
         
         # Redirect to the issue direct ticket page
-        return redirect('issue_direct_ticket')
+        return redirect('direct_ticket_form')
         
     except Exception as e:
         messages.error(request, f"Error preparing ticket data: {str(e)}")

@@ -248,7 +248,8 @@ urlpatterns = [
     path('register/violations/direct/<int:violation_id>/', register_with_direct_violation, name='register_with_direct_violation'),
     
     # Direct ticket issue with session data
-    path('violations/issue-direct/', issue_direct_ticket, name='issue_direct_ticket'),
+    path('violations/issue-direct/', direct_ticket_form, name='direct_ticket_form'),
+    path('violations/issue-direct-ticket/<int:violation_id>/', issue_direct_ticket, name='issue_direct_ticket'),
     path('violations/direct-form/', direct_ticket_form, name='direct_ticket_form'),
     
     # Scanner API endpoint - Add the missing URL pattern

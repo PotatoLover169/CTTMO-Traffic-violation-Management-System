@@ -259,6 +259,8 @@ class Violation(models.Model):
     # Approval fields
     approved_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='approved_violations')
     approval_date = models.DateTimeField(null=True, blank=True)
+    rejected_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='rejected_violations')
+    rejection_date = models.DateTimeField(null=True, blank=True)
     rejection_reason = models.TextField(blank=True, null=True)
     
     # Payment fields
@@ -298,7 +300,9 @@ class Violation(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Citation {self.id} - {self.violator.license_number}"
+        pd_info = f"PD:{self.pd_number}" if hasattr(self, 'pd_number') and self.pd_number else "No PD"
+        status = f"Status:{self.status}" if hasattr(self, 'status') and self.status else "No status"
+        return f"Violation(id:{self.id}, {pd_info}, {status})"
 
     class Meta:
         ordering = ['-violation_date']

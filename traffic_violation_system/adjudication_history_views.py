@@ -13,6 +13,10 @@ from .models import Violation, Violator
 
 def is_admin_or_supervisor(user):
     """Check if user is admin or supervisor"""
+    # Check if user has SUPERVISOR role in their UserProfile
+    if hasattr(user, 'userprofile') and user.userprofile.role == 'SUPERVISOR':
+        return True
+        
     return user.is_staff or user.is_superuser or user.groups.filter(name='Supervisor').exists()
 
 @login_required

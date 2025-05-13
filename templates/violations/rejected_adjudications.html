@@ -17,15 +17,11 @@
                     </div>
                 </div>
                 <div class="header-actions">
-                    <a href="{% url 'adjudication_dashboard' %}" class="btn btn-outline-primary d-flex align-items-center gap-2">
+                    <a href="{% url 'adjudication_dashboard' %}" class="btn btn-outline-primary" data-bs-toggle="tooltip" title="Dashboard">
                         <span class="material-icons">dashboard</span>
-                        <span class="d-none d-sm-inline">Dashboard</span>
-                        <span class="d-inline d-sm-none">Dashboard</span>
                     </a>
-                    <a href="{% url 'adjudication_list' %}" class="btn btn-outline-primary d-flex align-items-center gap-2">
+                    <a href="{% url 'adjudication_list' %}" class="btn btn-outline-primary" data-bs-toggle="tooltip" title="Adjudication List">
                         <span class="material-icons">gavel</span>
-                        <span class="d-none d-sm-inline">Adjudication List</span>
-                        <span class="d-inline d-sm-none">List</span>
                     </a>
                 </div>
             </div>
@@ -50,7 +46,10 @@
                             <span class="material-icons">close</span>
                         </a>
                         {% endif %}
-                        <button type="submit" class="btn btn-primary">Search</button>
+                        <button type="submit" class="btn btn-primary d-flex align-items-center gap-1">
+                            <span class="material-icons">search</span>
+                            <span>Search</span>
+                        </button>
                     </div>
                 </div>
                 <div class="col-md-6 text-end">
@@ -64,27 +63,26 @@
         </div>
     </div>
 
-    <!-- Rejected Adjudications List -->
+    <!-- Rejected Adjudications List (Desktop) -->
     <div class="card">
         <div class="card-body p-0">
-            <div class="table-responsive">
+            <div class="table-responsive d-none d-md-block">
                 <table class="table table-hover align-middle mb-0">
                     <thead>
-                        <tr>
-                            <th>Citation #</th>
-                            <th>Violator</th>
-                            <th>Violation Type</th>
-                            <th>Adjudicated By</th>
-                            <th>Adjudication Date</th>
-                            <th>Rejected By</th>
-                            <th>Rejection Reason</th>
-                            <th>Actions</th>
+                        <tr class="table-header">
+                            <th class="text-center">Citation #</th>
+                            <th class="text-center">Violator</th>
+                            <th class="text-center">Violation Type</th>
+                            <th class="text-center">Adjudicated By</th>
+                            <th class="text-center">Adjudication Date</th>
+                            <th class="text-center">Rejected By</th>
+                            <th class="text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for violation in violations %}
                         <tr>
-                            <td>{{ violation.id }}</td>
+                            <td class="text-center">#{{ violation.id }}</td>
                             <td>
                                 <div class="d-flex align-items-center">
                                     <div class="avatar avatar-sm me-2 bg-primary text-white">
@@ -97,44 +95,51 @@
                                 </div>
                             </td>
                             <td>
-                                <div class="text-truncate" style="max-width: 200px;" title="{{ violation.violation_type }}">
-                                    {{ violation.violation_type }}
+                                <div class="violation-types-container">
+                                    <div class="violation-type-badge">{{ violation.violation_type }}</div>
                                 </div>
                             </td>
-                            <td>{{ violation.adjudicated_by.get_full_name }}</td>
-                            <td>{{ violation.adjudication_date|date:"M d, Y" }}</td>
-                            <td>{{ violation.approved_by.get_full_name }}</td>
-                            <td>
-                                <button type="button" class="btn btn-sm btn-link text-danger view-reason-btn" 
-                                        data-bs-toggle="tooltip" 
-                                        data-bs-placement="top" 
-                                        title="{{ violation.rejection_reason|default:'No reason provided' }}"
-                                        data-violation-id="{{ violation.id }}"
-                                        data-reason="{{ violation.rejection_reason|default:'No reason provided'|escapejs }}">
-                                    <span class="material-icons">info</span>
-                                    View Reason
-                                </button>
+                            <td class="text-center">{{ violation.adjudicated_by.get_full_name }}</td>
+                            <td class="text-center">{{ violation.adjudication_date|date:"M d, Y" }}</td>
+                            <td class="text-center">
+                                <div>
+                                    {% if violation.rejected_by %}
+                                        {{ violation.rejected_by.get_full_name }}
+                                    {% elif violation.approved_by %}
+                                        {{ violation.approved_by.get_full_name }}
+                                    {% else %}
+                                        <span class="text-muted">Not assigned</span>
+                                    {% endif %}
+                                </div>
                             </td>
-                            <td>
-                                <div class="d-flex gap-2">
-                                    <a href="{% url 'violation_detail' violation.id %}" class="btn btn-sm btn-primary">
-                                        <span class="material-icons">edit</span>
-                                        View Details
-                                    </a>
-                                    <button type="button" class="btn btn-sm btn-outline-secondary view-details-btn"
+                            <td class="text-center">
+                                <div class="action-buttons">
+                                    <button type="button" class="btn btn-primary action-btn view-details-btn"
+                                            data-bs-toggle="tooltip"
+                                            title="View Details"
                                             data-violation-id="{{ violation.id }}">
                                         <span class="material-icons">visibility</span>
+                                    </button>
+                                    <button type="button" class="btn btn-danger action-btn view-reason-btn" 
+                                            data-bs-toggle="tooltip" 
+                                            data-bs-placement="top" 
+                                            title="View Rejection Reason"
+                                            data-violation-id="{{ violation.id }}"
+                                            data-reason="{{ violation.rejection_reason|default:'No reason provided'|escapejs }}">
+                                        <span class="material-icons">info</span>
                                     </button>
                                 </div>
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="8" class="text-center py-5">
+                            <td colspan="7" class="text-center py-5">
                                 <div class="empty-state">
-                                    <span class="material-icons empty-icon">check_circle</span>
-                                    <h5>No Rejected Adjudications</h5>
-                                    <p class="text-muted">There are no rejected adjudications to display.</p>
+                                    <div class="empty-state-icon">
+                                        <span class="material-icons">check_circle</span>
+                                    </div>
+                                    <h3 class="empty-state-title">No Rejected Adjudications</h3>
+                                    <p class="empty-state-description">There are no rejected adjudications to display.</p>
                                 </div>
                             </td>
                         </tr>
@@ -142,54 +147,148 @@
                     </tbody>
                 </table>
             </div>
-        </div>
-        
-        <!-- Pagination -->
-        {% if violations.has_other_pages %}
-        <div class="card-footer d-flex justify-content-center">
-            <nav aria-label="Page navigation">
-                <ul class="pagination mb-0">
-                    {% if violations.has_previous %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="First">
-                            <span aria-hidden="true">&laquo;&laquo;</span>
-                        </a>
-                    </li>
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ violations.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Previous">
-                            <span aria-hidden="true">&laquo;</span>
-                        </a>
-                    </li>
-                    {% endif %}
-                    
-                    {% for num in violations.paginator.page_range %}
-                        {% if violations.number == num %}
-                            <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
-                        {% elif num > violations.number|add:'-3' and num < violations.number|add:'3' %}
-                            <li class="page-item"><a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a></li>
+            
+            <!-- Mobile card view (visible on mobile) - Added as requested -->
+            <div class="violation-cards d-md-none">
+                {% for violation in violations %}
+                <div class="violation-card" data-violation-id="{{ violation.id }}">
+                    <div class="card mb-3 shadow-sm">
+                        <div class="card-body p-3">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="card-subtitle mb-2 text-muted">#{{ violation.id }}</h6>
+                                <span class="badge bg-danger">Rejected</span>
+                            </div>
+                            
+                            <div class="violation-details">
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="avatar avatar-sm me-2 bg-primary text-white">
+                                        {{ violation.violator.first_name|first }}{{ violation.violator.last_name|first }}
+                                    </div>
+                                    <h5 class="card-title mb-0">{{ violation.violator.first_name }} {{ violation.violator.last_name }}</h5>
+                                </div>
+                                <div class="violation-info mb-2">
+                                    <div class="d-flex flex-column mb-2">
+                                        <div><strong>Violation:</strong>
+                                            <div class="violation-types-container mobile mt-1">
+                                                <span class="violation-type-badge">{{ violation.violation_type }}</span>
+                                            </div>
+                                        </div>
+                                        <div><strong>Adjudicated By:</strong> {{ violation.adjudicated_by.get_full_name }}</div>
+                                        <div><strong>Date:</strong> {{ violation.adjudication_date|date:"M d, Y" }}</div>
+                                        <div><strong>Rejected By:</strong> 
+                                            {% if violation.rejected_by %}
+                                                {{ violation.rejected_by.get_full_name }}
+                                            {% elif violation.approved_by %}
+                                                {{ violation.approved_by.get_full_name }}
+                                            {% else %}
+                                                <span class="text-muted">Not assigned</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-center mt-3">
+                                <div class="action-buttons">
+                                    <button type="button" class="btn btn-primary action-btn view-details-btn"
+                                            data-bs-toggle="tooltip"
+                                            title="View Details"
+                                            data-violation-id="{{ violation.id }}">
+                                        <span class="material-icons">visibility</span>
+                                    </button>
+                                    <button type="button" class="btn btn-danger action-btn view-reason-btn" 
+                                            data-bs-toggle="tooltip" 
+                                            data-bs-placement="top" 
+                                            title="View Rejection Reason"
+                                            data-violation-id="{{ violation.id }}"
+                                            data-reason="{{ violation.rejection_reason|default:'No reason provided'|escapejs }}">
+                                        <span class="material-icons">info</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="empty-state mobile-empty-state">
+                    <div class="empty-state-icon">
+                        <span class="material-icons">check_circle</span>
+                    </div>
+                    <h3 class="empty-state-title">No Rejected Adjudications</h3>
+                    <p class="empty-state-description">There are no rejected adjudications to display.</p>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination - Updated to match violations_list.html -->
+            {% if violations.has_other_pages %}
+            <div class="card-footer d-flex justify-content-center">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination mb-0">
+                        {% if violations.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="First" data-bs-toggle="tooltip" title="First Page">
+                                <span class="material-icons small">first_page</span>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ violations.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Previous" data-bs-toggle="tooltip" title="Previous Page">
+                                <span class="material-icons small">chevron_left</span>
+                            </a>
+                        </li>
                         {% endif %}
-                    {% endfor %}
-                    
-                    {% if violations.has_next %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ violations.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Next">
-                            <span aria-hidden="true">&raquo;</span>
-                        </a>
-                    </li>
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ violations.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Last">
-                            <span aria-hidden="true">&raquo;&raquo;</span>
-                        </a>
-                    </li>
-                    {% endif %}
-                </ul>
-            </nav>
+                        
+                        {% for num in violations.paginator.page_range %}
+                            {% if violations.number == num %}
+                                <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
+                            {% elif num > violations.number|add:'-3' and num < violations.number|add:'3' %}
+                                <li class="page-item"><a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if violations.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ violations.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Next" data-bs-toggle="tooltip" title="Next Page">
+                                <span class="material-icons small">chevron_right</span>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ violations.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Last" data-bs-toggle="tooltip" title="Last Page">
+                                <span class="material-icons small">last_page</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
         </div>
-        {% endif %}
+    </div>
+</div>
+
+<!-- Replace Bootstrap Modal with Micromodal.js -->
+<!-- Micromodal.js Violation Detail Modal -->
+<div class="modal micromodal-slide" id="modal-violation-detail" aria-hidden="true">
+    <div class="modal__overlay" tabindex="-1" data-micromodal-close>
+        <div class="modal__container modal-lg" role="dialog" aria-modal="true" aria-labelledby="modal-violation-detail-title">
+            <header class="modal__header">
+                <h2 class="modal__title" id="modal-violation-detail-title">Violation Details</h2>
+                <button class="modal__close" aria-label="Close modal" data-micromodal-close></button>
+            </header>
+            <main class="modal__content" id="modal-violation-detail-content">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-3">Loading violation details...</p>
+                </div>
+            </main>
+        </div>
     </div>
 </div>
 
 <style>
+/* Avatar Styles */
 .avatar {
     width: 32px;
     height: 32px;
@@ -199,20 +298,6 @@
     justify-content: center;
     font-weight: 600;
     font-size: 0.75rem;
-}
-
-.empty-state {
-    padding: 2rem 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.empty-icon {
-    font-size: 48px;
-    color: #cbd5e1;
-    margin-bottom: 1rem;
 }
 
 /* Header Section Styles */
@@ -247,6 +332,408 @@
     gap: 8px;
 }
 
+/* Table Styles */
+.table-responsive {
+    border-radius: 8px;
+    overflow: hidden;
+    max-height: calc(100vh - 330px);
+    overflow-y: auto;
+}
+
+.table {
+    width: 100%;
+    margin-bottom: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.95rem;
+    min-width: 800px;
+    table-layout: fixed; /* Ensure fixed table layout */
+}
+
+.table-header {
+    background-color: #f8f9fa;
+}
+
+.table th {
+    color: #333;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #dee2e6;
+    border-top: none;
+    vertical-align: middle;
+}
+
+.table td {
+    padding: 0.75rem 1rem;
+    vertical-align: middle;
+    border-bottom: 1px solid #dee2e6;
+    border-top: none;
+}
+
+/* Alternating row background */
+.table tbody tr:nth-of-type(odd) {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Hover effect */
+.table tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+}
+
+/* Action Button Styles - Matched with violations_list.html */
+.action-buttons {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 4px !important;
+    width: 100% !important;
+    max-width: 90px !important;
+    margin: 0 auto !important;
+}
+
+.action-btn {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    max-width: 40px !important;
+    padding: 0 !important;
+    border-radius: 4px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex: 0 0 40px !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    transition: all 0.2s !important;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
+}
+
+.action-btn .material-icons {
+    color: white !important;
+    font-size: 18px !important;
+    margin: 0 !important;
+    line-height: 1 !important;
+}
+
+/* Violation type styles */
+.violation-types-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    max-width: 100%;
+    width: 100%;
+    overflow: hidden;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0,0,0,0.2) transparent;
+    max-height: 80px;
+    overflow-y: auto;
+}
+
+.violation-type-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    background-color: #f1f5ff;
+    color: #3563E9;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-right: 4px;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.violation-types-container.mobile {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    display: flex;
+    flex-wrap: wrap;
+    padding-bottom: 5px;
+}
+
+.violation-types-container.mobile .violation-type-badge {
+    font-size: 0.7rem;
+    padding: 3px 6px;
+    margin-bottom: 3px;
+}
+
+/* Pagination Styles */
+.pagination .material-icons.small {
+    font-size: 16px;
+}
+
+/* Empty State Styles */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    text-align: center;
+}
+
+.empty-state-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    background-color: rgba(13, 110, 253, 0.1);
+    border-radius: 50%;
+    margin-bottom: 1.5rem;
+}
+
+.empty-state-icon .material-icons {
+    font-size: 40px;
+    color: #0d6efd;
+}
+
+.empty-state-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #343a40;
+    margin-bottom: 0.75rem;
+}
+
+.empty-state-description {
+    font-size: 1rem;
+    color: #6c757d;
+    max-width: 400px;
+    margin: 0 auto 1.5rem auto;
+}
+
+/* Mobile Card Styles */
+.violation-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.violation-card {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.violation-card:hover {
+    transform: translateY(-2px);
+}
+
+.violation-card .card {
+    border-radius: 12px;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.violation-card .card:hover {
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1) !important;
+}
+
+.violation-card .card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: #333;
+}
+
+.violation-card .card-subtitle {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.violation-info {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.violation-info div {
+    margin-bottom: 2px;
+}
+
+.violation-info strong {
+    color: #495057;
+    font-weight: 500;
+}
+
+/* Mobile Empty State */
+.mobile-empty-state {
+    padding: 2rem 1rem;
+}
+
+.mobile-empty-state .empty-state-icon {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 1rem;
+}
+
+.mobile-empty-state .empty-state-icon .material-icons {
+    font-size: 28px;
+}
+
+.mobile-empty-state .empty-state-title {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.mobile-empty-state .empty-state-description {
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+/**************************\
+  Micromodal.js Styles
+\**************************/
+
+.modal {
+  font-family: -apple-system, BlinkMacSystemFont, avenir next, avenir, helvetica neue,
+    helvetica, ubuntu, roboto, noto, segoe ui, arial, sans-serif;
+}
+
+.modal__overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.modal__container {
+  background-color: #fff;
+  padding: 20px;
+  max-width: 90%;
+  width: 800px;
+  max-height: 90vh;
+  border-radius: 10px;
+  overflow-y: auto;
+  box-sizing: border-box;
+  box-shadow: 0 15px 30px 0 rgba(0, 0, 0, 0.11),
+    0 5px 15px 0 rgba(0, 0, 0, 0.08);
+}
+
+.modal-lg {
+  max-width: 90%;
+  width: 800px;
+}
+
+.modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eaeaea;
+  padding-bottom: 15px;
+}
+
+.modal__title {
+  margin-top: 0;
+  margin-bottom: 0;
+  font-weight: 600;
+  font-size: 1.25rem;
+  line-height: 1.25;
+  color: #00449e;
+  box-sizing: border-box;
+}
+
+.modal__close {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  position: relative;
+  width: 25px;
+  height: 25px;
+}
+
+.modal__close:before,
+.modal__close:after {
+  content: '';
+  position: absolute;
+  width: 2px;
+  height: 18px;
+  background-color: #333;
+  top: 3px;
+  left: 11px;
+}
+
+.modal__close:before {
+  transform: rotate(45deg);
+}
+
+.modal__close:after {
+  transform: rotate(-45deg);
+}
+
+.modal__content {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+  color: rgba(0, 0, 0, 0.8);
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.micromodal-slide {
+  display: none;
+}
+
+.micromodal-slide.is-open {
+  display: block;
+}
+
+.micromodal-slide[aria-hidden="false"] .modal__overlay {
+  animation: mmfadeIn .3s cubic-bezier(0, 0, .2, 1);
+}
+
+.micromodal-slide[aria-hidden="false"] .modal__container {
+  animation: mmslideIn .3s cubic-bezier(0, 0, .2, 1);
+}
+
+.micromodal-slide[aria-hidden="true"] .modal__overlay {
+  animation: mmfadeOut .3s cubic-bezier(0, 0, .2, 1);
+}
+
+.micromodal-slide[aria-hidden="true"] .modal__container {
+  animation: mmslideOut .3s cubic-bezier(0, 0, .2, 1);
+}
+
+.micromodal-slide .modal__container,
+.micromodal-slide .modal__overlay {
+  will-change: transform;
+}
+
+@keyframes mmfadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes mmfadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes mmslideIn {
+  from { transform: translateY(15%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes mmslideOut {
+  from { transform: translateY(0); }
+  to { transform: translateY(-10%); }
+}
+
 /* Responsive adjustments */
 @media (max-width: 576px) {
     .header-section {
@@ -265,9 +752,35 @@
         flex: 1;
         justify-content: center;
     }
+    
+    .violation-card .row {
+        flex-direction: column;
+    }
+    
+    .violation-card .col-auto {
+        margin-bottom: 1rem;
+    }
+    
+    /* Adjust card padding on very small screens */
+    .violation-card .card-body {
+        padding: 0.75rem;
+    }
+    
+    /* Make status badges more compact on mobile */
+    .violation-card .status-badge {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.4rem;
+    }
+    
+    /* Adjust spacing between cards */
+    .violation-cards {
+        gap: 12px;
+    }
 }
 </style>
 
+<!-- Add Micromodal.js for detail view modals -->
+<script src="https://unpkg.com/micromodal/dist/micromodal.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 // Function to show rejection reason
@@ -281,14 +794,92 @@ function showRejectionReason(violationId, reason) {
     });
 }
 
-// Function to view violation details
-function viewViolationDetails(violationId) {
-    // Open the violation detail modal
-    window.location.href = '/violation/' + violationId + '/detail/';
+// Function to view violation details in modal
+function showViolationDetailModal(violationId) {
+    if (!violationId) return;
+    
+    // Get modal content element
+    const modalContent = document.getElementById('modal-violation-detail-content');
+    const modalTitle = document.getElementById('modal-violation-detail-title');
+    
+    // Set modal title
+    modalTitle.textContent = 'Violation Details #' + violationId;
+    
+    // Show loading spinner in the modal
+    modalContent.innerHTML = `
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3">Loading violation details...</p>
+        </div>
+    `;
+    
+    // Show the modal
+    MicroModal.show('modal-violation-detail');
+    
+    // Fetch violation details
+    fetch('{% url "violation_detail_modal" violation_id=0 %}'.replace('0', violationId))
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Server returned ' + response.status + ': ' + response.statusText);
+            }
+            return response.text();
+        })
+        .then(html => {
+            // Replace the modal body content with the loaded HTML
+            modalContent.innerHTML = html;
+            
+            // Initialize any JavaScript in the loaded content
+            const scripts = modalContent.querySelectorAll('script');
+            scripts.forEach(script => {
+                const newScript = document.createElement('script');
+                Array.from(script.attributes).forEach(attr => {
+                    newScript.setAttribute(attr.name, attr.value);
+                });
+                newScript.appendChild(document.createTextNode(script.innerHTML));
+                script.parentNode.replaceChild(newScript, script);
+            });
+        })
+        .catch(error => {
+            console.error('Error loading violation details:', error);
+            modalContent.innerHTML = `
+                <div class="alert alert-danger m-3">
+                    <div class="d-flex align-items-center">
+                        <span class="material-icons me-2">error</span>
+                        <strong>Error loading violation details.</strong>
+                    </div>
+                    <p class="mb-0 mt-2">Please refresh the page and try again. If the problem persists, contact support.</p>
+                    <div class="text-muted small mt-2">Technical details: ${error.message}</div>
+                </div>
+                <div class="text-center mt-3 mb-3">
+                    <button type="button" class="btn btn-outline-primary retry-load-btn" data-violation-id="${violationId}">
+                        <span class="material-icons me-1">refresh</span> Retry
+                    </button>
+                </div>
+            `;
+            
+            // Add event listener to retry button
+            document.querySelector('.retry-load-btn').addEventListener('click', function() {
+                const violationId = this.getAttribute('data-violation-id');
+                showViolationDetailModal(violationId);
+            });
+        });
 }
 
-// Initialize tooltips
+// Initialize Micromodal and event listeners
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Micromodal
+    MicroModal.init({
+        openTrigger: 'data-micromodal-trigger',
+        closeTrigger: 'data-micromodal-close',
+        disableFocus: false,
+        disableScroll: true,
+        awaitOpenAnimation: true,
+        awaitCloseAnimation: true
+    });
+    
+    // Initialize tooltips
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
@@ -296,20 +887,45 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Add event listeners for view reason buttons
     document.querySelectorAll('.view-reason-btn').forEach(function(button) {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', function(e) {
+            e.stopPropagation(); // Prevent card click on mobile
             const violationId = this.getAttribute('data-violation-id');
             const reason = this.getAttribute('data-reason');
             showRejectionReason(violationId, reason);
         });
     });
-
+    
     // Add event listeners for view details buttons
     document.querySelectorAll('.view-details-btn').forEach(function(button) {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', function(e) {
+            e.stopPropagation(); // Prevent card click on mobile
             const violationId = this.getAttribute('data-violation-id');
-            viewViolationDetails(violationId);
+            showViolationDetailModal(violationId);
         });
     });
+    
+    // Add listeners to violation cards (mobile view)
+    document.querySelectorAll('.violation-card').forEach(card => {
+        card.addEventListener('click', function() {
+            const violationId = this.getAttribute('data-violation-id');
+            if (violationId) {
+                showViolationDetailModal(violationId);
+            }
+        });
+    });
+    
+    // Add touch ripple effect for mobile cards
+    if ('ontouchstart' in window) {
+        const cards = document.querySelectorAll('.violation-card .card');
+        cards.forEach(card => {
+            card.addEventListener('touchstart', function() {
+                this.classList.add('touch-active');
+            });
+            card.addEventListener('touchend', function() {
+                this.classList.remove('touch-active');
+            });
+        });
+    }
 });
 </script>
 {% endblock %} 
