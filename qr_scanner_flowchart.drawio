@@ -1,0 +1,189 @@
+<mxfile host="65bd71144e">
+    <diagram id="C5RBs43oDa-KdzZeNtuy" name="QR Scanner Process">
+        <mxGraphModel dx="747" dy="480" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="start" value="User visits QR Scanner Page" style="ellipse;whiteSpace=wrap;html=1;fillColor=#3563E9;fontColor=#FFFFFF;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="350" y="80" width="140" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="cameraRequest" value="Camera access requested" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F6F7F9;strokeColor=#E0E3EB;" parent="1" vertex="1">
+                    <mxGeometry x="350" y="240" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="cameraAccess" value="Camera access granted?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#3563E9;fontColor=#FFFFFF;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="350" y="340" width="140" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="cameraError" value="Display camera access error" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF0F0;strokeColor=#F53D3D;" parent="1" vertex="1">
+                    <mxGeometry x="550" y="350" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="scannerInit" value="QR scanner initializes" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EEF3FF;strokeColor=#3563E9;" parent="1" vertex="1">
+                    <mxGeometry x="350" y="460" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="scanQR" value="User scans QR code" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F6F7F9;strokeColor=#E0E3EB;" parent="1" vertex="1">
+                    <mxGeometry x="350" y="560" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="processQR" value="System processes QR data" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EEF3FF;strokeColor=#3563E9;" parent="1" vertex="1">
+                    <mxGeometry x="350" y="660" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="qrTypeCheck" value="QR code content type?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#3563E9;fontColor=#FFFFFF;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="350" y="760" width="140" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="userQR" value="User/Enforcer ID format" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EEF3FF;strokeColor=#3563E9;" parent="1" vertex="1">
+                    <mxGeometry x="150" y="860" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="driverQR" value="Driver verification URL" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EEF3FF;strokeColor=#3563E9;" parent="1" vertex="1">
+                    <mxGeometry x="350" y="860" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="otherQR" value="Other format" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EEF3FF;strokeColor=#3563E9;" parent="1" vertex="1">
+                    <mxGeometry x="550" y="860" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="redirectUser" value="Redirect to user data endpoint" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EEF3FF;strokeColor=#3563E9;" parent="1" vertex="1">
+                    <mxGeometry x="150" y="960" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="redirectDriver" value="Redirect to driver verification" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EEF3FF;strokeColor=#3563E9;" parent="1" vertex="1">
+                    <mxGeometry x="350" y="960" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="unknownFormat" value="Reset scanner for another scan" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF0F0;strokeColor=#F53D3D;" parent="1" vertex="1">
+                    <mxGeometry x="550" y="960" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="redirectResult" value="User is redirected to appropriate page" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EEF3FF;strokeColor=#3563E9;" parent="1" vertex="1">
+                    <mxGeometry x="250" y="1060" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="end" value="End" style="ellipse;whiteSpace=wrap;html=1;fillColor=#0CAA1D;fontColor=#FFFFFF;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="350" y="1160" width="140" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn2" value="" style="endArrow=classic;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="1" source="start" target="cameraRequest" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="420" y="200" as="sourcePoint"/>
+                        <mxPoint x="450" y="170" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="conn3" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="cameraRequest" target="cameraAccess" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="310" as="sourcePoint"/>
+                        <mxPoint x="450" y="260" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="conn4" value="No" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="cameraAccess" target="cameraError" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="490" y="380" as="sourcePoint"/>
+                        <mxPoint x="540" y="330" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="conn5" value="Yes" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="cameraAccess" target="scannerInit" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="440" as="sourcePoint"/>
+                        <mxPoint x="450" y="390" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="conn6" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="scannerInit" target="scanQR" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="550" as="sourcePoint"/>
+                        <mxPoint x="450" y="500" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="conn7" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="scanQR" target="processQR" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="640" as="sourcePoint"/>
+                        <mxPoint x="450" y="590" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="conn8" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="processQR" target="qrTypeCheck" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="740" as="sourcePoint"/>
+                        <mxPoint x="450" y="690" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="conn9" value="User ID" style="endArrow=classic;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="qrTypeCheck" target="userQR" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="220" y="820" as="sourcePoint"/>
+                        <mxPoint x="270" y="770" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="conn10" value="Driver URL" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="qrTypeCheck" target="driverQR" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="860" as="sourcePoint"/>
+                        <mxPoint x="450" y="810" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="conn11" value="Other" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="qrTypeCheck" target="otherQR" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="580" y="830" as="sourcePoint"/>
+                        <mxPoint x="630" y="780" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="conn12" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="userQR" target="redirectUser" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="220" y="950" as="sourcePoint"/>
+                        <mxPoint x="270" y="900" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="conn13" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="driverQR" target="redirectDriver" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="950" as="sourcePoint"/>
+                        <mxPoint x="450" y="900" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="conn14" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="otherQR" target="unknownFormat" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="580" y="950" as="sourcePoint"/>
+                        <mxPoint x="630" y="900" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="conn15" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="redirectUser" target="redirectResult" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="220" y="1050" as="sourcePoint"/>
+                        <mxPoint x="270" y="1000" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="220" y="1040"/>
+                            <mxPoint x="320" y="1040"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="conn16" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="redirectDriver" target="redirectResult" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="1050" as="sourcePoint"/>
+                        <mxPoint x="450" y="1000" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="420" y="1040"/>
+                            <mxPoint x="320" y="1040"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="conn17" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="redirectResult" target="end" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="320" y="1150" as="sourcePoint"/>
+                        <mxPoint x="370" y="1100" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="320" y="1140"/>
+                            <mxPoint x="420" y="1140"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="conn18" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="unknownFormat" target="end" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="620" y="1120" as="sourcePoint"/>
+                        <mxPoint x="520" y="1200" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="620" y="1200"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="resetScan" value="" style="endArrow=classic;html=1;exitX=0.05;exitY=0.475;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;exitPerimeter=0;" parent="1" source="cameraAccess" target="scanQR" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="360" y="385" as="sourcePoint"/>
+                        <mxPoint x="160" y="595" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="240" y="378"/>
+                            <mxPoint x="240" y="595"/>
+                            <mxPoint x="350" y="595"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="title" value="QR Code Scanner Process Flow" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;fontStyle=1" parent="1" vertex="1">
+                    <mxGeometry x="250" y="40" width="350" height="20" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

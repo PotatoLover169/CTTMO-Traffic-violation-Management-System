@@ -1,0 +1,134 @@
+<mxfile host="65bd71144e">
+    <diagram id="C5RBs43oDa-KdzZeNtuy" name="Driver Application Process">
+        <mxGraphModel dx="747" dy="480" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="start" value="User visits Driver Application Page" style="ellipse;whiteSpace=wrap;html=1;fillColor=#3563E9;fontColor=#FFFFFF;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="350" y="100" width="140" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="showForm" value="Display application form" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F6F7F9;strokeColor=#E0E3EB;" parent="1" vertex="1">
+                    <mxGeometry x="350" y="240" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="uploadDocs" value="User uploads required documents&#xa;- CTTMO Seminar Certificate*&#xa;- X-Ray Results*&#xa;- Medical Certificate*&#xa;- Police Clearance*&#xa;- Mayor&#39;s Permit*&#xa;- Other Supporting Documents (Optional)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F6F7F9;strokeColor=#E0E3EB;align=left;spacingLeft=10;" parent="1" vertex="1">
+                    <mxGeometry x="290" y="340" width="260" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="submitForm" value="User submits application form" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F6F7F9;strokeColor=#E0E3EB;" parent="1" vertex="1">
+                    <mxGeometry x="350" y="500" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="validateForm" value="Form validation" style="rhombus;whiteSpace=wrap;html=1;fillColor=#3563E9;fontColor=#FFFFFF;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="350" y="600" width="140" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="showErrors" value="Display error messages" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF0F0;strokeColor=#F53D3D;" parent="1" vertex="1">
+                    <mxGeometry x="550" y="610" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="submitServer" value="Submit application to server" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EEF3FF;strokeColor=#3563E9;" parent="1" vertex="1">
+                    <mxGeometry x="350" y="760" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="checkResponse" value="Server response" style="rhombus;whiteSpace=wrap;html=1;fillColor=#3563E9;fontColor=#FFFFFF;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="350" y="920" width="140" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="showSuccess" value="Display success message" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EEF3FF;strokeColor=#0CAA1D;" parent="1" vertex="1">
+                    <mxGeometry x="350" y="1050" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="showFailure" value="Display error message" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF0F0;strokeColor=#F53D3D;" parent="1" vertex="1">
+                    <mxGeometry x="550" y="930" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="redirectStatus" value="Redirect to application status page" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EEF3FF;strokeColor=#3563E9;" parent="1" vertex="1">
+                    <mxGeometry x="350" y="1140" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="end" value="End" style="ellipse;whiteSpace=wrap;html=1;fillColor=#0CAA1D;fontColor=#FFFFFF;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="350" y="1240" width="140" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn2" value="" style="endArrow=classic;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="start" target="showForm" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="420" y="200" as="sourcePoint"/>
+                        <mxPoint x="450" y="170" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="conn3" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="showForm" target="uploadDocs" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="310" as="sourcePoint"/>
+                        <mxPoint x="450" y="260" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="conn4" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="uploadDocs" target="submitForm" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="490" as="sourcePoint"/>
+                        <mxPoint x="450" y="440" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="conn5" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="submitForm" target="validateForm" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="580" as="sourcePoint"/>
+                        <mxPoint x="450" y="530" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="conn6" value="Invalid" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="validateForm" target="showErrors" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="490" y="660" as="sourcePoint"/>
+                        <mxPoint x="540" y="610" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="conn7" value="Valid" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="validateForm" target="submitServer" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="700" as="sourcePoint"/>
+                        <mxPoint x="420" y="720" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="conn9" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="submitServer" target="checkResponse" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="900" as="sourcePoint"/>
+                        <mxPoint x="450" y="850" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="conn10" value="Success" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="checkResponse" target="showSuccess" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="1020" as="sourcePoint"/>
+                        <mxPoint x="450" y="970" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="conn11" value="Error" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="checkResponse" target="showFailure" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="490" y="980" as="sourcePoint"/>
+                        <mxPoint x="540" y="930" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="conn12" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="showSuccess" target="redirectStatus" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="1120" as="sourcePoint"/>
+                        <mxPoint x="450" y="1070" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="conn13" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="redirectStatus" target="end" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="1220" as="sourcePoint"/>
+                        <mxPoint x="450" y="1170" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="errorBack" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;curved=1;" parent="1" source="showErrors" target="submitForm" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="620" y="580" as="sourcePoint"/>
+                        <mxPoint x="670" y="530" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="620" y="530"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="errorBackServer" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;curved=1;" parent="1" source="showFailure" target="submitForm" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="620" y="900" as="sourcePoint"/>
+                        <mxPoint x="670" y="850" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="700" y="750"/>
+                            <mxPoint x="700" y="530"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="title" value="CTTMO Driver Application Process Flow" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;fontStyle=1" parent="1" vertex="1">
+                    <mxGeometry x="245" y="40" width="350" height="20" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

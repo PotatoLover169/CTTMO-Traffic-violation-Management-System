@@ -99,6 +99,7 @@ urlpatterns = [
     path('operators/<int:pk>/delete/', views.operator_delete, name='operator_delete'),
     path('operators/<int:pk>/enable/', operator_views.operator_enable, name='operator_enable'),
     path('operators/<int:operator_id>/vehicles/', views.operator_vehicles, name='operator_vehicles'),
+    path('operator/vehicles/<int:vehicle_id>/delete/', views.operator_delete_vehicle, name='vehicle_delete'),
     path('operators/import/', views.operator_import, name='operator_import'),
     path('operators/import/confirm/', views.operator_import_confirm, name='operator_import_confirm'),
     path('operators/export/excel/', views.operator_export_excel, name='operator_export_excel'),
