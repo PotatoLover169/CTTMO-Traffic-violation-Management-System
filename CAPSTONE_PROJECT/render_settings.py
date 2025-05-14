@@ -1,11 +1,6 @@
 import os
 from pathlib import Path
 from .settings import *
-import logging
-
-# Configure logging
-logger = logging.getLogger(__name__)
-logger.info("Loading Render-specific settings")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
@@ -28,25 +23,16 @@ DATABASES = {
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Always set the RENDER environment variable to True in this settings file
-os.environ['RENDER'] = 'True'
-logger.info("Set RENDER environment variable to True")
-
 # On Render, we need to use a persistent directory for media files
 # This is because the dyno filesystem is ephemeral
 MEDIA_URL = '/media/'
 
 # Use a persistent directory on Render
-MEDIA_ROOT = os.path.join('/opt/render/project/src/', 'media')
-logger.info(f"Configured MEDIA_ROOT to: {MEDIA_ROOT}")
-
-# Ensure the media directory exists
-if not os.path.exists(MEDIA_ROOT):
-    try:
-        os.makedirs(MEDIA_ROOT, exist_ok=True)
-        logger.info(f"Created MEDIA_ROOT directory: {MEDIA_ROOT}")
-    except Exception as e:
-        logger.error(f"Failed to create MEDIA_ROOT directory: {str(e)}")
+if os.environ.get('RENDER', 'False') == 'True':
+    # Render provides a persistent disk at /opt/render/project/src/
+    MEDIA_ROOT = os.path.join('/opt/render/project/src/', 'media')
+else:
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Configure WhiteNoise for static files
 MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
@@ -77,7 +63,7 @@ LOGGING = {
         },
         'file': {
             'class': 'logging.FileHandler',
-            'filename': os.path.join('/opt/render/project/src/', 'app.log'),
+            'filename': os.path.join('/opt/render/project/src/', 'app.log') if os.environ.get('RENDER', 'False') == 'True' else os.path.join(BASE_DIR, 'app.log'),
             'formatter': 'verbose',
         },
     },

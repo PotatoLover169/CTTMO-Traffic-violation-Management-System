@@ -6,7 +6,7 @@ services:
     startCommand: gunicorn CAPSTONE_PROJECT.wsgi:application
     envVars:
       - key: DJANGO_SETTINGS_MODULE
-        value: CAPSTONE_PROJECT.render_media_settings
+        value: CAPSTONE_PROJECT.postgresql_settings
       - key: SECRET_KEY
         generateValue: true
       - key: DEBUG
