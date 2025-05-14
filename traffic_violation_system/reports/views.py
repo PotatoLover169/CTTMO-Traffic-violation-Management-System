@@ -45,6 +45,19 @@ def get_period_label_from_request(request, today, first_day_of_month, last_day_o
 
 def apply_period_filter(queryset, period, request, today, first_day_of_month, last_day_of_month):
     """Apply time period filtering to a queryset."""
+    # Determine if this is a receipt-based query (payments) or a violation-based query
+    # Check if the query has a 'status=PAID' filter applied, which would indicate it's receipt-based
+    is_receipt_query = False
+    if hasattr(queryset, 'query') and hasattr(queryset.query, 'where'):
+        for child in queryset.query.where.children:
+            if hasattr(child, 'lhs') and hasattr(child.lhs, 'target') and child.lhs.target and child.lhs.target.name == 'status':
+                if hasattr(child, 'rhs') and child.rhs == 'PAID':
+                    is_receipt_query = True
+                    break
+    
+    # Use the appropriate date field based on the query type
+    date_field = 'receipt_date' if is_receipt_query else 'violation_date'
+    
     if period == 'custom':
         date_from = request.GET.get('date_from', '')
         date_to = request.GET.get('date_to', '')
@@ -52,9 +65,9 @@ def apply_period_filter(queryset, period, request, today, first_day_of_month, la
         if date_from and date_to:
             date_from_obj = datetime.strptime(date_from, '%Y-%m-%d').replace(hour=0, minute=0, second=0)
             date_to_obj = datetime.strptime(date_to, '%Y-%m-%d').replace(hour=23, minute=59, second=59)
-            queryset = queryset.filter(receipt_date__gte=date_from_obj, receipt_date__lte=date_to_obj)
+            queryset = queryset.filter(**{f"{date_field}__gte": date_from_obj, f"{date_field}__lte": date_to_obj})
     elif period == 'month':
-        queryset = queryset.filter(receipt_date__gte=first_day_of_month, receipt_date__lte=last_day_of_month)
+        queryset = queryset.filter(**{f"{date_field}__gte": first_day_of_month, f"{date_field}__lte": last_day_of_month})
     elif period == 'quarter':
         current_quarter = (today.month - 1) // 3 + 1
         first_day_of_quarter = datetime(today.year, 3 * current_quarter - 2, 1).date()
@@ -63,11 +76,11 @@ def apply_period_filter(queryset, period, request, today, first_day_of_month, la
         else:
             last_day_of_quarter = datetime(today.year, 3 * current_quarter + 1, 1).date() - timedelta(days=1)
         
-        queryset = queryset.filter(receipt_date__gte=first_day_of_quarter, receipt_date__lte=last_day_of_quarter)
+        queryset = queryset.filter(**{f"{date_field}__gte": first_day_of_quarter, f"{date_field}__lte": last_day_of_quarter})
     elif period == 'year':
         first_day_of_year = datetime(today.year, 1, 1).date()
         last_day_of_year = datetime(today.year, 12, 31).date()
-        queryset = queryset.filter(receipt_date__gte=first_day_of_year, receipt_date__lte=last_day_of_year)
+        queryset = queryset.filter(**{f"{date_field}__gte": first_day_of_year, f"{date_field}__lte": last_day_of_year})
     
     return queryset
 
