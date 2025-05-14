@@ -5,151 +5,230 @@
 
 {% block extra_css %}
 <style>
+    :root {
+        --scanner-primary: #3454d1;
+        --scanner-secondary: #34d1bf;
+        --scanner-accent: #d13454;
+        --scanner-dark: #2c3e50;
+        --scanner-light: #f8f9fa;
+        --scanner-border-radius: 1rem;
+        --scanner-transition: all 0.3s ease;
+    }
+
+    body {
+        background-color: #f5f7fa;
+    }
+    
     .scanner-container {
         max-width: 800px;
         margin: 0 auto;
+        border-radius: var(--scanner-border-radius);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        transition: var(--scanner-transition);
     }
     
     .scanner-header {
-        background-color: var(--primary-color);
-        border-radius: 0.5rem 0.5rem 0 0;
-        padding: 1.5rem;
+        background: linear-gradient(135deg, var(--scanner-primary), var(--scanner-secondary));
+        padding: 2rem;
         color: white;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .scanner-header::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+        opacity: 0.5;
     }
     
     .scanner-body {
         background-color: white;
-        padding: 1.5rem;
-        border-radius: 0 0 0.5rem 0.5rem;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        border-bottom-left-radius: var(--scanner-border-radius);
+        border-bottom-right-radius: var(--scanner-border-radius);
     }
     
     #reader {
         width: 100%;
-        border-radius: 0.5rem;
+        border-radius: 1rem;
         overflow: hidden;
         margin-bottom: 1.5rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        border: 1px solid rgba(0, 0, 0, 0.03);
+        transition: var(--scanner-transition);
     }
     
-    .result-container {
-        display: none;
-        padding: 1.25rem;
-        border-radius: 0.5rem;
-        margin-top: 1.5rem;
-        background-color: #f8f9fa;
-        border-left: 4px solid var(--primary-color);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    }
-    
-    .actions-container {
-        display: flex;
-        gap: 0.75rem;
-        margin-top: 1.25rem;
+    #reader:hover {
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
+        transform: translateY(-2px);
     }
     
     .scanner-instructions {
-        margin-top: 1.5rem;
-        padding: 1.25rem;
-        background-color: #f8f9fa;
-        border-radius: 0.5rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        border: 1px solid rgba(0, 0, 0, 0.05);
+        margin-top: 2rem;
+        padding: 1.5rem;
+        background-color: var(--scanner-light);
+        border-radius: 1rem;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+        border: 1px solid rgba(0, 0, 0, 0.03);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .scanner-instructions::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 4px;
+        background: linear-gradient(to bottom, var(--scanner-primary), var(--scanner-secondary));
+        border-radius: 2px;
     }
     
     .instruction-step {
         display: flex;
         align-items: flex-start;
-        margin-bottom: 0.75rem;
+        margin-bottom: 1rem;
+        transition: transform 0.2s ease;
+    }
+    
+    .instruction-step:hover {
+        transform: translateX(5px);
     }
     
     .instruction-step .material-icons {
-        margin-right: 0.75rem;
-        color: var(--primary-color);
+        margin-right: 1rem;
+        color: var(--scanner-primary);
+        background-color: rgba(52, 84, 209, 0.1);
+        padding: 0.5rem;
+        border-radius: 50%;
+        font-size: 1.25rem;
     }
     
-    .card {
-        transition: transform 0.2s, box-shadow 0.2s;
-        border: none;
+    .instruction-step span {
+        line-height: 1.5;
+        padding-top: 0.35rem;
     }
     
-    .card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1) !important;
-    }
-    
-    .card-title {
-        font-weight: 600;
-        letter-spacing: 0.01em;
-    }
-    
-    .btn {
+    #troubleshoot-btn {
+        background-color: white;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        border-radius: 2rem;
+        padding: 0.75rem 1.5rem;
         font-weight: 500;
-        letter-spacing: 0.01em;
-        padding: 0.5rem 1.25rem;
-        transition: all 0.2s;
+        transition: all 0.2s ease;
+        margin-top: 1.5rem;
     }
     
-    .btn-primary {
-        box-shadow: 0 2px 4px rgba(var(--primary-color-rgb), 0.2);
+    #troubleshoot-btn:hover {
+        background-color: var(--scanner-light);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+        transform: translateY(-2px);
     }
     
-    .btn-primary:hover {
-        box-shadow: 0 4px 8px rgba(var(--primary-color-rgb), 0.3);
+    #troubleshoot-panel {
+        border: none;
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        margin-top: 1.5rem;
     }
     
-    .section-heading {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #444;
-        margin-bottom: 1rem;
-        padding-bottom: 0.75rem;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    #troubleshoot-panel .card-header {
+        background: linear-gradient(to right, var(--scanner-light), white);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+        padding: 1rem 1.5rem;
     }
     
-    .loading-spinner {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 2rem;
-        border-radius: 0.5rem;
-        background-color: #f8f9fa;
+    #troubleshoot-panel .list-group-item {
+        border: none;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+        padding: 1.25rem;
+        transition: var(--scanner-transition);
     }
     
-    .spinner-border {
-        width: 3rem;
-        height: 3rem;
+    #troubleshoot-panel .list-group-item:hover {
+        background-color: var(--scanner-light);
+    }
+    
+    #troubleshoot-panel .list-group-item:last-child {
+        border-bottom: none;
+    }
+    
+    #troubleshoot-panel .material-icons {
+        background-color: rgba(52, 84, 209, 0.1);
+        padding: 0.5rem;
+        border-radius: 50%;
+        font-size: 1.25rem;
+        color: var(--scanner-primary);
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .scanner-container {
+        animation: fadeIn 0.5s ease forwards;
+    }
+    
+    .scanner-header {
+        animation: fadeIn 0.5s ease 0.2s both;
+    }
+    
+    .scanner-body {
+        animation: fadeIn 0.5s ease 0.3s both;
+    }
+    
+    #reader {
+        animation: fadeIn 0.5s ease 0.4s both;
+    }
+    
+    .scanner-instructions {
+        animation: fadeIn 0.5s ease 0.5s both;
     }
     
     @media (max-width: 768px) {
-        #reader {
-            width: 100%;
-            max-width: 100%;
+        .scanner-container {
+            margin: 0.5rem;
+            border-radius: 0.75rem;
         }
         
-        .actions-container {
-            flex-direction: column;
+        .scanner-header, .scanner-body {
+            padding: 1.5rem;
         }
         
-        .actions-container .btn {
-            width: 100%;
+        .scanner-instructions {
+            padding: 1.25rem;
+        }
+        
+        .instruction-step .material-icons {
+            padding: 0.35rem;
+            font-size: 1rem;
         }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container py-4">
+<div class="container py-5">
     <div class="scanner-container">
         <div class="scanner-header">
             <div class="d-flex align-items-center">
-                <span class="material-icons me-3" style="font-size: 2.25rem;">qr_code_scanner</span>
+                <div class="bg-white rounded-circle p-2 me-3" style="opacity: 0.9">
+                    <span class="material-icons" style="font-size: 2rem; color: var(--scanner-primary);">qr_code_scanner</span>
+                </div>
                 <div>
                     <h1 class="h3 mb-0 fw-bold">QR Code Scanner</h1>
-                    <p class="mb-0 small opacity-75">Scan QR codes to verify vehicle and driver information</p>
+                    <p class="mb-0 opacity-75">Scan QR codes to verify vehicle and driver information</p>
                 </div>
             </div>
         </div>
@@ -159,149 +238,26 @@
             <div id="reader"></div>
             
             <!-- Instructions -->
-            <div class="scanner-instructions mb-4">
-                <h4 class="h5 mb-3 fw-bold text-dark">How to scan a QR code:</h4>
+            <div class="scanner-instructions">
+                <h4 class="h5 mb-4 fw-bold text-dark d-flex align-items-center">
+                    <span class="material-icons me-2" style="color: var(--scanner-primary);">info_outline</span>
+                    How to scan a QR code
+                </h4>
                 <div class="instruction-step">
-                    <span class="material-icons text-success">check_circle</span>
+                    <span class="material-icons">check_circle</span>
                     <span>Allow camera access when prompted</span>
                 </div>
                 <div class="instruction-step">
-                    <span class="material-icons text-success">check_circle</span>
+                    <span class="material-icons">check_circle</span>
                     <span>Position the QR code within the camera view</span>
                 </div>
                 <div class="instruction-step">
-                    <span class="material-icons text-success">check_circle</span>
+                    <span class="material-icons">check_circle</span>
                     <span>Hold the camera steady until the QR code is recognized</span>
                 </div>
                 <div class="instruction-step">
-                    <span class="material-icons text-success">check_circle</span>
+                    <span class="material-icons">check_circle</span>
                     <span>If scanning fails, try adjusting lighting or distance</span>
-                </div>
-            </div>
-            
-            <!-- Result Container (Hidden by default) -->
-            <div id="result-container" class="result-container">
-                <div class="d-flex align-items-center mb-3">
-                    <span class="material-icons me-2 text-success">check_circle</span>
-                    <h4 class="h5 mb-0 fw-bold">QR Code Detected</h4>
-                </div>
-                <p id="result-content" class="mb-3 fw-medium"></p>
-                
-                <!-- Detailed Information Section -->
-                <div id="detailed-info" class="mt-4" style="display: none;">
-                    <div class="text-center mb-4 loading-spinner">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                        <p class="mb-0 mt-3 text-muted">Fetching information...</p>
-                    </div>
-                    
-                    <!-- User Information -->
-                    <div id="user-info-section" class="mb-4" style="display: none;">
-                        <h5 class="section-heading">Personal Information</h5>
-                        <div class="card shadow-sm">
-                            <div class="card-body">
-                                <!-- Add avatar display section -->
-                                <div id="user-avatar-container" class="text-center mb-3" style="display:none;">
-                                    <img id="user-avatar" src="" alt="User Avatar" class="rounded-circle img-thumbnail mb-2" style="width: 120px; height: 120px; object-fit: cover;">
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <small class="text-muted fw-medium">Name:</small>
-                                            <div id="user-name" class="fw-medium">-</div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <small class="text-muted fw-medium">ID Number:</small>
-                                            <div id="user-id" class="fw-medium">-</div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <small class="text-muted fw-medium">License:</small>
-                                            <div id="user-license" class="fw-medium">-</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <small class="text-muted fw-medium">Role:</small>
-                                            <div id="user-role" class="fw-medium">-</div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <small class="text-muted fw-medium">Expiration Date:</small>
-                                            <div id="user-expiration" class="fw-medium">-</div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <small class="text-muted fw-medium">Address:</small>
-                                            <div id="user-address" class="fw-medium">-</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Driver Information -->
-                    <div id="driver-info-section" class="mb-4" style="display: none;">
-                        <h5 class="section-heading">Driver Information</h5>
-                        <div class="card shadow-sm">
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <small class="text-muted fw-medium">Driver ID:</small>
-                                            <div id="driver-id" class="fw-medium">-</div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <small class="text-muted fw-medium">Status:</small>
-                                            <div id="driver-status" class="fw-medium">-</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <small class="text-muted fw-medium">Type:</small>
-                                            <div id="driver-type" class="fw-medium">-</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Vehicle Information -->
-                    <div id="vehicle-info-section" class="mb-4" style="display: none;">
-                        <h5 class="section-heading">Vehicle Information</h5>
-                        <div id="vehicle-info-container">
-                            <div id="no-vehicles-card" style="display: none;">
-                                <div class="card border-warning shadow-sm">
-                                    <div class="card-body text-center py-4">
-                                        <span class="material-icons text-warning mb-2" style="font-size: 2rem;">directions_car_off</span>
-                                        <p class="mb-0 fw-medium">No vehicles found</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div id="vehicle-cards" class="row row-cols-1 row-cols-md-2 g-3">
-                                <!-- Vehicle cards will be added here dynamically -->
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- No Data Message -->
-                    <div id="no-data-message" style="display: none;" class="text-center py-4">
-                        <div class="d-flex align-items-center justify-content-center">
-                            <span class="material-icons me-2">info</span>
-                            <div>No additional information available for this QR code.</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="actions-container mt-4">
-                    <a id="view-details-btn" href="#" class="btn btn-primary">
-                        <span class="material-icons me-1" style="font-size: 18px;">visibility</span>
-                        View Details
-                    </a>
-                    <button id="scan-new-btn" class="btn btn-outline-secondary">
-                        <span class="material-icons me-1" style="font-size: 18px;">qr_code_scanner</span>
-                        Scan Another
-                    </button>
                 </div>
             </div>
         </div>
@@ -310,92 +266,75 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- HTML5 QR Code Library -->
+<!-- HTML5 QR Code Library - Updated to latest version -->
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const resultContainer = document.getElementById('result-container');
     const resultContent = document.getElementById('result-content');
-    const viewDetailsBtn = document.getElementById('view-details-btn');
-    const scanNewBtn = document.getElementById('scan-new-btn');
     const detailedInfo = document.getElementById('detailed-info');
     
     // Add a new container for scanner troubleshooting
     const scannerContainer = document.getElementById('reader');
     const scannerParent = scannerContainer.parentElement;
     
-    // Create scanner mode toggle for better handling different QR codes
-    const scannerModeToggle = document.createElement('div');
-    scannerModeToggle.className = 'mt-2 d-flex justify-content-center';
-    scannerModeToggle.innerHTML = `
-        <div class="btn-group" role="group">
-            <input type="radio" class="btn-check" name="scannerMode" id="standardMode" checked>
-            <label class="btn btn-sm btn-outline-primary" for="standardMode">Standard Mode</label>
-            
-            <input type="radio" class="btn-check" name="scannerMode" id="driverMode">
-            <label class="btn btn-sm btn-outline-danger" for="driverMode">Driver QR Mode</label>
-        </div>
-    `;
-    scannerParent.insertBefore(scannerModeToggle, scannerContainer.nextSibling);
-    
     // Create troubleshooting button
     const troubleshootBtn = document.createElement('button');
-    troubleshootBtn.className = 'btn btn-outline-secondary mt-2 d-none';
+    troubleshootBtn.className = 'btn d-flex align-items-center justify-content-center mx-auto';
     troubleshootBtn.id = 'troubleshoot-btn';
     troubleshootBtn.innerHTML = `
-        <span class="material-icons me-1" style="font-size: 18px;">help_outline</span>
-        Having Trouble Scanning?
+        <span class="material-icons me-2" style="font-size: 18px;">help_outline</span>
+        <span>Having Trouble Scanning?</span>
     `;
-    scannerParent.insertBefore(troubleshootBtn, scannerModeToggle.nextSibling);
+    scannerParent.insertBefore(troubleshootBtn, scannerContainer.nextSibling);
     
     // Create troubleshooting panel
     const troubleshootPanel = document.createElement('div');
     troubleshootPanel.className = 'card mt-3 d-none';
     troubleshootPanel.id = 'troubleshoot-panel';
     troubleshootPanel.innerHTML = `
-        <div class="card-header bg-light">
+        <div class="card-header">
             <h5 class="mb-0 d-flex align-items-center">
                 <span class="material-icons me-2">lightbulb</span>
                 QR Code Scanning Tips
             </h5>
         </div>
-        <div class="card-body">
-            <div class="mb-3">
-                <h6 class="fw-bold">Common Issues & Solutions:</h6>
+        <div class="card-body p-0">
+            <div class="mb-0">
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item d-flex align-items-start">
-                        <span class="material-icons me-2 text-primary">brightness_6</span>
+                        <span class="material-icons me-3">brightness_6</span>
                         <div>
                             <strong>Poor Lighting</strong>
-                            <p class="mb-0 small text-muted">Ensure your QR code is well-lit. Too much glare or shadow can prevent scanning.</p>
+                            <p class="mb-0 text-muted">Ensure your QR code is well-lit. Too much glare or shadow can prevent scanning.</p>
                         </div>
                     </li>
                     <li class="list-group-item d-flex align-items-start">
-                        <span class="material-icons me-2 text-primary">center_focus_weak</span>
+                        <span class="material-icons me-3">center_focus_weak</span>
                         <div>
                             <strong>Distance & Focus</strong>
-                            <p class="mb-0 small text-muted">Hold the camera 6-10 inches away from the QR code. Keep the phone steady.</p>
+                            <p class="mb-0 text-muted">Hold the camera 6-10 inches away from the QR code. Keep the phone steady.</p>
                         </div>
                     </li>
                     <li class="list-group-item d-flex align-items-start">
-                        <span class="material-icons me-2 text-primary">flip_camera_android</span>
+                        <span class="material-icons me-3">flip_camera_android</span>
                         <div>
                             <strong>Try A Different Camera</strong>
-                            <p class="mb-0 small text-muted">If your device has multiple cameras, try switching cameras.</p>
+                            <p class="mb-0 text-muted">If your device has multiple cameras, try switching cameras.</p>
                         </div>
                     </li>
                     <li class="list-group-item d-flex align-items-start">
-                        <span class="material-icons me-2 text-primary">filter_center_focus</span>
+                        <span class="material-icons me-3">filter_center_focus</span>
                         <div>
                             <strong>Clean QR Code</strong>
-                            <p class="mb-0 small text-muted">Make sure the QR code isn't damaged, wrinkled, or dirty.</p>
+                            <p class="mb-0 text-muted">Make sure the QR code isn't damaged, wrinkled, or dirty.</p>
                         </div>
                     </li>
                 </ul>
             </div>
             
-            <div class="d-flex justify-content-end">
+            <div class="d-flex justify-content-end p-3">
                 <button id="close-troubleshoot" class="btn btn-sm btn-outline-secondary">
                     <span class="material-icons me-1" style="font-size: 16px;">close</span>
                     Close Tips
@@ -405,19 +344,30 @@ document.addEventListener('DOMContentLoaded', function() {
     `;
     scannerParent.insertBefore(troubleshootPanel, troubleshootBtn.nextSibling);
     
-    // Set up event listeners for troubleshooting
+    // Add event listeners for troubleshooting
     troubleshootBtn.addEventListener('click', function() {
         troubleshootPanel.classList.toggle('d-none');
+        // Add slide down animation
+        if (!troubleshootPanel.classList.contains('d-none')) {
+            troubleshootPanel.style.opacity = '0';
+            troubleshootPanel.style.transform = 'translateY(-20px)';
+            setTimeout(() => {
+                troubleshootPanel.style.transition = 'all 0.3s ease';
+                troubleshootPanel.style.opacity = '1';
+                troubleshootPanel.style.transform = 'translateY(0)';
+            }, 10);
+        }
     });
     
     document.getElementById('close-troubleshoot').addEventListener('click', function() {
-        troubleshootPanel.classList.add('d-none');
+        // Add fade out animation before hiding
+        troubleshootPanel.style.opacity = '0';
+        troubleshootPanel.style.transform = 'translateY(-20px)';
+        setTimeout(() => {
+            troubleshootPanel.classList.add('d-none');
+            troubleshootPanel.style.transition = '';
+        }, 300);
     });
-    
-    // Show troubleshooting button after a delay
-    setTimeout(() => {
-        troubleshootBtn.classList.remove('d-none');
-    }, 5000);
     
     // User info elements
     const userInfoSection = document.getElementById('user-info-section');
@@ -443,33 +393,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // No data message
     const noDataMessage = document.getElementById('no-data-message');
     
-    let html5QrcodeScanner = new Html5QrcodeScanner(
-        "reader",
-        {
-            fps: 3,
-            qrbox: {width: 350, height: 350},
-            rememberLastUsedCamera: true,
-            showTorchButtonIfSupported: true,
-            aspectRatio: 1.0,
-            formatsToSupport: [
-                Html5QrcodeSupportedFormats.QR_CODE,
-                Html5QrcodeSupportedFormats.DATA_MATRIX,
-                Html5QrcodeSupportedFormats.AZTEC,
-                Html5QrcodeSupportedFormats.CODABAR,
-                Html5QrcodeSupportedFormats.CODE_39,
-                Html5QrcodeSupportedFormats.CODE_93,
-                Html5QrcodeSupportedFormats.CODE_128,
-                Html5QrcodeSupportedFormats.EAN_8,
-                Html5QrcodeSupportedFormats.EAN_13,
-                Html5QrcodeSupportedFormats.ITF,
-                Html5QrcodeSupportedFormats.PDF_417,
-                Html5QrcodeSupportedFormats.UPC_A,
-                Html5QrcodeSupportedFormats.UPC_E,
-                Html5QrcodeSupportedFormats.UPC_EAN_EXTENSION
-            ]
-        },
-        /* verbose= */ true
-    );
+    // Initialize scanner variable (declare it before using it)
+    let html5QrcodeScanner;
     
     // Function to reset detailed info sections
     function resetDetailedInfo() {
@@ -505,799 +430,14 @@ document.addEventListener('DOMContentLoaded', function() {
         vehicleCards.innerHTML = '';
     }
     
-    // Function to fetch and display detailed information
-    function fetchDetailedInfo(url) {
-        // Show the detailed info container with loading spinner
-        detailedInfo.style.display = 'block';
-        resetDetailedInfo();
-        
-        // First check if this is a driver verification URL
-        const isDriverUrl = url.includes('/driver/') && url.includes('/verify');
-        
-        // For driver URLs, we'll fetch the HTML content directly
-        if (isDriverUrl) {
-            fetch(url)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.text(); // Get HTML content
-                })
-                .then(html => {
-                    // Hide loading spinner
-                    document.querySelector('#detailed-info .text-center').style.display = 'none';
-                    
-                    // Parse the HTML
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-                    
-                    // Extract and display driver information
-                    extractDriverInfo(doc);
-                })
-                .catch(error => {
-                    showErrorMessage('Error retrieving driver information');
-                });
-        } else {
-            // Original JSON fetching logic for other URLs
-        fetch(url, {
-            headers: {
-                'Accept': 'application/json'
-            }
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            // Hide loading spinner and show appropriate sections
-            document.querySelector('#detailed-info .text-center').style.display = 'none';
-            
-            let hasData = false;
-            
-            // Display user information if available
-            if (data.name) {
-                userInfoSection.style.display = 'block';
-                userName.textContent = data.name;
-                userId.textContent = data.id || '-';
-                userRole.textContent = data.role || '-';
-                userLicense.textContent = data.license_number || '-';
-                    userExpiration.textContent = data.expiration_date || '-';
-                    userAddress.textContent = data.address || '-';
-                
-                // Handle avatar if available
-                const userAvatarContainer = document.getElementById('user-avatar-container');
-                const userAvatar = document.getElementById('user-avatar');
-                
-                if (data.avatar) {
-                    userAvatarContainer.style.display = 'block';
-                    userAvatar.src = data.avatar;
-                    userAvatar.alt = data.name;
-                } else {
-                    userAvatarContainer.style.display = 'none';
-                }
-                
-                hasData = true;
-            }
-            
-            // Display driver information if available
-            if (data.driver) {
-                driverInfoSection.style.display = 'block';
-                driverId.textContent = data.driver.id || '-';
-                driverStatus.textContent = data.driver.status || '-';
-                driverType.textContent = data.driver.type || 'Standard';
-                hasData = true;
-            }
-            
-            // Display vehicle information if available
-            if (data.vehicles && data.vehicles.length > 0) {
-                vehicleInfoSection.style.display = 'block';
-                vehicleInfoContainer.style.display = 'block';
-                vehicleCards.innerHTML = '';
-                
-                data.vehicles.forEach(vehicle => {
-                    let card = document.createElement('div');
-                    card.className = 'col';
-                    card.innerHTML = `
-                        <div class="card h-100 shadow-sm">
-                            <div class="card-body">
-                                <h6 class="card-title text-primary">${vehicle.plate_number || '-'}</h6>
-                                <div class="card-text">
-                                    <small class="text-muted">Make:</small>
-                                    <div>${vehicle.make || '-'}</div>
-                                    <small class="text-muted mt-2">Model:</small>
-                                    <div>${vehicle.model || '-'}</div>
-                                    <small class="text-muted mt-2">Year:</small>
-                                    <div>${vehicle.year || '-'}</div>
-                                    <small class="text-muted mt-2">Operator:</small>
-                                    <div>${vehicle.operator || '-'}</div>
-                                    ${vehicle.color ? `
-                                    <small class="text-muted mt-2">Color:</small>
-                                    <div>${vehicle.color}</div>
-                                    ` : ''}
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    vehicleCards.appendChild(card);
-                });
-                hasData = true;
-            } else if (data.vehicles) {
-                // Show vehicle section with "No vehicles" message if array exists but is empty
-                vehicleInfoSection.style.display = 'block';
-                noVehiclesCard.style.display = '';
-                hasData = true;
-            }
-            
-            // Check for violations data
-            if (data.violations && data.violations.length > 0) {
-                // Create a violations section if it doesn't exist
-                let violationsSection = document.getElementById('violations-info-section');
-                if (!violationsSection) {
-                    violationsSection = document.createElement('div');
-                    violationsSection.id = 'violations-info-section';
-                    violationsSection.className = 'mb-4';
-                    violationsSection.innerHTML = `
-                        <h5 class="section-heading">Recent Violations</h5>
-                        <div class="card shadow-sm">
-                            <div class="card-body p-0">
-                                <div class="table-responsive">
-                                    <table class="table table-sm mb-0">
-                                        <thead class="bg-light">
-                                            <tr>
-                                                <th>Date</th>
-                                                <th>Type</th>
-                                                <th>Status</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="violations-table-body">
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    
-                    // Insert after vehicle section
-                    detailedInfo.insertBefore(violationsSection, noDataMessage);
-                }
-                
-                // Display violations in the table
-                const tbody = document.getElementById('violations-table-body');
-                tbody.innerHTML = '';
-                
-                data.violations.forEach(violation => {
-                    const tr = document.createElement('tr');
-                    
-                    // Determine status badge color
-                    let statusBadgeClass = 'bg-secondary';
-                    if (violation.status === 'PAID') {
-                        statusBadgeClass = 'bg-success';
-                    } else if (violation.status === 'PENDING') {
-                        statusBadgeClass = 'bg-warning text-dark';
-                    } else if (['APPROVED', 'ADJUDICATED'].includes(violation.status)) {
-                        statusBadgeClass = 'bg-danger';
-                    }
-                    
-                    tr.innerHTML = `
-                        <td>${violation.date}</td>
-                        <td>${violation.violation_type.length > 20 ? violation.violation_type.substring(0, 20) + '...' : violation.violation_type}</td>
-                        <td><span class="badge ${statusBadgeClass}">${violation.status}</span></td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-                
-                violationsSection.style.display = 'block';
-                hasData = true;
-            }
-            
-            // Show no data message if no information was available
-            if (!hasData) {
-                noDataMessage.style.display = 'block';
-            }
-        })
-        .catch(error => {
-                showErrorMessage('Error retrieving information');
-            });
-        }
-    }
-    
-    // Helper function to show error messages
-    function showErrorMessage(message) {
-        document.querySelector('#detailed-info .text-center').style.display = 'none';
-        noDataMessage.style.display = 'block';
-        noDataMessage.innerHTML = `
-            <div class="d-flex align-items-center justify-content-center">
-                <span class="material-icons me-2">error</span>
-            <div>${message}</div>
-            </div>
-        `;
-    }
-    
-    // Function to extract driver information from HTML
-    function extractDriverInfo(doc) {
-        let hasData = false;
-        
-        try {
-            // Extract driver personal information
-            const personalInfo = extractPersonalInfo(doc);
-            if (personalInfo) {
-                userInfoSection.style.display = 'block';
-                userName.textContent = personalInfo.name || '-';
-                userId.textContent = personalInfo.id || '-';
-                userRole.textContent = 'Driver';
-                userLicense.textContent = personalInfo.license || '-';
-                userExpiration.textContent = personalInfo.expiration || '-';
-                userAddress.textContent = personalInfo.address || '-';
-                
-                // Handle avatar if available
-                const userAvatarContainer = document.getElementById('user-avatar-container');
-                const userAvatar = document.getElementById('user-avatar');
-                
-                if (personalInfo.avatar) {
-                    userAvatarContainer.style.display = 'block';
-                    userAvatar.src = personalInfo.avatar;
-                    userAvatar.alt = personalInfo.name;
-                } else {
-                    userAvatarContainer.style.display = 'none';
-                }
-                
-                hasData = true;
-            }
-            
-            // Extract driver details
-            const driverDetails = extractDriverDetails(doc);
-            if (driverDetails) {
-                driverInfoSection.style.display = 'block';
-                driverId.textContent = driverDetails.id || '-';
-                driverStatus.textContent = driverDetails.status || '-';
-                driverType.textContent = driverDetails.type || 'Standard';
-                hasData = true;
-            }
-            
-            // Extract vehicle information
-            const vehicles = extractVehicleInfo(doc);
-            if (vehicles && vehicles.length > 0) {
-                vehicleInfoSection.style.display = 'block';
-                vehicleInfoContainer.style.display = 'block';
-                vehicleCards.innerHTML = '';
-                
-                vehicles.forEach(vehicle => {
-                    let card = document.createElement('div');
-                    card.className = 'col';
-                    card.innerHTML = `
-                        <div class="card h-100 shadow-sm">
-                            <div class="card-body">
-                                <h6 class="card-title text-primary">${vehicle.plateNumber || '-'}</h6>
-                                <div class="card-text">
-                                    <small class="text-muted">Make:</small>
-                                    <div>${vehicle.make || '-'}</div>
-                                    <small class="text-muted mt-2">Model:</small>
-                                    <div>${vehicle.model || '-'}</div>
-                                    <small class="text-muted mt-2">Year:</small>
-                                    <div>${vehicle.year || '-'}</div>
-                                    <small class="text-muted mt-2">Operator:</small>
-                                    <div>${vehicle.operator || '-'}</div>
-                                    ${vehicle.color ? `
-                                    <small class="text-muted mt-2">Color:</small>
-                                    <div>${vehicle.color}</div>
-                                    ` : ''}
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    vehicleCards.appendChild(card);
-                });
-                hasData = true;
-            } else {
-                vehicleInfoSection.style.display = 'block';
-                noVehiclesCard.style.display = '';
-                hasData = true;
-            }
-            
-            // Extract violations information
-            const violations = extractViolationsInfo(doc);
-            if (violations && violations.length > 0) {
-                // Create a violations section if it doesn't exist
-                let violationsSection = document.getElementById('violations-info-section');
-                if (!violationsSection) {
-                    violationsSection = document.createElement('div');
-                    violationsSection.id = 'violations-info-section';
-                    violationsSection.className = 'mb-4';
-                    violationsSection.innerHTML = `
-                        <h5 class="section-heading">Recent Violations</h5>
-                        <div class="card shadow-sm">
-                            <div class="card-body p-0">
-                                <div class="table-responsive">
-                                    <table class="table table-sm mb-0">
-                                        <thead class="bg-light">
-                                            <tr>
-                                                <th>Date</th>
-                                                <th>Type</th>
-                                                <th>Status</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="violations-table-body">
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    
-                    // Insert after vehicle section
-                    detailedInfo.insertBefore(violationsSection, noDataMessage);
-                }
-                
-                // Display violations in the table
-                const tbody = document.getElementById('violations-table-body');
-                tbody.innerHTML = '';
-                
-                violations.forEach(violation => {
-                    const tr = document.createElement('tr');
-                    
-                    // Determine status badge color
-                    let statusBadgeClass = 'bg-secondary';
-                    if (violation.status === 'PAID') {
-                        statusBadgeClass = 'bg-success';
-                    } else if (violation.status === 'PENDING') {
-                        statusBadgeClass = 'bg-warning text-dark';
-                    } else if (['APPROVED', 'ADJUDICATED'].includes(violation.status)) {
-                        statusBadgeClass = 'bg-danger';
-                    }
-                    
-                    tr.innerHTML = `
-                        <td>${violation.date}</td>
-                        <td>${violation.violation_type.length > 20 ? violation.violation_type.substring(0, 20) + '...' : violation.violation_type}</td>
-                        <td><span class="badge ${statusBadgeClass}">${violation.status}</span></td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-                
-                violationsSection.style.display = 'block';
-                hasData = true;
-            }
-            
-            // Show no data message if no information was available
-            if (!hasData) {
-                noDataMessage.style.display = 'block';
-            }
-        } catch (error) {
-            console.error('Error parsing driver information:', error);
-            showErrorMessage('Error extracting driver information');
-        }
-    }
-    
-    // Helper function to find field value by label in the document
-    function findFieldValueByLabel(doc, label) {
-        // Try to find elements that have a label text followed by the value
-        const elements = doc.querySelectorAll('.row .col-md-6, .row .col-sm-6, .card-body .row .col-md-6, .form-group, .field-row, .form-row, .detail-field');
-        
-        for (const element of elements) {
-            // Check if this element or its children contain the label text
-            if (element.textContent.includes(label)) {
-                // Look for elements that might contain the value
-                const valueElements = element.querySelectorAll('div, p, span, strong, .form-control-static, .field-value, .data-value');
-                
-                for (const valueEl of valueElements) {
-                    // Skip elements that contain the label text
-                    if (valueEl.textContent.trim() === label || valueEl.textContent.includes(label + ':')) {
-                        continue;
-                    }
-                    
-                    // Found a potential value element
-                    const value = valueEl.textContent.trim();
-                    if (value && value !== '-') {
-                        return value;
-                    }
-                }
-                
-                // If we didn't find a distinct value element, try to parse the text
-                const text = element.textContent.trim();
-                const labelIndex = text.indexOf(label);
-                if (labelIndex >= 0) {
-                    // Get text after the label, which should be the value
-                    let value = text.substring(labelIndex + label.length).trim();
-                    
-                    // Remove any colon
-                    if (value.startsWith(':')) {
-                        value = value.substring(1).trim();
-                    }
-                    
-                    // Remove any lines after the first line
-                    const newlineIndex = value.indexOf('\n');
-                    if (newlineIndex > 0) {
-                        value = value.substring(0, newlineIndex).trim();
-                    }
-                    
-                    if (value && value !== '-') {
-                        return value;
-                    }
-                }
-            }
-        }
-        
-        // Try finding by looking for label elements followed by other elements
-        const labelElements = Array.from(doc.querySelectorAll('label, th, dt, .field-label, strong, small'));
-        const labelElement = labelElements.find(el => el.textContent.trim() === label || 
-                                                    el.textContent.trim() === label + ':' ||
-                                                    el.textContent.trim().startsWith(label + ' '));
-                                                    
-        if (labelElement) {
-            // Try to find the value in the next sibling element
-            let valueElement = labelElement.nextElementSibling;
-            while (valueElement) {
-                if (valueElement.tagName !== 'BR' && valueElement.tagName !== 'HR') {
-                    const value = valueElement.textContent.trim();
-                    if (value && value !== '-') {
-                        return value;
-                    }
-                }
-                valueElement = valueElement.nextElementSibling;
-            }
-            
-            // Try to find value in parent's next sibling
-            const parentNext = labelElement.parentElement?.nextElementSibling;
-            if (parentNext) {
-                const value = parentNext.textContent.trim();
-                if (value && value !== '-') {
-                    return value;
-                }
-            }
-            
-            // For dt/dd pattern
-            if (labelElement.tagName === 'DT') {
-                const ddElement = labelElement.nextElementSibling;
-                if (ddElement && ddElement.tagName === 'DD') {
-                    return ddElement.textContent.trim();
-                }
-            }
-            
-            // Look for elements with specific CSS relationships
-            if (labelElement.htmlFor) {
-                const targetElement = doc.getElementById(labelElement.htmlFor);
-                if (targetElement) {
-                    // If it's an input with a value
-                    if (targetElement.value) {
-                        return targetElement.value;
-                    }
-                    // Otherwise get the text content
-                    return targetElement.textContent.trim();
-                }
-            }
-        }
-        
-        // Try table pattern - find a row with the label in first cell
-        const tableRows = doc.querySelectorAll('tr');
-        for (const row of tableRows) {
-            const cells = row.querySelectorAll('td, th');
-            if (cells.length >= 2) {
-                const firstCell = cells[0];
-                if (firstCell.textContent.trim() === label || 
-                    firstCell.textContent.trim() === label + ':' ||
-                    firstCell.textContent.trim().includes(label)) {
-                    
-                    // Value is likely in the second cell
-                    const valueCell = cells[1];
-                    return valueCell.textContent.trim();
-                }
-            }
-        }
-        
-        // Try for list item pattern
-        const listItems = doc.querySelectorAll('li');
-        for (const item of listItems) {
-            if (item.textContent.includes(label + ':')) {
-                const text = item.textContent.trim();
-                const valueStart = text.indexOf(':') + 1;
-                if (valueStart > 0) {
-                    return text.substring(valueStart).trim();
-                }
-            }
-        }
-        
-        return null;
-    }
-    
-    // Extract personal information from the driver detail page
-    function extractPersonalInfo(doc) {
-        const personalInfo = {
-            name: null,
-            id: null,
-            license: null,
-            expiration: null,
-            address: null,
-            avatar: null
-        };
-        
-        // Look for avatar/profile images
-        const avatarElements = doc.querySelectorAll('.profile-avatar, .user-avatar, .avatar-img, .user-photo, .profile-img, img.avatar, img.profile-pic, img.user-img, .img-thumbnail, .rounded-circle');
-        for (const element of avatarElements) {
-            if (element.src && element.src.length > 0) {
-                personalInfo.avatar = element.src;
-                break;
-            }
-        }
-        
-        // If no specific avatar element found, check for img tags within profile containers
-        if (!personalInfo.avatar) {
-            const profileContainers = doc.querySelectorAll('.profile-header, .user-info, .profile-container, .card-body, .verification-body, .driver-photo');
-            for (const container of profileContainers) {
-                const imgElements = container.querySelectorAll('img');
-                for (const img of imgElements) {
-                    if (img.src && img.src.length > 0 && 
-                        !img.src.includes('icon') && 
-                        !img.src.includes('logo')) {
-                        personalInfo.avatar = img.src;
-                        break;
-                    }
-                }
-                if (personalInfo.avatar) break;
-            }
-        }
-        
-        // Additional check for placeholder avatars with initials
-        if (!personalInfo.avatar) {
-            const avatarPlaceholders = doc.querySelectorAll('.rounded-circle');
-            for (const placeholder of avatarPlaceholders) {
-                // If we found a circular placeholder element that's likely an avatar
-                if (placeholder.style && 
-                    (placeholder.style.width.includes('px') || placeholder.classList.contains('img-thumbnail'))) {
-                    // Use a default avatar icon as fallback
-                    personalInfo.avatar = 'https://via.placeholder.com/150?text=Driver';
-                    
-                    // Try to get initials if available
-                    const name = personalInfo.name;
-                    if (name) {
-                        const nameParts = name.split(' ');
-                        if (nameParts.length >= 2) {
-                            const initials = `${nameParts[0][0]}${nameParts[nameParts.length-1][0]}`;
-                            personalInfo.avatar = `https://via.placeholder.com/150?text=${initials}`;
-                        }
-                    }
-                    break;
-                }
-            }
-        }
-        
-        // Find driver name - first try to find it in a header or prominent element
-        const headerElements = doc.querySelectorAll('h1, h2, h3, h4, h5, h6, .card-title, .page-header, .profile-name');
-        for (const header of headerElements) {
-            const text = header.textContent.trim();
-            // Skip headers that are likely section titles
-            if (text.includes('Driver') || 
-                text.includes('Profile') || 
-                text.includes('Information') ||
-                text.includes('Details')) {
-                
-                // If we found a header, check if there's a name element nearby
-                const nameElement = header.nextElementSibling;
-                if (nameElement && !nameElement.textContent.includes('ID') && 
-                    !nameElement.textContent.includes('License')) {
-                    personalInfo.name = nameElement.textContent.trim();
-                    break;
-                }
-            } else if (!text.includes(':') && text.length > 3 && /[A-Z][a-z]+ [A-Z][a-z]+/.test(text)) {
-                // This looks like a name (e.g., "John Smith")
-                personalInfo.name = text;
-                break;
-            }
-        }
-        
-        // If header search didn't work, try finding by labels
-        if (!personalInfo.name) {
-            personalInfo.name = findFieldValueByLabel(doc, 'Name') || 
-                               findFieldValueByLabel(doc, 'Driver Name') || 
-                               findFieldValueByLabel(doc, 'Full Name');
-        }
-        
-        // If still no name, look for a prominent element that might contain the name
-        if (!personalInfo.name) {
-            const prominentElements = doc.querySelectorAll('.profile-header, .user-info, .driver-name, .driver-header');
-            for (const element of prominentElements) {
-                const text = element.textContent.trim();
-                if (text && text.length > 3 && !text.includes(':') && /[A-Z][a-z]+/.test(text)) {
-                    personalInfo.name = text;
-                    break;
-                }
-            }
-        }
-        
-        // As a last resort, look for first strong or b element with name-like content
-        if (!personalInfo.name) {
-            const boldElements = doc.querySelectorAll('strong, b');
-            for (const element of boldElements) {
-                const text = element.textContent.trim();
-                if (text && text.length > 3 && !text.includes(':') && /[A-Z][a-z]+/.test(text)) {
-                    personalInfo.name = text;
-                    break;
-                }
-            }
-        }
-        
-        // Find driver ID
-        personalInfo.id = findFieldValueByLabel(doc, 'Driver ID') || 
-                         findFieldValueByLabel(doc, 'ID Number') || 
-                         findFieldValueByLabel(doc, 'ID');
-        
-        // Find license information
-        personalInfo.license = findFieldValueByLabel(doc, 'License Number') || 
-                             findFieldValueByLabel(doc, 'License') || 
-                             findFieldValueByLabel(doc, 'License #');
-        
-        // Find license expiration
-        personalInfo.expiration = findFieldValueByLabel(doc, 'Expiration Date') || 
-                                findFieldValueByLabel(doc, 'Expires On') || 
-                                findFieldValueByLabel(doc, 'Valid Until');
-        
-        // Find address
-        personalInfo.address = findFieldValueByLabel(doc, 'Address') || 
-                             findFieldValueByLabel(doc, 'Residence') || 
-                             findFieldValueByLabel(doc, 'Home Address');
-        
-        return personalInfo.name ? personalInfo : null;
-    }
-    
-    // Extract driver details from the driver detail page
-    function extractDriverDetails(doc) {
-        const driverDetails = {
-            id: null,
-            status: null,
-            type: null
-        };
-        
-        // Extract driver ID if not already found in personal info
-        driverDetails.id = findFieldValueByLabel(doc, 'Driver ID') || 
-                          findFieldValueByLabel(doc, 'ID Number');
-        
-        // Extract status
-        driverDetails.status = findFieldValueByLabel(doc, 'Status') || 
-                             findFieldValueByLabel(doc, 'Driver Status');
-        
-        // Extract driver type
-        driverDetails.type = findFieldValueByLabel(doc, 'Type') || 
-                           findFieldValueByLabel(doc, 'Driver Type') || 
-                           findFieldValueByLabel(doc, 'License Type');
-        
-        return driverDetails.id || driverDetails.status || driverDetails.type ? driverDetails : null;
-    }
-    
-    // Extract vehicle information from the driver detail page
-    function extractVehicleInfo(doc) {
-        const vehicles = [];
-        
-        // Look for vehicle sections or cards
-        const vehicleSections = doc.querySelectorAll('.card, .vehicle-card, .vehicle-section');
-        
-        for (const section of vehicleSections) {
-            // Skip if this doesn't look like a vehicle card
-            if (!section.textContent.includes('Plate') && 
-                !section.textContent.includes('Vehicle') && 
-                !section.textContent.includes('Make') && 
-                !section.textContent.includes('Model')) {
-                continue;
-            }
-            
-            const vehicle = {
-                plateNumber: null,
-                make: null,
-                model: null,
-                year: null,
-                color: null,
-                operator: null
-            };
-            
-            // Extract vehicle details from this section
-            vehicle.plateNumber = findFieldValueByLabel(section, 'Plate Number') || 
-                                findFieldValueByLabel(section, 'Plate') || 
-                                findFieldValueByLabel(section, 'License Plate');
-                                
-            vehicle.make = findFieldValueByLabel(section, 'Make') || 
-                         findFieldValueByLabel(section, 'Manufacturer');
-                         
-            vehicle.model = findFieldValueByLabel(section, 'Model');
-            
-            vehicle.year = findFieldValueByLabel(section, 'Year') || 
-                         findFieldValueByLabel(section, 'Model Year');
-                         
-            vehicle.color = findFieldValueByLabel(section, 'Color');
-            
-            vehicle.operator = findFieldValueByLabel(section, 'Operator') || 
-                             findFieldValueByLabel(section, 'Type');
-            
-            // Only add if we have at least plate number, make or model
-            if (vehicle.plateNumber || vehicle.make || vehicle.model) {
-                vehicles.push(vehicle);
-            }
-        }
-        
-        // If we didn't find any vehicles in cards, try to find a table
-        if (vehicles.length === 0) {
-            const tables = doc.querySelectorAll('table');
-            for (const table of tables) {
-                if (table.textContent.includes('Plate') || 
-                    table.textContent.includes('Vehicle') || 
-                    table.textContent.includes('Make') || 
-                    table.textContent.includes('Model')) {
-                    
-                    // This looks like a vehicle table
-                    const rows = table.querySelectorAll('tbody tr');
-                    for (const row of rows) {
-                        const cells = row.querySelectorAll('td');
-                        if (cells.length >= 3) {
-                            const vehicle = {
-                                plateNumber: cells[0]?.textContent.trim() || null,
-                                make: cells[1]?.textContent.trim() || null,
-                                model: cells[2]?.textContent.trim() || null,
-                                year: cells.length > 3 ? cells[3]?.textContent.trim() : null,
-                                color: cells.length > 4 ? cells[4]?.textContent.trim() : null,
-                                operator: cells.length > 5 ? cells[5]?.textContent.trim() : null
-                            };
-                            
-                            if (vehicle.plateNumber || vehicle.make || vehicle.model) {
-                                vehicles.push(vehicle);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        
-        return vehicles;
-    }
-    
-    // Extract violations information from the driver detail page
-    function extractViolationsInfo(doc) {
-        const violations = [];
-        
-        // Look for violations table
-        const tables = doc.querySelectorAll('table');
-        for (const table of tables) {
-            if (table.textContent.includes('Violation') || 
-                table.textContent.includes('Offense') || 
-                table.textContent.includes('Ticket')) {
-                
-                const rows = table.querySelectorAll('tbody tr');
-                for (const row of rows) {
-                    const cells = row.querySelectorAll('td');
-                    if (cells.length >= 3) {
-                        const violation = {
-                            date: cells[0]?.textContent.trim() || 'N/A',
-                            type: cells[1]?.textContent.trim() || 'Unknown',
-                            status: cells[2]?.textContent.trim() || 'PENDING'
-                        };
-                        violations.push(violation);
-                    }
-                }
-            }
-        }
-        
-        return violations;
-    }
-    
     // Success callback when QR code is successfully scanned
     function onScanSuccess(decodedText, decodedResult) {
         // Stop the scanner
         html5QrcodeScanner.clear();
         
-        // Show result container for debugging purposes only - will be hidden when redirecting
-        resultContainer.style.display = "block";
-        
-        // Debug log the scanned QR code
         console.log("QR Code scanned:", decodedText);
         
         try {
-            // Display scanning message (will be briefly shown before redirect)
-            resultContent.innerHTML = `
-                <div class="text-center">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <p class="mt-3">Processing QR code...</p>
-                </div>
-            `;
-            
             // Normalize URL - add base URL to relative URLs
             let processedUrl = decodedText;
             if (decodedText.startsWith('/')) {
@@ -1401,7 +541,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else if (url.pathname.includes('/qr/scanner')) {
                     // Don't redirect if we're already on the scanner page
                     console.log("Already on scanner page, not redirecting");
-                    scanNewBtn.click();
+                    // Reset scanner for another scan
+                    resetScannerWithConfig();
                     return;
                 }
             }
@@ -1434,149 +575,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            // If we reach here, it's an unknown format - show options
-            console.log("Unknown QR code format detected");
-            
-            // Updated UI for unknown formats - showing clearer options
-            resultContent.innerHTML = `
-                <div class="alert alert-warning mb-3">
-                    <div class="d-flex align-items-center mb-2">
-                        <span class="material-icons me-2">warning</span>
-                        <h5 class="mb-0">Unrecognized QR Code Format</h5>
-                    </div>
-                    <p class="mb-1">The scanned content doesn't match any known format in our system:</p>
-                    <div class="bg-light p-2 rounded mb-2 small text-break">
-                        <code>${decodedText.trim()}</code>
-                    </div>
-                </div>
-
-                <div class="card mb-3">
-                    <div class="card-header bg-light">
-                        <h6 class="mb-0">Try as:</h6>
-                    </div>
-                    <div class="card-body">
-                        <p class="small text-muted mb-3">How would you like to process this QR code?</p>
-                        <div class="d-grid gap-2">
-                            <button id="try-as-user" class="btn btn-primary">
-                                <span class="material-icons me-2">person</span>
-                                Process as User ID
-                            </button>
-                            <button id="try-as-driver" class="btn btn-outline-secondary">
-                                <span class="material-icons me-2">drive_eta</span>
-                                Process as Driver ID
-                            </button>
-                            <button id="try-as-legacy" class="btn btn-outline-warning">
-                                <span class="material-icons me-2">history</span>
-                                Process as Legacy Format (uid:X-Y)
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="d-grid">
-                    <button id="scan-new" class="btn btn-dark">
-                        <span class="material-icons me-2">qr_code_scanner</span>
-                        Scan Another Code
-                    </button>
-                </div>
-            `;
-            
-            // Add event listeners for manual options
-            document.getElementById('try-as-user').addEventListener('click', function() {
-                const cleanId = decodedText.trim().replace(/[^A-Za-z0-9_-]/g, '');
-                window.location.href = `${window.location.origin}/qr/user/${cleanId}/`;
-            });
-            
-            document.getElementById('try-as-driver').addEventListener('click', function() {
-                const cleanId = decodedText.trim().replace(/[^A-Za-z0-9_-]/g, '');
-                window.location.href = `${window.location.origin}/driver/${cleanId}/verify/`;
-            });
-            
-            document.getElementById('try-as-legacy').addEventListener('click', function() {
-                // Check if it already has the uid: prefix
-                let processedId = decodedText.trim();
-                if (!processedId.startsWith('uid:')) {
-                    processedId = 'uid:' + processedId;
-                }
-                window.location.href = `${window.location.origin}/qr/user/${processedId}/`;
-            });
-            
-            document.getElementById('scan-new').addEventListener('click', function() {
-                scanNewBtn.click();
-            });
-            
-            // Hide the default view details button for unknown formats
-            viewDetailsBtn.style.display = 'none';
+            // If we reach here, it's an unknown format - reset the scanner
+            console.log("Unknown QR code format detected, resetting scanner");
+            resetScannerWithConfig();
             
         } catch (error) {
             console.error("Error processing QR code:", error);
-            resultContent.textContent = "Error processing QR code: " + error.message;
+            // Reset the scanner to try again
+            resetScannerWithConfig();
         }
     }
     
     // Error callback when QR code scanning fails
     function onScanError(errorMessage) {
-        // Check for specific errors that might need user attention
+        // Only log errors, no need to display to user
         console.log("Scan error (non-fatal):", errorMessage);
-        
-        // Show troubleshooting button for all errors
-        document.getElementById('troubleshoot-btn').classList.remove('d-none');
-        
-        // For specific errors like MultiFormat Readers, still help the user
-        if (errorMessage.includes("No MultiFormat Readers")) {
-            // Switch to driver mode automatically
-            const driverModeRadio = document.getElementById('driverMode');
-            if (driverModeRadio && !driverModeRadio.checked) {
-                driverModeRadio.checked = true;
-                // Trigger the change event
-                driverModeRadio.dispatchEvent(new Event('change'));
-            }
-        }
     }
     
-    // Initialize the scanner
-    html5QrcodeScanner.render(onScanSuccess, onScanError);
-    
-    // Button to scan a new QR code
-    scanNewBtn.addEventListener('click', function() {
-        // Hide the result container
-        resultContainer.style.display = "none";
-        detailedInfo.style.display = "none";
-        resetDetailedInfo();
-        
-        // Re-initialize the scanner with the improved configuration
-        html5QrcodeScanner = new Html5QrcodeScanner(
-            "reader",
-            {
-                fps: 3,
-                qrbox: {width: 350, height: 350},
-                rememberLastUsedCamera: true,
-                showTorchButtonIfSupported: true,
-                aspectRatio: 1.0,
-                formatsToSupport: [
-                    Html5QrcodeSupportedFormats.QR_CODE,
-                    Html5QrcodeSupportedFormats.DATA_MATRIX,
-                    Html5QrcodeSupportedFormats.AZTEC,
-                    Html5QrcodeSupportedFormats.CODABAR,
-                    Html5QrcodeSupportedFormats.CODE_39,
-                    Html5QrcodeSupportedFormats.CODE_93,
-                    Html5QrcodeSupportedFormats.CODE_128,
-                    Html5QrcodeSupportedFormats.EAN_8,
-                    Html5QrcodeSupportedFormats.EAN_13,
-                    Html5QrcodeSupportedFormats.ITF,
-                    Html5QrcodeSupportedFormats.PDF_417,
-                    Html5QrcodeSupportedFormats.UPC_A,
-                    Html5QrcodeSupportedFormats.UPC_E,
-                    Html5QrcodeSupportedFormats.UPC_EAN_EXTENSION
-                ]
-            },
-            /* verbose= */ true
-        );
-        html5QrcodeScanner.render(onScanSuccess, onScanError);
-    });
-
     // Function to reset scanner with appropriate configuration
-    function resetScannerWithConfig(isDriverMode = false) {
+    function resetScannerWithConfig() {
         // Stop the current scanner
         if (html5QrcodeScanner) {
             try {
@@ -1586,233 +603,100 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
-        // Configure scanner options based on mode
-        const scannerConfig = {
+        // Configure scanner options - updated for better QR code detection
+        const config = {
+            fps: 10,  // Higher FPS for better detection
+            qrbox: { width: 300, height: 300 },  // Slightly smaller scan area for better focusing
+            formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
             rememberLastUsedCamera: true,
             showTorchButtonIfSupported: true,
-            formatsToSupport: [
-                Html5QrcodeSupportedFormats.QR_CODE,
-                Html5QrcodeSupportedFormats.DATA_MATRIX,
-                Html5QrcodeSupportedFormats.AZTEC,
-                Html5QrcodeSupportedFormats.CODABAR,
-                Html5QrcodeSupportedFormats.CODE_39,
-                Html5QrcodeSupportedFormats.CODE_93,
-                Html5QrcodeSupportedFormats.CODE_128,
-                Html5QrcodeSupportedFormats.EAN_8,
-                Html5QrcodeSupportedFormats.EAN_13,
-                Html5QrcodeSupportedFormats.ITF,
-                Html5QrcodeSupportedFormats.PDF_417,
-                Html5QrcodeSupportedFormats.UPC_A,
-                Html5QrcodeSupportedFormats.UPC_E,
-                Html5QrcodeSupportedFormats.UPC_EAN_EXTENSION
-            ]
+            aspectRatio: 1.0,
+            // Additional advanced options for better performance
+            disableFlip: false,  // Allow flipping for better detection
+            experimentalFeatures: {
+                useBarCodeDetectorIfSupported: true  // Use browser's native detector if available
+            }
         };
         
-        if (isDriverMode) {
-            // Driver mode: slower fps, larger scan area
-            scannerConfig.fps = 2;
-            scannerConfig.qrbox = {width: 400, height: 400};
-            scannerConfig.aspectRatio = 1.0;
-            
-            // Update mode indicator if it exists
-            if (document.getElementById('mode-indicator')) {
-                document.getElementById('mode-indicator').innerHTML = '<span class="material-icons me-1">build</span> Driver QR Mode';
-                document.getElementById('mode-indicator').className = 'badge bg-warning text-dark';
-            } else {
-                // Create mode indicator if it doesn't exist
-                const modeIndicator = document.createElement('div');
-                modeIndicator.id = 'mode-indicator';
-                modeIndicator.className = 'badge bg-warning text-dark';
-                modeIndicator.innerHTML = '<span class="material-icons me-1">build</span> Driver QR Mode';
-                modeIndicator.style.position = 'absolute';
-                modeIndicator.style.top = '10px';
-                modeIndicator.style.right = '10px';
-                modeIndicator.style.zIndex = '1000';
-                document.getElementById('reader').parentNode.appendChild(modeIndicator);
-            }
-        } else {
-            // Standard mode: faster fps, standard scan area
-            scannerConfig.fps = 3;
-            scannerConfig.qrbox = {width: 350, height: 350};
-            scannerConfig.aspectRatio = 1.0;
-            
-            // Update mode indicator if it exists
-            if (document.getElementById('mode-indicator')) {
-                document.getElementById('mode-indicator').innerHTML = '<span class="material-icons me-1">qr_code_scanner</span> Standard Mode';
-                document.getElementById('mode-indicator').className = 'badge bg-primary';
-            } else {
-                // Create mode indicator if it doesn't exist
-                const modeIndicator = document.createElement('div');
-                modeIndicator.id = 'mode-indicator';
-                modeIndicator.className = 'badge bg-primary';
-                modeIndicator.innerHTML = '<span class="material-icons me-1">qr_code_scanner</span> Standard Mode';
-                modeIndicator.style.position = 'absolute';
-                modeIndicator.style.top = '10px';
-                modeIndicator.style.right = '10px';
-                modeIndicator.style.zIndex = '1000';
-                document.getElementById('reader').parentNode.appendChild(modeIndicator);
-            }
-        }
-        
-        // Create diagnostic info area if it doesn't exist
-        if (!document.getElementById('camera-diagnostics')) {
-            const diagnosticsArea = document.createElement('div');
-            diagnosticsArea.id = 'camera-diagnostics';
-            diagnosticsArea.className = 'alert alert-info mt-3';
-            diagnosticsArea.style.display = 'none';
-            document.getElementById('reader').parentNode.appendChild(diagnosticsArea);
-        }
-        
-        // Show diagnostic info
-        const diagnosticsArea = document.getElementById('camera-diagnostics');
-        diagnosticsArea.style.display = 'block';
-        diagnosticsArea.innerHTML = `
-            <h6><span class="material-icons me-1">info</span> Camera Diagnostics</h6>
-            <p class="mb-1">Initializing camera...</p>
-            <ul class="list-unstyled small">
-                <li>⏳ Requesting camera permissions...</li>
-            </ul>
-        `;
-        
-        // Initialize scanner with error handling
         try {
+            // Initialize with our improved configuration
             html5QrcodeScanner = new Html5QrcodeScanner(
                 "reader",
-                scannerConfig,
+                config,
                 /* verbose= */ true
             );
             
             // Check if mediaDevices API is available
             if (!navigator.mediaDevices) {
-                diagnosticsArea.innerHTML = `
-                    <h6 class="text-danger"><span class="material-icons me-1">error</span> Browser Compatibility Error</h6>
-                    <p>Your browser doesn't support the required camera access APIs.</p>
-                    <p class="mb-1">Possible solutions:</p>
-                    <ul>
-                        <li>Make sure you're using a modern browser (Chrome, Firefox, Edge)</li>
-                        <li>Make sure you're accessing the site over HTTPS or localhost</li>
-                        <li>Try updating your browser to the latest version</li>
-                    </ul>
-                    <p>
-                        <button class="btn btn-sm btn-primary mt-2" onclick="window.location.reload()">Reload Page</button>
-                    </p>
-                `;
+                console.error("Browser doesn't support the required camera access APIs");
                 return;
             }
             
-            // Wrap render call in a safer try-catch
-            try {
-                // Simple direct render first - this works in most browsers
-                html5QrcodeScanner.render(
-                    onScanSuccess,
-                    onScanError
-                ).catch(err => {
-                    // If initial render fails, try the compatibility approach
-                    diagnosticsArea.innerHTML = `
-                        <h6 class="text-warning"><span class="material-icons me-1">warning</span> Camera Access Issue</h6>
-                        <p>There was an issue accessing your camera: ${err?.message || 'Unknown error'}</p>
-                        <p>Trying compatibility mode...</p>
-                    `;
-                    
-                    // Try a more compatible approach - some browsers need explicit permission first
-                    navigator.mediaDevices.getUserMedia({ video: true })
-                        .then(stream => {
-                            // Successfully got camera access, now try to render the scanner again
-                            stream.getTracks().forEach(track => track.stop()); // Release camera
-                            
-                            diagnosticsArea.innerHTML = `
-                                <h6 class="text-info"><span class="material-icons me-1">check_circle</span> Permission Granted</h6>
-                                <p>Camera permission granted. Initializing scanner...</p>
-                            `;
-                            
-                            // Reinitialize the scanner after getting permission
-                            html5QrcodeScanner = new Html5QrcodeScanner(
-                                "reader",
-                                scannerConfig,
-                                /* verbose= */ true
-                            );
-                            
-                            html5QrcodeScanner.render(
-                                onScanSuccess,
-                                onScanError
-                            ).catch(innerErr => {
-                                diagnosticsArea.innerHTML = `
-                                    <h6 class="text-danger"><span class="material-icons me-1">error</span> Scanner Error</h6>
-                                    <p>Failed to initialize scanner after permission: ${innerErr?.message || 'Unknown error'}</p>
-                                    <p class="mb-1">Try these steps:</p>
-                                    <ul>
-                                        <li>Reload the page</li>
-                                        <li>Check camera permissions in browser settings</li>
-                                        <li>Try a different browser (Chrome works best)</li>
-                                    </ul>
-                                    <p>
-                                        <button class="btn btn-sm btn-primary mt-2" onclick="window.location.reload()">Reload Page</button>
-                                    </p>
-                                `;
-                            });
-                        })
-                        .catch(permErr => {
-                            // User denied permission or other camera access error
-                            diagnosticsArea.innerHTML = `
-                                <h6 class="text-danger"><span class="material-icons me-1">error</span> Camera Permission Denied</h6>
-                                <p>You need to allow camera access to use the QR scanner.</p>
-                                <p class="mb-1">How to enable camera access:</p>
-                                <ul>
-                                    <li>Look for a camera permission dialog and click "Allow"</li>
-                                    <li>Check the camera icon in your browser's address bar</li>
-                                    <li>In browser settings, find "Site Settings" → "Camera"</li>
-                                </ul>
-                                <p>
-                                    <button class="btn btn-sm btn-primary mt-2" onclick="window.location.reload()">Try Again</button>
-                                </p>
-                            `;
-                        });
-                });
-            } catch (renderError) {
-                // Handle any errors during render call
-                diagnosticsArea.innerHTML = `
-                    <h6 class="text-danger"><span class="material-icons me-1">error</span> Scanner Error</h6>
-                    <p>Failed to start camera: ${renderError?.message || 'Unknown error'}</p>
-                    <div class="alert alert-warning">
-                        <h6>Technical Details:</h6>
-                        <pre class="small">${renderError?.stack || JSON.stringify(renderError, null, 2) || 'No details available'}</pre>
-                    </div>
-                    <p>
-                        <button class="btn btn-primary mt-2" onclick="window.location.reload()">Reload Page</button>
-                    </p>
-                `;
+            // Simple render with our callback functions
+            html5QrcodeScanner.render(onScanSuccess, onScanError);
+            
+            // Attempt with explicit camera permissions first if needed
+            if (!html5QrcodeScanner.getState()) {
+                // If scanner isn't active, try with explicit camera permissions
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(stream => {
+                        // Successfully got camera access, release it and try to render again
+                        stream.getTracks().forEach(track => track.stop());
+                        
+                        // Try rendering again now that we have permissions
+                        html5QrcodeScanner.render(onScanSuccess, onScanError);
+                    })
+                    .catch(err => {
+                        console.error("Camera permission denied:", err);
+                    });
             }
         } catch (err) {
-            diagnosticsArea.innerHTML = `
-                <h6 class="text-danger"><span class="material-icons me-1">error</span> Scanner Error</h6>
-                <p>Failed to create scanner: ${err?.message || 'Unknown error'}</p>
-                <div class="alert alert-warning mt-2">
-                    <h6>Technical Details:</h6>
-                    <pre class="small">${err?.stack || JSON.stringify(err, null, 2) || 'No details available'}</pre>
-                </div>
-                <p>
-                    <button class="btn btn-primary mt-2" onclick="window.location.reload()">Reload Page</button>
-                </p>
-            `;
+            console.error("Failed to initialize scanner:", err);
         }
     }
-
-    // Add event listeners for mode toggle
-    document.getElementById('standardMode').addEventListener('change', function() {
-        if (this.checked) {
-            resetScannerWithConfig(false);
-        }
-    });
     
-    document.getElementById('driverMode').addEventListener('change', function() {
-        if (this.checked) {
-            resetScannerWithConfig(true);
-        }
-    });
+    // Initialize the scanner when the document is ready
+    resetScannerWithConfig();
     
-    // Initialize with default mode
-    const initialDriverMode = document.getElementById('driverMode').checked;
-    resetScannerWithConfig(initialDriverMode);
+    // Add custom CSS to the HTML5 QR code scanner UI elements after initialization
+    // This needs to be done with a slight delay to ensure the elements are in the DOM
+    setTimeout(() => {
+        // Style the scanner elements
+        const scannerTitle = document.querySelector("#reader__header_message");
+        if (scannerTitle) {
+            scannerTitle.style.fontSize = "1rem";
+            scannerTitle.style.fontWeight = "600";
+            scannerTitle.style.padding = "0.75rem 1rem";
+            scannerTitle.style.color = "var(--scanner-dark)";
+        }
+        
+        // Style the camera selector
+        const cameraSelection = document.querySelector("#reader__camera_selection");
+        if (cameraSelection) {
+            cameraSelection.style.padding = "0.5rem";
+            cameraSelection.style.borderRadius = "0.5rem";
+            cameraSelection.style.border = "1px solid rgba(0,0,0,0.1)";
+            cameraSelection.style.boxShadow = "0 2px 8px rgba(0,0,0,0.05)";
+        }
+        
+        // Style buttons
+        const buttons = document.querySelectorAll("#reader__dashboard_section_csr button");
+        buttons.forEach(button => {
+            button.style.borderRadius = "0.5rem";
+            button.style.padding = "0.5rem 1rem";
+            button.style.margin = "0.25rem";
+            button.style.boxShadow = "0 2px 8px rgba(0,0,0,0.05)";
+            button.style.border = "1px solid rgba(0,0,0,0.1)";
+            button.style.transition = "all 0.2s ease";
+        });
+        
+        // Customize scan region border
+        const scanRegion = document.querySelector("#reader__scan_region");
+        if (scanRegion) {
+            scanRegion.style.borderRadius = "0.5rem";
+            scanRegion.style.overflow = "hidden";
+        }
+    }, 500);
 });
 </script>
 {% endblock %} 
