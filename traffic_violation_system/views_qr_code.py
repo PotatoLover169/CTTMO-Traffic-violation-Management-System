@@ -372,13 +372,23 @@ def qr_profile_view(request, enforcer_id):
         all_violations.sort(key=lambda x: x.violation_date, reverse=True)
         
         if all_violations:
-            # Filter to only include pending and adjudicated violations
+            # Log the statuses of all violations for debugging
+            for idx, violation in enumerate(all_violations):
+                violation_status = getattr(violation, 'status', 'None')
+                logger.debug(f"Violation #{idx+1} status: {violation_status}")
+            
+            # Filter to only include pending and adjudicated violations - using case-insensitive comparison
             filtered_violations = [
                 violation for violation in all_violations 
-                if getattr(violation, 'status', '').lower() in ['pending', 'adjudicated']
+                if getattr(violation, 'status', '').lower() in ['pending', 'adjudicated'] or
+                getattr(violation, 'status', '') in ['PENDING', 'ADJUDICATED']
             ]
             
-            logger.info(f"Combined total: {len(all_violations)} violations, filtered to {len(filtered_violations)} pending/adjudicated")
+            # Log warning if no violations match the filter criteria
+            if not filtered_violations and all_violations:
+                logger.warning(f"No violations matched the pending/adjudicated filter out of {len(all_violations)} total violations")
+                # Fallback: include all violations if none match the filter
+                filtered_violations = all_violations
             
             # Count user and driver violations separately for display
             user_violations_count = sum(1 for v in filtered_violations if not hasattr(v, 'source') or getattr(v, 'source', '') != 'driver')
@@ -417,7 +427,6 @@ def qr_profile_view(request, enforcer_id):
             data['has_driver_violations'] = False
             data['user_violations_count'] = 0
             data['driver_violations_count'] = 0
-            logger.info(f"No violations found for {user.get_full_name()}")
             
     except Exception as e:
         logger.error(f"Error getting violation information: {str(e)}")
@@ -844,13 +853,23 @@ def qr_user_data(request, enforcer_id):
             all_violations.sort(key=lambda x: x.violation_date, reverse=True)
             
             if all_violations:
-                # Filter to only include pending and adjudicated violations
+                # Log the statuses of all violations for debugging
+                for idx, violation in enumerate(all_violations):
+                    violation_status = getattr(violation, 'status', 'None')
+                    logger.debug(f"Violation #{idx+1} status: {violation_status}")
+                
+                # Filter to only include pending and adjudicated violations - using case-insensitive comparison
                 filtered_violations = [
                     violation for violation in all_violations 
-                    if getattr(violation, 'status', '').lower() in ['pending', 'adjudicated']
+                    if getattr(violation, 'status', '').lower() in ['pending', 'adjudicated'] or
+                    getattr(violation, 'status', '') in ['PENDING', 'ADJUDICATED']
                 ]
                 
-                logger.info(f"Combined total: {len(all_violations)} violations, filtered to {len(filtered_violations)} pending/adjudicated")
+                # Log warning if no violations match the filter criteria
+                if not filtered_violations and all_violations:
+                    logger.warning(f"No violations matched the pending/adjudicated filter out of {len(all_violations)} total violations")
+                    # Fallback: include all violations if none match the filter
+                    filtered_violations = all_violations
                 
                 # Count user and driver violations separately for display
                 user_violations_count = sum(1 for v in filtered_violations if not hasattr(v, 'source') or getattr(v, 'source', '') != 'driver')
