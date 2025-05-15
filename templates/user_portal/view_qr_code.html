@@ -220,7 +220,12 @@
                         <h2 class="card-title mb-0">CTTMO Vehicle QR Code</h2>
                     </div>
                     
-                    {% if profile.qr_code %}
+                    <!-- Use base64 QR code if available, otherwise try the file URL -->
+                    {% if qr_code_base64 %}
+                    <div class="qr-code-container">
+                        <img src="data:image/png;base64,{{ qr_code_base64 }}" alt="Vehicle QR Code" class="qr-code-img">
+                    </div>
+                    {% elif profile.qr_code %}
                     <div class="qr-code-container">
                         <img src="{{ profile.qr_code.url }}" alt="Vehicle QR Code" class="qr-code-img">
                     </div>
@@ -297,7 +302,12 @@
                     
                     <p class="text-muted mb-3">Download a digital copy of your QR code to keep on your mobile device.</p>
                     
-                    {% if profile.qr_code %}
+                    {% if qr_code_base64 %}
+                    <a href="data:image/png;base64,{{ qr_code_base64 }}" download="vehicle_qr_code.png" class="btn btn-outline-primary d-flex align-items-center justify-content-center">
+                        <span class="material-icons me-2">save_alt</span>
+                        Download QR Code
+                    </a>
+                    {% elif profile.qr_code %}
                     <a href="{{ profile.qr_code.url }}" download class="btn btn-outline-primary d-flex align-items-center justify-content-center">
                         <span class="material-icons me-2">save_alt</span>
                         Download QR Code
