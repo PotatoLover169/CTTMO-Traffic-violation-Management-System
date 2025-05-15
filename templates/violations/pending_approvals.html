@@ -1257,6 +1257,15 @@
 </style>
 
 <script>
+// Helper function to create full URLs for API requests
+function getFullUrl(path) {
+    // Get the base URL from the current location
+    const baseUrl = window.location.origin;
+    // Ensure the path starts with a slash
+    const formattedPath = path.startsWith('/') ? path : `/${path}`;
+    return `${baseUrl}${formattedPath}`;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Group batch adjudicated violations
     groupBatchAdjudications();
@@ -1546,7 +1555,7 @@ function showBatchDetails(batchIds) {
     `;
     
     // Get the first violation to get general batch information
-    fetch(`/violation/${batchIds[0]}/payment-info/`)
+    fetch(getFullUrl(`/violation/${batchIds[0]}/payment-info/`))
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Error fetching violation details`);
@@ -1555,13 +1564,13 @@ function showBatchDetails(batchIds) {
         })
         .then(firstViolation => {
             // Now get the adjudication details for the first violation to get adjudicator info
-            return fetch(`/violation/${batchIds[0]}/adjudication-details/`)
+            return fetch(getFullUrl(`/violation/${batchIds[0]}/adjudication-details/`))
                 .then(response => {
                     if (!response.ok) {
                         // If we can't get adjudication details, continue with just the payment info
                         console.warn("Could not fetch adjudication details, will use limited info");
                         return Promise.all([Promise.resolve(firstViolation), Promise.all(fetchPromises = batchIds.map(id => 
-                            fetch(`/violation/${id}/payment-info/`)
+                            fetch(getFullUrl(`/violation/${id}/payment-info/`))
                                 .then(response => {
                                     if (!response.ok) {
                                         throw new Error(`Error fetching violation #${id}`);
@@ -1581,7 +1590,7 @@ function showBatchDetails(batchIds) {
                         
             // Now fetch all violations in the batch
             const fetchPromises = batchIds.map(id => 
-                fetch(`/violation/${id}/payment-info/`)
+                fetch(getFullUrl(`/violation/${id}/payment-info/`))
                     .then(response => {
                         if (!response.ok) {
                             throw new Error(`Error fetching violation #${id}`);
@@ -1602,7 +1611,7 @@ function showBatchDetails(batchIds) {
                     // Continue with just the payment info
                     // Now fetch all violations in the batch
                     const fetchPromises = batchIds.map(id => 
-                        fetch(`/violation/${id}/payment-info/`)
+                        fetch(getFullUrl(`/violation/${id}/payment-info/`))
                             .then(response => {
                                 if (!response.ok) {
                                     throw new Error(`Error fetching violation #${id}`);
@@ -1831,7 +1840,7 @@ function approveBatch(batchIds) {
                 });
                 
                 // Process this violation
-                fetch(`/violation/${violationId}/approve-adjudication/`, {
+                fetch(getFullUrl(`/violation/${violationId}/approve-adjudication/`), {
                     method: 'POST',
                     headers: {
                         'X-CSRFToken': getCookie('csrftoken'),
@@ -1968,7 +1977,7 @@ function rejectBatch(batchIds) {
                 });
                 
                 // Process this violation
-                fetch(`/violation/${violationId}/reject-adjudication/`, {
+                fetch(getFullUrl(`/violation/${violationId}/reject-adjudication/`), {
                     method: 'POST',
                     headers: {
                         'X-CSRFToken': getCookie('csrftoken'),
@@ -2033,7 +2042,7 @@ function showViolationDetail(violationId) {
     MicroModal.show('modal-violation-detail');
     
     // Fetch violation details
-    fetch(`/violation/${violationId}/modal/`)
+    fetch(getFullUrl(`/violation/${violationId}/modal/`))
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Server returned ${response.status} ${response.statusText}`);
@@ -2056,34 +2065,36 @@ function showViolationDetail(violationId) {
 }
 
 function approveAdjudication(violationId) {
-    if (!violationId) return;
-    
-    // Confirmation dialog with SweetAlert
+    // Show confirmation dialog
     Swal.fire({
-        title: 'Approve Adjudication',
-        text: 'Are you sure you want to approve this adjudication?',
+        title: 'Approve Adjudication?',
+        text: "This will approve the adjudication decision and update the violation. The violator will be notified.",
         icon: 'question',
         showCancelButton: true,
-        confirmButtonColor: '#0bb783',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Yes, Approve',
-        cancelButtonText: 'Cancel'
+        confirmButtonColor: '#2563eb',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Yes, approve it!'
     }).then((result) => {
         if (result.isConfirmed) {
-            // Show loading state
+            // Show loading indicator
             Swal.fire({
-                title: 'Processing...',
-                html: `<div class="spinner-border text-primary" role="status"></div>`,
-                showConfirmButton: false,
-                allowOutsideClick: false
+                title: 'Approving...',
+                text: 'Please wait while we process your request.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
             });
             
+            // Get CSRF token
+            const csrftoken = getCookie('csrftoken');
+            
             // Send approval request
-            fetch(`/violation/${violationId}/approve-adjudication/`, {
+            fetch(getFullUrl(`/violation/${violationId}/approve-adjudication/`), {
                 method: 'POST',
                 headers: {
-                    'X-CSRFToken': getCookie('csrftoken'),
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
                 }
             })
             .then(response => {
@@ -2093,28 +2104,23 @@ function approveAdjudication(violationId) {
                 return response.json();
             })
             .then(data => {
+                // Check if operation was successful
                 if (data.success) {
-                    // Success message
                     Swal.fire({
                         icon: 'success',
                         title: 'Approved!',
-                        text: 'The adjudication has been approved successfully.',
+                        text: data.message || 'Adjudication approved successfully.',
                         confirmButtonColor: '#2563eb'
                     }).then(() => {
-                        location.reload();
+                        // Reload the page to refresh the list
+                        window.location.reload();
                     });
                 } else {
-                    // Error from server
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: data.message || 'Something went wrong while approving the adjudication.',
-                        confirmButtonColor: '#2563eb'
-                    });
+                    throw new Error(data.message || 'Unknown error occurred');
                 }
             })
             .catch(error => {
-                // Network or other error
+                // Error handling
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
@@ -2127,26 +2133,21 @@ function approveAdjudication(violationId) {
 }
 
 function rejectAdjudication(violationId) {
-    if (!violationId) return;
-    
-    // Use SweetAlert input field for rejection reason
+    // Show rejection form with reason input
     Swal.fire({
         title: 'Reject Adjudication',
         html: `
-            <div class="text-start mb-3">
-                <label for="swal-rejection-reason" class="form-label">Reason for Rejection</label>
-                <textarea id="swal-rejection-reason" class="form-control" rows="3" placeholder="Please provide a detailed reason for rejecting this adjudication..."></textarea>
-            </div>
+            <p class="mb-3">Please provide a reason for rejecting this adjudication:</p>
+            <textarea id="rejection-reason" class="swal2-textarea" placeholder="Enter rejection reason"></textarea>
         `,
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#f64e60',
-        cancelButtonColor: '#6c757d',
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#6b7280',
         confirmButtonText: 'Reject',
-        cancelButtonText: 'Cancel',
         preConfirm: () => {
-            const reason = document.getElementById('swal-rejection-reason').value;
-            if (!reason || !reason.trim()) {
+            const reason = document.getElementById('rejection-reason').value;
+            if (!reason || reason.trim() === '') {
                 Swal.showValidationMessage('Please provide a reason for rejection');
                 return false;
             }
@@ -2156,22 +2157,29 @@ function rejectAdjudication(violationId) {
         if (result.isConfirmed) {
             const reason = result.value;
             
-            // Show loading state
+            // Show loading indicator
             Swal.fire({
-                title: 'Processing...',
-                html: `<div class="spinner-border text-primary" role="status"></div>`,
-                showConfirmButton: false,
-                allowOutsideClick: false
+                title: 'Rejecting...',
+                text: 'Please wait while we process your request.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
             });
             
-            // Send rejection request
-            fetch(`/violation/${violationId}/reject-adjudication/`, {
+            // Get CSRF token
+            const csrftoken = getCookie('csrftoken');
+            
+            // Send rejection request with reason
+            fetch(getFullUrl(`/violation/${violationId}/reject-adjudication/`), {
                 method: 'POST',
                 headers: {
-                    'X-CSRFToken': getCookie('csrftoken'),
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
                 },
-                body: JSON.stringify({ reason: reason })
+                body: JSON.stringify({
+                    reason: reason
+                })
             })
             .then(response => {
                 if (!response.ok) {
@@ -2180,33 +2188,28 @@ function rejectAdjudication(violationId) {
                 return response.json();
             })
             .then(data => {
+                // Check if operation was successful
                 if (data.success) {
-                    // Success message
                     Swal.fire({
                         icon: 'success',
                         title: 'Rejected',
-                        text: 'The adjudication has been rejected successfully.',
-                        confirmButtonColor: '#2563eb'
+                        text: data.message || 'Adjudication rejected successfully.',
+                        confirmButtonColor: '#dc2626'
                     }).then(() => {
-                        location.reload();
+                        // Reload the page to refresh the list
+                        window.location.reload();
                     });
                 } else {
-                    // Error from server
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: data.message || 'Something went wrong while rejecting the adjudication.',
-                        confirmButtonColor: '#2563eb'
-                    });
+                    throw new Error(data.message || 'Unknown error occurred');
                 }
             })
             .catch(error => {
-                // Network or other error
+                // Error handling
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
                     text: `Error rejecting adjudication: ${error.message}`,
-                    confirmButtonColor: '#2563eb'
+                    confirmButtonColor: '#dc2626'
                 });
             });
         }
@@ -2216,14 +2219,14 @@ function rejectAdjudication(violationId) {
 function showAdjudicatorNotes(violationId) {
     try {
         // Keep the original modal content loading state for backward compatibility
-    const modalContent = document.getElementById('modal-adjudicator-notes-content');
+        const modalContent = document.getElementById('modal-adjudicator-notes-content');
         if (modalContent) {
-    modalContent.innerHTML = `
-        <div class="d-flex justify-content-center align-items-center p-5">
-            <div class="spinner-border text-primary" role="status"></div>
-            <span class="ms-3">Loading notes...</span>
-        </div>
-    `;
+            modalContent.innerHTML = `
+                <div class="d-flex justify-content-center align-items-center p-5">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <span class="ms-3">Loading notes...</span>
+                </div>
+            `;
         }
         
         // Create a helper function to safely update element content
@@ -2281,21 +2284,32 @@ function showAdjudicatorNotes(violationId) {
         adjudicationModal.show();
         
         // Try to fetch from the new detailed endpoint first, fall back to the old one if it fails
-        fetch(`/violation/${violationId}/adjudication-details/`)
+        fetch(getFullUrl(`/violation/${violationId}/adjudication-details/`))
             .then(response => {
                 if (!response.ok) {
                     // If new endpoint fails, try the old one
-                    return fetch(`/violation/${violationId}/adjudicator-notes/`);
+                    return fetch(getFullUrl(`/violation/${violationId}/adjudicator-notes/`));
                 }
                 return response;
             })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Server returned ${response.status} ${response.statusText}`);
-            }
-            return response.json();
-        })
-        .then(data => {
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Server returned ${response.status} ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Adjudication details:', data);
+                
+                // Update the enhanced modal with the fetched data
+                safelyUpdateElement('adjudicatorName', el => {
+                    el.textContent = data.adjudicator_name || 'Unknown';
+                });
+                
+                safelyUpdateElement('adjudicationDate', el => {
+                    el.textContent = data.adjudication_date || 'Unknown date';
+                });
+                
                 // Common calculations for amounts used throughout the function
                 // Calculate amounts once and make them available for all parts of the UI
                 let originalAmount = 0;
@@ -2315,19 +2329,12 @@ function showAdjudicatorNotes(violationId) {
                     }
                 }
                 
-                // Update adjudicator information
-                safelyUpdateElement('adjudicatorName', el => el.textContent = data.adjudicator_name || 'Unknown');
-                safelyUpdateElement('adjudicationDate', el => el.textContent = data.adjudication_date || 'Unknown date');
+                // Update amount display
+                safelyUpdateElement('originalAmount', el => el.textContent = originalAmount.toFixed(2));
+                safelyUpdateElement('currentAmount', el => el.textContent = currentAmount.toFixed(2));
                 
                 // Handle amount changes
                 if (data.original_fine_amount && data.current_fine_amount) {
-                    const originalAmountDisplay = originalAmount.toFixed(2);
-                    const currentAmountDisplay = currentAmount.toFixed(2);
-                    
-                    safelyUpdateElement('originalAmount', el => el.textContent = originalAmountDisplay);
-                    safelyUpdateElement('currentAmount', el => el.textContent = currentAmountDisplay);
-                    
-                    // Calculate the difference
                     const isReduction = originalAmount > currentAmount;
                     const changeAmount = Math.abs(originalAmount - currentAmount).toFixed(2);
                     
