@@ -18964,10 +18964,16 @@ def admin_report_list(request):
 @user_passes_test(lambda u: u.is_staff)
 def admin_report_view(request, report_id):
     """View a single report in a modal or detailed page."""
+    from traffic_violation_system.user_portal.models import ReportAttachment
+    
     report = get_object_or_404(UserReport, id=report_id)
+    
+    # Get report attachments
+    attachments = ReportAttachment.objects.filter(report=report).order_by('uploaded_at')
     
     context = {
         'report': report,
+        'attachments': attachments,
     }
     
     # If this is an AJAX request, return the modal content

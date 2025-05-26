@@ -1,0 +1,50 @@
+/* 
+ * Sidebar Fix CSS
+ * Disables Bootstrap transitions for sidebar elements to prevent flickering/auto-opening
+ */
+
+/* 
+ * Override Bootstrap collapse transitions for sidebar
+ * This helps prevent the auto-expand issue by making collapse/expand immediate
+ */
+.sidebar-content .collapse {
+    transition: none !important;
+}
+
+.sidebar-content .collapsing {
+    transition: none !important;
+    height: auto !important;
+    overflow: visible !important;
+    display: none !important;
+}
+
+/* 
+ * Force collapsed items to be actually collapsed
+ * This overrides any Bootstrap JS that might try to re-show the element
+ */
+.sidebar-content .collapse:not(.show) {
+    display: none !important;
+}
+
+/* 
+ * Force expanded items to be actually visible
+ * This ensures items that should be visible stay visible
+ */
+.sidebar-content .collapse.show {
+    display: block !important;
+}
+
+/* 
+ * Make sure submenu icon rotates properly and immediately
+ */
+.submenu-toggle .submenu-icon {
+    transition: transform 0.2s ease-in-out !important;
+}
+
+.submenu-toggle[aria-expanded="true"] .submenu-icon {
+    transform: rotate(180deg) !important;
+}
+
+.submenu-toggle[aria-expanded="false"] .submenu-icon {
+    transform: rotate(0deg) !important;
+} 

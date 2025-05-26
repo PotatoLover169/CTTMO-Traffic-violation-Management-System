@@ -36,6 +36,7 @@ from . import updated_dashboard
 from educational_analytics import educational_analytics, educational_analytics_by_range
 from django.contrib.auth.tokens import default_token_generator
 from .views_password_reset import get_email_by_username, BrevoPasswordResetForm
+from . import landing_views
 
 # DEBUG VIEW for troubleshooting - this will be removed later
 @csrf_exempt
@@ -70,6 +71,7 @@ urlpatterns = [
     path('services/', views.services, name='services'),
     path('contact/', views.contact, name='contact'),
     path('track/', views.track_violation, name='track_violation'),
+    path('public-report/', landing_views.public_report, name='public_report'),
     
     # User Authentication
     path('accounts/login/', views.login_view, name='login'),

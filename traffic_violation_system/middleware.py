@@ -37,6 +37,7 @@ class AuthenticationMiddleware:
             reverse('contact'),
             reverse('register'),
             reverse('track_violation'),
+            reverse('public_report'),
             reverse('verification_pending'),
             reverse('verification_required'),
             reverse('password_reset'),
@@ -147,6 +148,7 @@ class EmailVerificationMiddleware:
             r'^/accounts/logout/?$',
             r'^/register/?$',
             r'^/accounts/register/?$',
+            r'^/public-report/?$',  # Add public report URL pattern
             r'^/verification/',
             r'^/accounts/password_reset/?$',
             r'^/accounts/password_reset/done/?$',

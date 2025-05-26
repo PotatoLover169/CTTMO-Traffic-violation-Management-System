@@ -161,9 +161,34 @@
                 
                 <div class="row g-2 mb-3">
                     <div class="col-6">
-                        <div class="d-flex flex-column">
-                            <span class="small text-muted">Submitted by</span>
-                            <span class="mobile-info-text">{{ report.user.get_full_name }}</span>
+                        <div class="d-flex align-items-center">
+                            <div class="me-2 flex-shrink-0">
+                                {% if report.is_anonymous %}
+                                <div class="user-avatar-initial user-avatar-sm" style="background-color: #718096;">
+                                    <span class="material-icons" style="font-size: 14px;">person_off</span>
+                                </div>
+                                {% elif report.user.profile.profile_image %}
+                                <img src="{{ report.user.profile.profile_image.url }}" alt="{{ report.user.get_full_name }}" class="user-avatar user-avatar-sm">
+                                {% else %}
+                                <div class="user-avatar-initial user-avatar-sm">
+                                    {{ report.user.get_full_name|make_list|first|upper }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="d-flex flex-column">
+                                <span class="small text-muted">Submitted by</span>
+                                <span class="mobile-info-text text-truncate">
+                                    {% if report.is_anonymous %}
+                                        {% if report.reporter_name %}
+                                            {{ report.reporter_name }} <small>(Anonymous)</small>
+                                        {% else %}
+                                            Anonymous
+                                        {% endif %}
+                                    {% else %}
+                                        {{ report.user.get_full_name }}
+                                    {% endif %}
+                                </span>
+                            </div>
                         </div>
                     </div>
                     <div class="col-6">
@@ -701,6 +726,73 @@ td .action-buttons {
         width: 40px;
         height: 40px;
     }
+}
+
+/* User Avatar Styling */
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #e9ecef;
+    display: inline-block;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.user-avatar-initial {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #3563E9;
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 16px;
+    text-transform: uppercase;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.user-avatar-sm {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+}
+
+.user-avatar-lg {
+    width: 48px;
+    height: 48px;
+    font-size: 18px;
+}
+
+/* For user cells in tables */
+#reportsTable td:nth-child(2) {
+    max-width: 250px;
+    white-space: nowrap;
+}
+
+#reportsTable td:nth-child(2) > div {
+    max-width: 100%;
+}
+
+/* For mobile card avatars */
+.mobile-card .user-avatar,
+.mobile-card .user-avatar-initial {
+    width: 32px;
+    height: 32px;
+}
+
+.mobile-card .user-avatar-initial {
+    font-size: 14px;
+}
+
+.mobile-card .mobile-info-text {
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 </style>
 

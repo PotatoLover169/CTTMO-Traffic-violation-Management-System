@@ -234,14 +234,7 @@
     }
     
     .document-number {
-        position: absolute;
-        top: 1.5cm;
-        right: 1.5cm;
-        font-size: 14px;
-        font-weight: bold;
-        border: 1px solid #000;
-        padding: 5px 10px;
-        background-color: #f2f2f2;
+        display: none;
     }
     
     .paid-status {
@@ -294,7 +287,7 @@
 
 {% block content %}
 <div class="receipt-container">
-    <div class="watermark">OFFICIAL RECEIPT</div>
+    <div class="watermark">TEMPORARY RECEIPT</div>
     
     <div class="document-number">No. {{ receipt_number }}</div>
     
@@ -316,7 +309,7 @@
     </div>
     
     <div class="receipt-title">
-        <h3>Official Receipt - Batch Payment</h3>
+        <h3>Temporary Receipt - Batch Payment</h3>
     </div>
     
     <div class="content">

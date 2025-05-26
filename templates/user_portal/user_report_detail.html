@@ -1,0 +1,330 @@
+{% extends 'user_portal/base_user.html' %}
+{% load static %}
+
+{% block title %}Report Details{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Back Button -->
+    <a href="{% url 'user_portal:user_reports' %}" class="btn btn-link text-decoration-none mb-3 ps-0">
+        <span class="material-icons align-middle me-1">arrow_back</span>
+        Back to Reports
+    </a>
+    
+    <!-- Report Header Card -->
+    <div class="card shadow-sm border-0 rounded-xl mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex flex-column flex-md-row justify-content-between mb-3">
+                <div>
+                    <h4 class="mb-2">{{ report.subject }}</h4>
+                    <div class="d-flex flex-wrap gap-2 mb-2">
+                        <span class="badge rounded-pill {% if report.type == 'COMPLAINT' %}bg-danger
+                                {% elif report.type == 'SUGGESTION' %}bg-info
+                                {% elif report.type == 'INQUIRY' %}bg-primary
+                                {% elif report.type == 'DISPUTE' %}bg-warning
+                                {% endif %} d-inline-flex align-items-center">
+                            <span class="material-icons me-1" style="font-size: 14px;">
+                                {% if report.type == 'COMPLAINT' %}report_problem
+                                {% elif report.type == 'SUGGESTION' %}lightbulb
+                                {% elif report.type == 'INQUIRY' %}help_outline
+                                {% elif report.type == 'DISPUTE' %}gavel
+                                {% endif %}
+                            </span>
+                            {{ report.get_type_display }}
+                        </span>
+                        <span class="badge 
+                            {% if report.status == 'PENDING' %}bg-warning
+                            {% elif report.status == 'IN_PROGRESS' %}bg-info
+                            {% elif report.status == 'RESOLVED' %}bg-success
+                            {% else %}bg-secondary
+                            {% endif %}">
+                            {{ report.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+                <div class="mt-2 mt-md-0">
+                    <span class="text-muted small">Submitted on</span>
+                    <p class="mb-0 fw-medium">{{ report.created_at|date:"F j, Y, g:i a" }}</p>
+                </div>
+            </div>
+            
+            <!-- Details Grid -->
+            <div class="row g-3">
+                {% if report.incident_date %}
+                <div class="col-md-4">
+                    <div class="detail-box">
+                        <span class="detail-label">Incident Date</span>
+                        <p class="detail-value">
+                            <span class="material-icons text-muted me-1">event</span>
+                            {{ report.incident_date|date:"F j, Y, g:i a" }}
+                        </p>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if report.location %}
+                <div class="col-md-4">
+                    <div class="detail-box">
+                        <span class="detail-label">Location</span>
+                        <p class="detail-value">
+                            <span class="material-icons text-muted me-1">location_on</span>
+                            {{ report.location }}
+                        </p>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if report.phone_number %}
+                <div class="col-md-4">
+                    <div class="detail-box">
+                        <span class="detail-label">Contact Number</span>
+                        <p class="detail-value">
+                            <span class="material-icons text-muted me-1">phone</span>
+                            {{ report.phone_number }}
+                        </p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Description Card -->
+    <div class="card shadow-sm border-0 rounded-xl mb-4">
+        <div class="card-header bg-transparent py-3">
+            <div class="d-flex align-items-center">
+                <span class="material-icons text-primary me-2">description</span>
+                <h5 class="mb-0 fw-bold">Report Description</h5>
+            </div>
+        </div>
+        <div class="card-body p-4">
+            <div class="description-box">
+                {{ report.description|linebreaks }}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Attachments Card (if any) -->
+    {% if report.attachment or attachments %}
+    <div class="card shadow-sm border-0 rounded-xl mb-4">
+        <div class="card-header bg-transparent py-3">
+            <div class="d-flex align-items-center">
+                <span class="material-icons text-primary me-2">attach_file</span>
+                <h5 class="mb-0 fw-bold">Attachments</h5>
+            </div>
+        </div>
+        <div class="card-body p-4">
+            <div class="attachments-grid">
+                {% if report.attachment %}
+                <!-- Legacy single attachment -->
+                <div class="attachment-item mb-3 p-2 border rounded">
+                    <div class="d-flex align-items-center">
+                        <span class="material-icons me-2 text-primary">insert_drive_file</span>
+                        <div class="flex-grow-1 text-truncate">
+                            <span class="fw-medium">{{ report.attachment.name|slice:"-30:" }}</span>
+                            <small class="text-muted d-block">Original Attachment</small>
+                        </div>
+                        <a href="{{ report.attachment.url }}" class="btn btn-sm btn-primary ms-2" download>
+                            <span class="material-icons" style="font-size: 16px;">download</span>
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Multiple attachments grid -->
+                {% if attachments %}
+                <div class="row g-3 mt-2">
+                    {% for attachment in attachments %}
+                    <div class="col-md-4 col-lg-3 col-6">
+                        <div class="attachment-card">
+                            <div class="attachment-preview">
+                                {% if attachment.file.url|lower|slice:"-4:" in ".jpg,.jpeg,.png,.gif,.webp" %}
+                                    <!-- Image file preview -->
+                                    <a href="{{ attachment.file.url }}" target="_blank" class="d-block">
+                                        <img src="{{ attachment.file.url }}" alt="Attachment preview" class="attachment-img">
+                                    </a>
+                                {% elif attachment.file.url|lower|slice:"-4:" == ".pdf" %}
+                                    <!-- PDF icon -->
+                                    <span class="material-icons attachment-icon" style="color: #e53935;">picture_as_pdf</span>
+                                {% elif attachment.file.url|lower|slice:"-5:" in ".docx,.xlsx" or attachment.file.url|lower|slice:"-4:" in ".doc,.xls" %}
+                                    <!-- Document icon -->
+                                    <span class="material-icons attachment-icon" style="color: #1565c0;">description</span>
+                                {% else %}
+                                    <!-- Generic file icon -->
+                                    <span class="material-icons attachment-icon" style="color: #607d8b;">insert_drive_file</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="attachment-info">
+                                <p class="attachment-name" title="{{ attachment.file.name|slice:"-30:" }}">
+                                    {{ attachment.file.name|slice:"-30:" }}
+                                </p>
+                                <a href="{{ attachment.file.url }}" class="attachment-download" download>
+                                    <span class="material-icons">download</span> Download
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Resolution Card (if resolved) -->
+    {% if report.status == 'RESOLVED' and report.resolution_notes %}
+    <div class="card shadow-sm border-0 rounded-xl mb-4">
+        <div class="card-header bg-transparent py-3">
+            <div class="d-flex align-items-center">
+                <span class="material-icons text-success me-2">check_circle</span>
+                <h5 class="mb-0 fw-bold">Resolution</h5>
+            </div>
+        </div>
+        <div class="card-body p-4">
+            <div class="mb-3">
+                <span class="detail-label">Resolved On</span>
+                <p class="detail-value">
+                    <span class="material-icons text-muted me-1">event_available</span>
+                    {{ report.resolved_at|date:"F j, Y, g:i a" }}
+                </p>
+            </div>
+            
+            <div class="description-box">
+                {{ report.resolution_notes|linebreaks }}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Action Buttons -->
+    <div class="d-flex gap-2 mt-4 mb-4">
+        <a href="{% url 'user_portal:user_reports' %}" class="btn btn-secondary">
+            <span class="material-icons me-1">arrow_back</span>
+            Back to Reports
+        </a>
+        <a href="{% url 'user_portal:file_report' %}" class="btn btn-primary">
+            <span class="material-icons me-1">add</span>
+            Submit Another Report
+        </a>
+    </div>
+</div>
+
+<style>
+    .rounded-xl {
+        border-radius: 0.75rem;
+    }
+    
+    .detail-label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: block;
+        margin-bottom: 0.25rem;
+    }
+    
+    .detail-value {
+        font-size: 0.95rem;
+        margin-bottom: 0;
+        display: flex;
+        align-items: center;
+    }
+    
+    .detail-value .material-icons {
+        font-size: 1rem;
+    }
+    
+    .description-box {
+        background-color: #f8f9fa;
+        border-radius: 0.5rem;
+        padding: 1.25rem;
+        white-space: pre-line;
+    }
+    
+    /* Attachment styles */
+    .attachment-card {
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 0.75rem;
+        overflow: hidden;
+        transition: all 0.25s ease;
+        height: 100%;
+    }
+    
+    .attachment-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        border-color: rgba(0, 0, 0, 0);
+    }
+    
+    .attachment-preview {
+        background-color: #f8fafc;
+        height: 140px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .attachment-img {
+        max-height: 100%;
+        max-width: 100%;
+        object-fit: contain;
+    }
+    
+    .attachment-icon {
+        font-size: 48px;
+        opacity: 0.9;
+    }
+    
+    .attachment-info {
+        padding: 0.75rem;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    
+    .attachment-name {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #2d3748;
+        margin-bottom: 0.75rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        flex-grow: 1;
+    }
+    
+    .attachment-download {
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        background-color: #4299e1;
+        border: none;
+        border-radius: 0.375rem;
+        padding: 0.5rem 0.75rem;
+        width: 100%;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    
+    .attachment-download:hover {
+        background-color: #2b6cb0;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        transform: translateY(-1px);
+        color: #fff;
+        text-decoration: none;
+    }
+    
+    .attachment-download .material-icons {
+        font-size: 16px;
+        margin-right: 0.25rem;
+    }
+</style>
+{% endblock %} 

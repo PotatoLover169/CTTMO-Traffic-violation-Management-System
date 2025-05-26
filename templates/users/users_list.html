@@ -781,8 +781,8 @@
     .info-card {
         background-color: #f9fafb;
         border-radius: 10px;
-        padding: 12px;
-        margin-bottom: 10px;
+        padding: 12px 16px;
+        margin-bottom: 12px;
         box-shadow: 0 1px 3px rgba(0,0,0,0.03);
         transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
@@ -793,13 +793,13 @@
     }
 
     .info-card-title {
-        font-size: 0.8rem;
+        font-size: 0.85rem;
         font-weight: 600;
         color: #4b5563;
         margin-bottom: 10px;
         display: flex;
         align-items: center;
-        padding-bottom: 6px;
+        padding-bottom: 8px;
         border-bottom: 1px solid rgba(0,0,0,0.05);
     }
 
@@ -812,8 +812,8 @@
     .info-row {
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        margin-bottom: 6px;
+        align-items: flex-start;
+        margin-bottom: 8px;
         padding: 3px 0;
     }
 
@@ -825,13 +825,19 @@
         font-size: 0.78rem;
         color: #6b7280;
         font-weight: 500;
+        flex-shrink: 0;
+        width: 30%;
     }
 
     .info-value {
-        font-size: 0.78rem;
-        font-weight: 600;
+        font-size: 0.8rem;
+        font-weight: 500;
         color: #111827;
         text-align: right;
+        word-break: break-word;
+        width: 70%;
+        display: flex;
+        justify-content: flex-end;
     }
 
     /* Avatar Placeholder - Enhanced with gradient and better text centering */
@@ -875,6 +881,8 @@
     <script>
     // Function to show user details in modal with enhanced loading state
     function showUserDetail(userId) {
+        console.log(`Loading user details for ID: ${userId}`);
+        
         // Show skeleton loader and hide content
         const skeletonLoader = document.getElementById('userDetailSkeletonLoader');
         const contentContainer = document.getElementById('userDetailContent');
@@ -886,12 +894,17 @@
         
         fetch(`/users/${userId}/modal/`)
             .then(response => {
+                console.log(`Server response status: ${response.status}`);
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
                 return response.text();
             })
             .then(html => {
+                // Debug: Log the raw HTML response to understand its structure
+                console.log('Server response received, length:', html.length);
+                console.log('Sample of response:', html.substring(0, 200) + '...');
+                
                 // Hide skeleton and show content
                 if (skeletonLoader) skeletonLoader.classList.add('d-none');
                 
@@ -914,7 +927,7 @@
                         <div class="p-3 text-center">
                             <span class="material-icons text-danger mb-2" style="font-size: 2rem;">error_outline</span>
                             <h6 class="mb-1">Error Loading Details</h6>
-                            <p class="text-muted mb-0 small">Failed to load user details. Please try again.</p>
+                            <p class="text-muted mb-0 small">Failed to load user details: ${error.message}</p>
                         </div>
                     `;
                 }
@@ -937,6 +950,8 @@
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = html;
         
+        console.log('Parsing contact information from HTML');
+        
         // Initialize contact info object with default values
         const contactInfo = {
             email: '',
@@ -944,74 +959,84 @@
             address: ''
         };
         
-        // Check for email data fields
-        const emailElements = tempDiv.querySelectorAll('[data-field="email"], .contact-email, [name="email"]');
-        emailElements.forEach(el => {
-            if (el && el.value) {
-                contactInfo.email = el.value;
-            } else if (el && el.textContent.trim()) {
-                contactInfo.email = el.textContent.trim();
+        // Better selectors to match the user_detail.html structure
+        
+        // Look for values in the contact information section
+        const infoSections = tempDiv.querySelectorAll('.info-section');
+        console.log('Found info sections:', infoSections.length);
+        
+        infoSections.forEach((section, index) => {
+            // Check if this is the contact information section
+            const sectionTitle = section.querySelector('.section-title');
+            if (sectionTitle) {
+                console.log(`Section ${index} title:`, sectionTitle.textContent);
+                
+                if (sectionTitle.textContent.toLowerCase().includes('contact')) {
+                    console.log('Found contact information section');
+                    
+                    // Get all info items within this section
+                    const infoItems = section.querySelectorAll('.info-item');
+                    console.log('Found info items:', infoItems.length);
+                    
+                    infoItems.forEach(item => {
+                        const label = item.querySelector('label');
+                        const value = item.querySelector('.value');
+                        
+                        if (label && value) {
+                            const labelText = label.textContent.toLowerCase().trim();
+                            const valueText = value.textContent.trim();
+                            
+                            console.log(`Found item: ${labelText} = ${valueText}`);
+                            
+                            if (labelText.includes('email')) {
+                                contactInfo.email = valueText;
+                            } 
+                            else if (labelText.includes('phone')) {
+                                contactInfo.phone = valueText;
+                            } 
+                            else if (labelText.includes('address')) {
+                                contactInfo.address = valueText;
+                            }
+                        }
+                    });
+                }
             }
         });
         
-        // Check for phone data fields
-        const phoneElements = tempDiv.querySelectorAll('[data-field="phone"], .contact-phone, [name="phone"]');
-        phoneElements.forEach(el => {
-            if (el && el.value) {
-                contactInfo.phone = el.value;
-            } else if (el && el.textContent.trim()) {
-                contactInfo.phone = el.textContent.trim();
-            }
-        });
-        
-        // Check for address data fields
-        const addressElements = tempDiv.querySelectorAll('[data-field="address"], .contact-address, [name="address"]');
-        addressElements.forEach(el => {
-            if (el && el.value) {
-                contactInfo.address = el.value;
-            } else if (el && el.textContent.trim()) {
-                contactInfo.address = el.textContent.trim();
-            }
-        });
-        
-        // Look for admin@admin.com in the HTML
-        if (html.includes('admin@admin.com')) {
-            contactInfo.email = 'admin@admin.com';
+        // If specific section not found, try alternative selectors
+        if (!contactInfo.email || !contactInfo.phone || !contactInfo.address) {
+            console.log('Trying alternative selectors for contact info');
+            const rows = tempDiv.querySelectorAll('.row');
+            
+            rows.forEach((row, index) => {
+                console.log(`Checking row ${index}`);
+                const cols = row.querySelectorAll('.col-md-6, .col-12, .col');
+                
+                cols.forEach(col => {
+                    const label = col.querySelector('label');
+                    const value = col.querySelector('.value');
+                    
+                    if (label && value) {
+                        const labelText = label.textContent.toLowerCase().trim();
+                        const valueText = value.textContent.trim();
+                        
+                        console.log(`Found in row: ${labelText} = ${valueText}`);
+                        
+                        if (labelText.includes('email')) {
+                            contactInfo.email = valueText;
+                        } 
+                        else if (labelText.includes('phone')) {
+                            contactInfo.phone = valueText;
+                        } 
+                        else if (labelText.includes('address')) {
+                            contactInfo.address = valueText;
+                        }
+                    }
+                });
+            });
         }
         
-        // Look for specific structure in the HTML based on the screenshot
-        const rows = tempDiv.querySelectorAll('div, tr, .row');
-        rows.forEach(row => {
-            const rowHtml = row.innerHTML.toLowerCase();
-            const rowText = row.textContent.trim();
-            
-            if (rowText.includes('admin@admin.com')) {
-                contactInfo.email = 'admin@admin.com';
-            }
-            
-            // Extract based on row formatting that matches screenshot
-            if (rowHtml.includes('>email<') || rowHtml.includes('>e-mail<')) {
-                const valueElement = row.querySelector('div:nth-child(2), td:nth-child(2), dd, .value, .form-control-plaintext');
-                if (valueElement && valueElement.textContent.trim()) {
-                    contactInfo.email = valueElement.textContent.trim();
-                }
-            }
-            
-            if (rowHtml.includes('>phone<')) {
-                const valueElement = row.querySelector('div:nth-child(2), td:nth-child(2), dd, .value, .form-control-plaintext');
-                if (valueElement && valueElement.textContent.trim()) {
-                    contactInfo.phone = valueElement.textContent.trim();
-                }
-            }
-            
-            if (rowHtml.includes('>address<')) {
-                const valueElement = row.querySelector('div:nth-child(2), td:nth-child(2), dd, .value, .form-control-plaintext');
-                if (valueElement && valueElement.textContent.trim()) {
-                    contactInfo.address = valueElement.textContent.trim();
-                }
-            }
-        });
-        
+        console.log('Final contact info:', contactInfo);
         return contactInfo;
     }
 
@@ -1120,18 +1145,16 @@
                 </div>
                 <div class="info-row">
                     <div class="info-label">Email</div>
-                    <div class="info-value">${contactInfo.email || 'admin@admin.com'}</div>
+                    <div class="info-value">${contactInfo.email || 'Not available'}</div>
                 </div>
-                ${contactInfo.phone ? `
                 <div class="info-row">
                     <div class="info-label">Phone</div>
-                    <div class="info-value">${contactInfo.phone}</div>
-                </div>` : ''}
-                ${contactInfo.address ? `
+                    <div class="info-value">${contactInfo.phone && contactInfo.phone !== 'Not provided' ? contactInfo.phone : 'Not available'}</div>
+                </div>
                 <div class="info-row">
                     <div class="info-label">Address</div>
-                    <div class="info-value">${contactInfo.address}</div>
-                </div>` : ''}
+                    <div class="info-value">${contactInfo.address && contactInfo.address !== 'Not provided' ? contactInfo.address : 'Not available'}</div>
+                </div>
             </div>
         `;
         

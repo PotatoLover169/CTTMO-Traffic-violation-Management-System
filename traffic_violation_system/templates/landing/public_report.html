@@ -1,0 +1,126 @@
+{% extends 'landing/base.html' %}
+{% load static %}
+
+{% block title %}Submit a Public Report{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Submit an Anonymous Report</h3>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="name" class="form-label">Your Name (Optional)</label>
+                                <input type="text" class="form-control" id="name" name="name">
+                                <small class="text-muted">You can submit anonymously if preferred</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="email" class="form-label">Email Address (Optional)</label>
+                                <input type="email" class="form-control" id="email" name="email">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="type" class="form-label">Report Type *</label>
+                                <select class="form-select" id="type" name="type" required>
+                                    <option value="" selected disabled>Select a report type</option>
+                                    {% for type_value, type_label in report_types %}
+                                        <option value="{{ type_value }}">{{ type_label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="phone_number" class="form-label">Phone Number (Optional)</label>
+                                <input type="tel" class="form-control" id="phone_number" name="phone_number">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">Subject *</label>
+                            <input type="text" class="form-control" id="subject" name="subject" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="location" class="form-label">Location *</label>
+                            <input type="text" class="form-control" id="location" name="location" required>
+                            <small class="text-muted">Please provide the address or description of where the incident occurred</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="incident_date" class="form-label">Incident Date *</label>
+                            <input type="date" class="form-control" id="incident_date" name="incident_date" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description *</label>
+                            <textarea class="form-control" id="description" name="description" rows="5" required></textarea>
+                            <small class="text-muted">Please provide as much detail as possible</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="attachments" class="form-label">Attachments (Optional, max 5 files, 5MB each)</label>
+                            <input type="file" class="form-control" id="attachments" name="attachments" multiple>
+                            <small class="text-muted">Upload photos, videos, or documents related to your report</small>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="terms" required>
+                            <label class="form-check-label" for="terms">
+                                I understand that this report will be reviewed by authorities and that providing false information may have legal consequences
+                            </label>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Submit Report</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add client-side validation for file size
+        document.getElementById('attachments').addEventListener('change', function() {
+            const files = this.files;
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            const maxFiles = 5;
+            
+            if (files.length > maxFiles) {
+                alert(`You can only upload a maximum of ${maxFiles} files`);
+                this.value = '';
+                return;
+            }
+            
+            for (let i = 0; i < files.length; i++) {
+                if (files[i].size > maxSize) {
+                    alert(`File '${files[i].name}' exceeds the maximum size of 5MB`);
+                    this.value = '';
+                    return;
+                }
+            }
+        });
+    });
+</script>
+{% endblock %} 

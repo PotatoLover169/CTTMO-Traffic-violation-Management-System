@@ -2,7 +2,7 @@
 {% load static %}
 <html>
 <head>
-    <title>Official Receipt #{{ violation.receipt_number }}</title>
+    <title>Temporary Receipt #{{ violation.receipt_number }}</title>
     <style>
         @page {
             size: A5;
@@ -191,14 +191,7 @@
         }
         
         .document-number {
-            position: absolute;
-            top: 1cm;
-            right: 1cm;
-            font-size: 14px;
-            font-weight: bold;
-            border: 1px solid #000;
-            padding: 5px 10px;
-            background-color: #f2f2f2;
+            display: none;
         }
         
         .republic-title {
@@ -232,7 +225,7 @@
 </head>
 <body>
     <div class="receipt-container">
-        <div class="watermark">OFFICIAL RECEIPT</div>
+        <div class="watermark">TEMPORARY RECEIPT</div>
         
         <div class="document-number">No. {{ violation.receipt_number }}</div>
         
@@ -254,7 +247,7 @@
         </div>
         
         <div class="receipt-title">
-            <h3>Official Receipt</h3>
+            <h3>Temporary Receipt</h3>
         </div>
         
         <div class="content">

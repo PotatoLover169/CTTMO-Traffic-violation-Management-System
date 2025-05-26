@@ -30,6 +30,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
+    <!-- Sidebar Fix CSS - must be after Bootstrap CSS -->
+    <link rel="stylesheet" href="{% static 'css/sidebar-fix.css' %}">
+    
     <!-- SweetAlert2 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css">
     
@@ -3428,55 +3431,52 @@
 
             <!-- Messages Section -->
             {% if messages %}
+            <!-- Hidden container to store messages -->
+            <div id="django-messages" style="display: none;">
+                {% for message in messages %}
+                <div class="django-message" data-tags="{{ message.tags|default:'info' }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
-                {% for message in messages %}
-                        {% if message.tags == 'success' %}
+                    // Process messages from hidden container
+                    var messageContainer = document.getElementById('django-messages');
+                    if (messageContainer) {
+                        var messageElements = messageContainer.querySelectorAll('.django-message');
+                        
+                        messageElements.forEach(function(element) {
+                            var text = element.textContent.trim();
+                            var tags = element.getAttribute('data-tags');
+                            
                             if (typeof showToast === 'function') {
-                                showToast('success', "{{ message|escapejs }}");
+                                showToast(tags || 'info', text);
                             } else {
+                                var title = 'Information';
+                                var icon = 'info';
+                                
+                                if (tags === 'success') {
+                                    title = 'Success';
+                                    icon = 'success';
+                                } else if (tags === 'error') {
+                                    title = 'Error';
+                                    icon = 'error';
+                                } else if (tags === 'warning') {
+                                    title = 'Warning';
+                                    icon = 'warning';
+                                }
+                                
                                 Swal.fire({
-                                    icon: 'success',
-                                    title: 'Success',
-                                    text: "{{ message|escapejs }}",
+                                    icon: icon,
+                                    title: title,
+                                    text: text,
                                     confirmButtonText: 'OK'
                                 });
                             }
-                        {% elif message.tags == 'error' %}
-                            if (typeof showToast === 'function') {
-                                showToast('error', "{{ message|escapejs }}");
-                            } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Error',
-                                    text: "{{ message|escapejs }}",
-                                    confirmButtonText: 'OK'
-                                });
-                            }
-                        {% elif message.tags == 'warning' %}
-                            if (typeof showToast === 'function') {
-                                showToast('warning', "{{ message|escapejs }}");
-                            } else {
-                                Swal.fire({
-                                    icon: 'warning',
-                                    title: 'Warning',
-                                    text: "{{ message|escapejs }}",
-                                    confirmButtonText: 'OK'
-                                });
-                            }
-                        {% else %}
-                            if (typeof showToast === 'function') {
-                                showToast('info', "{{ message|escapejs }}");
-                            } else {
-                                Swal.fire({
-                                    icon: 'info',
-                                    title: 'Information',
-                                    text: "{{ message|escapejs }}",
-                                    confirmButtonText: 'OK'
-                                });
-                            }
-                        {% endif %}
-                {% endfor %}
+                        });
+                    }
                 });
             </script>
             {% endif %}
@@ -3500,6 +3500,30 @@
     <script>
         // Set page title based on current page/section
         document.addEventListener('DOMContentLoaded', function() {
+            // IMPORTANT: Do NOT initialize ANY Bootstrap components for the sidebar
+            // Let sidebar-fix.js handle all sidebar collapse functionality
+            
+            // Initialize only non-sidebar Bootstrap components if needed
+            // Explicitly exclude all sidebar elements from initialization
+            var nonSidebarCollapse = Array.from(document.querySelectorAll('.collapse')).filter(function(el) {
+                return !el.closest('.sidebar-content');
+            });
+            
+            if (bootstrap && bootstrap.Collapse) {
+                nonSidebarCollapse.forEach(function(collapseEl) {
+                    try {
+                        new bootstrap.Collapse(collapseEl, {
+                            toggle: false
+                        });
+                    } catch (e) {
+                        console.log('Error initializing non-sidebar collapse:', e);
+                    }
+                });
+            }
+
+            // Do NOT add any event listeners to submenu toggles here
+            // sidebar-fix.js will handle all sidebar interactions
+
             const pageTitle = document.getElementById('currentPageTitle');
             if (pageTitle) {
                 // Try to determine title from breadcrumb or page header
@@ -4458,9 +4482,6 @@
         }
     </script>
 
-    <!-- Bootstrap 5 CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    
     <!-- MicroModal.js -->
     <script src="https://unpkg.com/micromodal/dist/micromodal.min.js"></script>
     
@@ -4468,10 +4489,12 @@
     <script src="{% static 'js/recaptcha-handler.js' %}"></script>
     <script src="{% static 'js/auto-protect-forms.js' %}"></script>
     
+    <!-- Sidebar Fix Script -->
+    <script src="{% static 'js/sidebar-fix.js' %}"></script>
+    
     <!-- Block for page specific scripts -->
     {% block scripts %}{% endblock %}
 
-    <!-- Add right before the closing </body> tag -->
     <!-- Global reCAPTCHA validation -->
     <script type="text/javascript">
         document.addEventListener('DOMContentLoaded', function() {

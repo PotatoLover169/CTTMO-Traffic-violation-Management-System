@@ -1,0 +1,868 @@
+{% extends 'base_landing.html' %}
+{% load static %}
+
+{% block title %}Submit a Public Report - CTTMO Bayawan City{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Modern Color Palette */
+    :root {
+        --primary-color: #3563E9;
+        --primary-light: #EEF3FF;
+        --success-color: #0CAA1D;
+        --danger-color: #F53D3D;
+        --warning-color: #FFB800;
+        --info-color: #4DA7FF;
+        --dark-blue: #0F1C3F;
+        --neutral-gray: #737791;
+        --light-gray: #F6F7F9;
+        --white: #FFFFFF;
+    }
+
+    /* Common Utility Classes */
+    .shadow-lg { box-shadow: 0 10px 20px rgba(0,0,0,0.08); }
+    .shadow-sm { box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .rounded-xl { border-radius: 1rem; }
+    .rounded-lg { border-radius: 0.75rem; }
+    .transition-all { transition-property: all; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 300ms; }
+    
+    /* Animation */
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+    
+    @keyframes spinner {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Container */
+    .report-container {
+        animation: fadeIn 0.5s ease-out;
+    }
+    
+    /* Card Design */
+    .report-card {
+        transition: all 0.3s ease;
+        border: none;
+        height: 100%;
+    }
+    
+    /* Header Icon */
+    .header-icon {
+        width: 64px;
+        height: 64px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 16px;
+        background-color: var(--primary-light);
+        margin-right: 1.5rem;
+        flex-shrink: 0;
+    }
+    
+    /* Form Elements */
+    .form-label {
+        font-weight: 500;
+        color: var(--dark-blue);
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-control {
+        height: 48px;
+        border-radius: 0.75rem;
+        border-color: #E2E8F0;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+    }
+    
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(53, 99, 233, 0.1);
+    }
+    
+    textarea.form-control {
+        height: auto;
+        min-height: 120px;
+    }
+    
+    .form-text {
+        color: var(--neutral-gray);
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+    }
+    
+    /* Report Type Grid */
+    .report-type-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 0.75rem;
+    }
+
+    .report-type-option {
+        position: relative;
+        padding: 0;
+        margin: 0;
+    }
+
+    .report-type-option input {
+        position: absolute;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+        z-index: 2;
+    }
+
+    .report-type-option label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 1.75rem 1rem;
+        background-color: var(--white);
+        border: 2px solid #E2E8F0;
+        border-radius: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+    
+    .report-type-option label:hover {
+        border-color: var(--primary-color);
+        background-color: var(--primary-light);
+    }
+
+    .report-type-option input:checked + label {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 16px rgba(53, 99, 233, 0.16);
+    }
+
+    .report-type-option label .material-icons {
+        font-size: 2.25rem;
+        margin-bottom: 0.75rem;
+        color: var(--primary-color);
+        transition: all 0.3s ease;
+    }
+
+    .report-type-option input:checked + label .material-icons {
+        color: white;
+    }
+
+    .type-label {
+        font-weight: 600;
+        text-align: center;
+    }
+    
+    /* Guidelines Section */
+    .guidelines-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .guideline-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .guideline-item .material-icons {
+        color: var(--primary-color);
+        font-size: 1.5rem;
+        background-color: var(--primary-light);
+        padding: 0.5rem;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .guideline-item p {
+        margin: 0;
+        color: var(--dark-blue);
+        font-size: 0.95rem;
+    }
+    
+    /* Contact Info */
+    .contact-info {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .contact-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem 1rem;
+        background-color: var(--light-gray);
+        border-radius: 0.75rem;
+        transition: all 0.2s ease;
+    }
+    
+    .contact-item:hover {
+        background-color: var(--primary-light);
+    }
+
+    .contact-item .material-icons {
+        color: var(--primary-color);
+        font-size: 1.25rem;
+    }
+
+    .contact-item p {
+        margin: 0;
+        color: var(--dark-blue);
+        font-weight: 500;
+    }
+    
+    /* Buttons */
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.75rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    
+    .btn:hover {
+        transform: translateY(-2px);
+    }
+    
+    .btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    .btn-primary:hover, .btn-primary:focus {
+        background-color: #2954D5;
+        border-color: #2954D5;
+        box-shadow: 0 4px 12px rgba(53, 99, 233, 0.25);
+    }
+    
+    .btn-outline-secondary {
+        border-color: #E2E8F0;
+        color: var(--neutral-gray);
+    }
+    
+    .btn-outline-secondary:hover {
+        background-color: var(--light-gray);
+        color: var(--dark-blue);
+        border-color: #E2E8F0;
+    }
+    
+    /* Loading skeleton */
+    .text-skeleton { 
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); 
+        background-size: 200% 100%; 
+        animation: shimmer 1.5s infinite; 
+        height: 1rem; 
+        margin-bottom: 0.5rem; 
+        border-radius: 0.25rem; 
+    }
+    
+    .spinner-button {
+        position: relative;
+    }
+    
+    .spinner-button .spinner {
+        display: none;
+        width: 1.25rem;
+        height: 1.25rem;
+        border: 2px solid rgba(255, 255, 255, 0.5);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spinner 0.6s linear infinite;
+        position: absolute;
+        left: calc(50% - 0.625rem);
+        top: calc(50% - 0.625rem);
+    }
+    
+    .spinner-button.loading .button-content {
+        visibility: hidden;
+    }
+    
+    .spinner-button.loading .spinner {
+        display: block;
+    }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 992px) {
+        .header-section {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .header-icon {
+            margin-bottom: 1rem;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .report-type-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+        
+        .header-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            margin-right: 1rem;
+        }
+        
+        .header-title h1 {
+            font-size: 1.5rem;
+        }
+        
+        .form-action-buttons {
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .form-action-buttons .btn {
+            width: 100%;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .report-type-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-3 py-md-5 report-container">
+    <!-- Loading Skeleton (hidden when data is loaded) -->
+    <div id="report-skeleton" style="display: none;">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-lg rounded-xl">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center">
+                            <div class="text-skeleton rounded-lg me-3" style="width: 64px; height: 64px;"></div>
+                            <div>
+                                <div class="text-skeleton" style="width: 200px; height: 28px;"></div>
+                                <div class="text-skeleton mt-2" style="width: 300px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow-lg rounded-xl">
+                    <div class="card-body p-4">
+                        <div class="text-skeleton" style="width: 150px;"></div>
+                        <div class="mt-3 d-flex gap-3">
+                            <div class="text-skeleton rounded-lg" style="width: 100%; height: 120px;"></div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <div class="text-skeleton" style="width: 150px;"></div>
+                            <div class="text-skeleton mt-2" style="width: 100%; height: 48px;"></div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <div class="text-skeleton" style="width: 150px;"></div>
+                            <div class="text-skeleton mt-2" style="width: 100%; height: 120px;"></div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end mt-4">
+                            <div class="text-skeleton" style="width: 120px; height: 48px; border-radius: 0.75rem;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card shadow-lg rounded-xl">
+                    <div class="card-body p-4">
+                        <div class="text-skeleton" style="width: 150px;"></div>
+                        <div class="mt-3">
+                            <div class="text-skeleton" style="width: 100%; height: 200px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Content -->
+    <div id="report-content">
+        <!-- Header Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card report-card shadow-lg rounded-xl">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center header-section">
+                            <div class="header-icon">
+                                <span class="material-icons" style="font-size: 32px; color: var(--primary-color);">
+                                    report
+                                </span>
+                            </div>
+                            <div class="header-title">
+                                <h1 class="mb-1 fw-bold">Submit a Public Report</h1>
+                                <p class="text-muted mb-0">File a traffic-related report or inquiry without creating an account</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report Form -->
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="card report-card shadow-lg rounded-xl">
+                    <div class="card-body p-4">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <form method="post" enctype="multipart/form-data" class="report-form" id="reportForm">
+                            {% csrf_token %}
+                            
+                            <div class="mb-4">
+                                <label class="form-label">Report Type</label>
+                                <div class="report-type-grid">
+                                    {% for type_code, type_label in report_types %}
+                                    <div class="form-check report-type-option">
+                                        <input class="form-check-input" 
+                                               type="radio" 
+                                               name="type" 
+                                               id="type_{{ type_code }}" 
+                                               value="{{ type_code }}"
+                                               required>
+                                        <label class="form-check-label" for="type_{{ type_code }}">
+                                            <span class="material-icons">
+                                                {% if type_code == 'COMPLAINT' %}warning
+                                                {% elif type_code == 'SUGGESTION' %}lightbulb
+                                                {% elif type_code == 'INQUIRY' %}help
+                                                {% else %}gavel{% endif %}
+                                            </span>
+                                            <span class="type-label">{{ type_label }}</span>
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <div class="invalid-feedback">Please select a report type</div>
+                            </div>
+
+                            <!-- Additional Contact Info for Anonymous Users -->
+                            <div class="row mb-4">
+                                <div class="col-md-6 mb-4 mb-md-0">
+                                    <label for="name" class="form-label">Your Name</label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="name" 
+                                           name="name" 
+                                           placeholder="Enter your full name">
+                                    <div class="form-text">Optional - Leave blank to remain anonymous</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="email" class="form-label">Your Email</label>
+                                    <input type="email" 
+                                           class="form-control" 
+                                           id="email" 
+                                           name="email" 
+                                           placeholder="Enter your email address">
+                                    <div class="form-text">Optional - For follow-up information</div>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="subject" class="form-label">Subject</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="subject" 
+                                       name="subject" 
+                                       placeholder="Enter the subject of your report"
+                                       required>
+                                <div class="invalid-feedback">Please enter a subject</div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="description" class="form-label">Description</label>
+                                <textarea class="form-control" 
+                                          id="description" 
+                                          name="description" 
+                                          rows="5" 
+                                          placeholder="Provide detailed information about your report"
+                                          required></textarea>
+                                <div class="invalid-feedback">Please provide a description</div>
+                            </div>
+
+                            <div class="row mb-4">
+                                <div class="col-md-4 mb-4 mb-md-0">
+                                    <label for="location" class="form-label">Location</label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="location" 
+                                           name="location" 
+                                           placeholder="Enter the location"
+                                           required>
+                                </div>
+                                <div class="col-md-4 mb-4 mb-md-0">
+                                    <label for="phone_number" class="form-label">Phone Number</label>
+                                    <input type="tel" 
+                                           class="form-control" 
+                                           id="phone_number" 
+                                           name="phone_number" 
+                                           placeholder="Enter your phone number">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="incident_date" class="form-label">Incident Date</label>
+                                    <input type="datetime-local" 
+                                           class="form-control" 
+                                           id="incident_date" 
+                                           name="incident_date"
+                                           required>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="attachments" class="form-label">Attachments (Max 5 files)</label>
+                                <input type="file" 
+                                       class="form-control" 
+                                       id="attachments" 
+                                       name="attachments"
+                                       accept="image/*,.pdf,.doc,.docx"
+                                       multiple>
+                                <div class="form-text">
+                                    Supported formats: Images, PDF, Word documents (Max size: 5MB per file)
+                                </div>
+                                
+                                <!-- File Preview Container -->
+                                <div class="mt-3" id="file-preview-container">
+                                    <div class="row g-2" id="file-preview-row"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="terms" name="terms" required>
+                                    <label class="form-check-label" for="terms">
+                                        I understand that this report will be reviewed by authorities and that providing false information may have legal consequences
+                                    </label>
+                                    <div class="invalid-feedback">
+                                        You must agree to the terms before submitting
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-end gap-3 form-action-buttons">
+                                <button type="button" class="btn btn-outline-secondary" onclick="history.back()">
+                                    Cancel
+                                </button>
+                                <button type="submit" class="btn btn-primary spinner-button" id="submitButton">
+                                    <span class="button-content">
+                                        <span class="material-icons me-2" style="font-size: 20px; vertical-align: middle;">send</span>
+                                        Submit Report
+                                    </span>
+                                    <span class="spinner"></span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Guidelines Sidebar -->
+            <div class="col-lg-4 d-flex flex-column gap-4">
+                <div class="card report-card shadow-lg rounded-xl">
+                    <div class="card-body p-4">
+                        <h5 class="card-title mb-4 fw-bold">Reporting Guidelines</h5>
+                        <div class="guidelines-list">
+                            <div class="guideline-item">
+                                <span class="material-icons">check_circle</span>
+                                <p>Be specific and provide accurate details about the incident</p>
+                            </div>
+                            <div class="guideline-item">
+                                <span class="material-icons">schedule</span>
+                                <p>Submit reports as soon as possible after the incident</p>
+                            </div>
+                            <div class="guideline-item">
+                                <span class="material-icons">image</span>
+                                <p>Include relevant photos or documents if available</p>
+                            </div>
+                            <div class="guideline-item">
+                                <span class="material-icons">location_on</span>
+                                <p>Provide exact location details for better assistance</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card report-card shadow-lg rounded-xl">
+                    <div class="card-body p-4">
+                        <h5 class="card-title mb-4 fw-bold">Need Help?</h5>
+                        <p class="text-muted mb-4">If you need assistance with filing a report, please contact our support team:</p>
+                        <div class="contact-info">
+                            <div class="contact-item">
+                                <span class="material-icons">phone</span>
+                                <p>+63 123 456 7890</p>
+                            </div>
+                            <div class="contact-item">
+                                <span class="material-icons">email</span>
+                                <p>support@cttmo.bayawan.gov.ph</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card report-card shadow-lg rounded-xl">
+                    <div class="card-body p-4">
+                        <h5 class="card-title mb-4 fw-bold">Have an Account?</h5>
+                        <p class="text-muted mb-3">If you already have an account, you can sign in to track your reports and receive updates.</p>
+                        <a href="{% url 'login' %}" class="btn btn-outline-primary w-100">
+                            <span class="material-icons me-2" style="font-size: 18px; vertical-align: middle;">login</span>
+                            Sign In
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Show skeleton loading on page load
+    const reportSkeleton = document.getElementById('report-skeleton');
+    const reportContent = document.getElementById('report-content');
+    
+    // Simulate loading for demonstration
+    reportSkeleton.style.display = 'block';
+    reportContent.style.display = 'none';
+    
+    // After "loading" show the content
+    setTimeout(function() {
+        reportSkeleton.style.display = 'none';
+        reportContent.style.display = 'block';
+    }, 800);
+
+    // Form validation
+    const form = document.getElementById('reportForm');
+    const submitButton = document.getElementById('submitButton');
+    
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            // Add validation styling
+            form.classList.add('was-validated');
+        } else {
+            // Make sure files are included in the submission
+            updateFormFilesOnSubmit();
+            
+            // Show loading state
+            submitButton.classList.add('loading');
+            submitButton.disabled = true;
+        }
+    });
+    
+    // File handling for multiple attachments
+    const attachmentInput = document.getElementById('attachments');
+    const previewContainer = document.getElementById('file-preview-row');
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    const maxFiles = 5; // Maximum number of files allowed
+    
+    // Track selected files
+    const selectedFiles = new Map();
+    let fileCounter = 0;
+    
+    // Clear file input on page load to avoid browser cache issues
+    attachmentInput.value = '';
+    
+    attachmentInput.addEventListener('change', function() {
+        // Get newly selected files
+        const newFiles = Array.from(this.files || []);
+        
+        // Check if adding these files would exceed the limit
+        if (selectedFiles.size + newFiles.length > maxFiles) {
+            alert(`You can upload a maximum of ${maxFiles} files. You currently have ${selectedFiles.size} files selected.`);
+            return;
+        }
+        
+        // Process each new file
+        newFiles.forEach(file => {
+            // Check file size
+            if (file.size > maxSize) {
+                alert(`File "${file.name}" exceeds the 5MB size limit and will be skipped.`);
+                return;
+            }
+            
+            // Generate a unique ID for this file
+            const fileId = `file_${fileCounter++}`;
+            
+            // Store the file
+            selectedFiles.set(fileId, file);
+            
+            // Create preview
+            createFilePreview(file, fileId);
+        });
+        
+        // Clear the input so the same files can be selected again if needed
+        this.value = '';
+        
+        // Update form data with selected files when form is submitted
+        updateFormFilesOnSubmit();
+    });
+    
+    function createFilePreview(file, fileId) {
+        // Create a preview card
+        const col = document.createElement('div');
+        col.className = 'col-md-4 col-lg-3 col-6';
+        col.dataset.fileId = fileId;
+        
+        const card = document.createElement('div');
+        card.className = 'card shadow-sm h-100';
+        
+        const cardBody = document.createElement('div');
+        cardBody.className = 'card-body p-2';
+        
+        // File icon or image preview
+        const preview = document.createElement('div');
+        preview.className = 'd-flex justify-content-center mb-2';
+        
+        if (file.type.startsWith('image/')) {
+            // For images, show a thumbnail
+            const img = document.createElement('img');
+            img.className = 'img-fluid';
+            img.style.maxHeight = '100px';
+            img.style.objectFit = 'contain';
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+            
+            preview.appendChild(img);
+        } else {
+            // For other files, show an icon
+            const icon = document.createElement('span');
+            icon.className = 'material-icons';
+            icon.style.fontSize = '48px';
+            icon.style.color = 'var(--primary-color)';
+            
+            if (file.type.includes('pdf')) {
+                icon.textContent = 'picture_as_pdf';
+            } else if (file.type.includes('word') || file.name.endsWith('.doc') || file.name.endsWith('.docx')) {
+                icon.textContent = 'description';
+            } else {
+                icon.textContent = 'insert_drive_file';
+            }
+            
+            preview.appendChild(icon);
+        }
+        
+        // File name
+        const fileName = document.createElement('p');
+        fileName.className = 'mb-0 text-center small text-truncate';
+        fileName.title = file.name;
+        fileName.textContent = file.name;
+        
+        // File size
+        const fileSize = document.createElement('p');
+        fileSize.className = 'mb-0 text-center small text-muted';
+        fileSize.textContent = formatFileSize(file.size);
+        
+        // Remove button
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'btn btn-sm btn-outline-danger w-100 mt-2';
+        removeBtn.innerHTML = '<span class="material-icons" style="font-size: 16px; vertical-align: middle; margin-right: 4px;">delete</span>Delete';
+        removeBtn.title = 'Remove file';
+        removeBtn.type = 'button';
+        
+        removeBtn.addEventListener('click', function() {
+            // Remove this file from the selectedFiles Map
+            selectedFiles.delete(fileId);
+            
+            // Remove this preview element
+            col.remove();
+            
+            // Update form data
+            updateFormFilesOnSubmit();
+        });
+        
+        cardBody.appendChild(preview);
+        cardBody.appendChild(fileName);
+        cardBody.appendChild(fileSize);
+        cardBody.appendChild(removeBtn);
+        
+        card.appendChild(cardBody);
+        col.appendChild(card);
+        previewContainer.appendChild(col);
+    }
+    
+    function updateFormFilesOnSubmit() {
+        // Create a hidden input for each file to ensure they're submitted with the form
+        const existingInputs = form.querySelectorAll('.hidden-file-input');
+        existingInputs.forEach(input => input.remove());
+        
+        // If there are no selected files, nothing to do
+        if (selectedFiles.size === 0) return;
+        
+        // Store all files in a new FileList-like object
+        const dt = new DataTransfer();
+        selectedFiles.forEach(file => {
+            dt.items.add(file);
+        });
+        
+        // Create a new file input with all files and add it to the form
+        const hiddenFileInput = document.createElement('input');
+        hiddenFileInput.type = 'file';
+        hiddenFileInput.name = 'attachments';
+        hiddenFileInput.multiple = true;
+        hiddenFileInput.style.display = 'none';
+        hiddenFileInput.className = 'hidden-file-input';
+        hiddenFileInput.files = dt.files;
+        
+        form.appendChild(hiddenFileInput);
+    }
+    
+    function formatFileSize(bytes) {
+        if (bytes < 1024) {
+            return bytes + ' bytes';
+        } else if (bytes < 1048576) {
+            return (bytes / 1024).toFixed(1) + ' KB';
+        } else {
+            return (bytes / 1048576).toFixed(1) + ' MB';
+        }
+    }
+
+    // Set max date for incident date
+    const incidentDateInput = document.getElementById('incident_date');
+    const today = new Date();
+    today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
+    incidentDateInput.max = today.toISOString().slice(0, 16);
+    
+    // Basic phone number validation
+    const phoneInput = document.getElementById('phone_number');
+    phoneInput.addEventListener('input', function() {
+        // Allow only digits, spaces, +, -, and parentheses
+        this.value = this.value.replace(/[^\d\s+\-()]/g, '');
+    });
+});
+</script>
+{% endblock %} 

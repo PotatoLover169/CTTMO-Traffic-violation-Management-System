@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
-from .models import VehicleRegistration, UserReport, UserNotification, UserProfile, UserVehicle, UserPreferences, OperatorLookup, DriverApplication
+from .models import VehicleRegistration, UserReport, UserNotification, UserProfile, UserVehicle, UserPreferences, OperatorLookup, DriverApplication, ReportAttachment
 
 class VehicleRegistrationInline(admin.TabularInline):
     model = VehicleRegistration
@@ -51,6 +51,22 @@ class UserReportAdmin(admin.ModelAdmin):
     list_filter = ('status', 'type')
     search_fields = ('subject', 'description', 'user__username')
     date_hierarchy = 'created_at'
+    
+    # Add inlines for attachments
+    class ReportAttachmentInline(admin.TabularInline):
+        model = ReportAttachment
+        extra = 0
+    
+    inlines = [ReportAttachmentInline]
+    
+    fieldsets = (
+        ('Report Information', {
+            'fields': ('user', 'type', 'subject', 'description', 'location', 'phone_number', 'incident_date', 'attachment')
+        }),
+        ('Status Information', {
+            'fields': ('status', 'assigned_to', 'resolution_notes', 'resolved_at', 'created_at', 'updated_at')
+        }),
+    )
 
 # Register UserNotification model
 @admin.register(UserNotification)
@@ -106,6 +122,12 @@ class DriverApplicationAdmin(admin.ModelAdmin):
             'fields': ('processed_by', 'processed_at', 'submitted_at')
         }),
     )
+
+# Register the new ReportAttachment model
+@admin.register(ReportAttachment)
+class ReportAttachmentAdmin(admin.ModelAdmin):
+    list_display = ('report', 'file', 'uploaded_at')
+    search_fields = ('report__subject',)
 
 # Unregister the default UserAdmin and register our custom one
 admin.site.unregister(User)

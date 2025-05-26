@@ -3,18 +3,42 @@
     <tr id="report-{{ report.id }}">
         <td class="ps-4 text-center">#{{ report.id }}</td>
         <td class="text-center">
-            <div class="d-flex align-items-center justify-content-center">
-                {% if report.user.profile.profile_image %}
-                <img src="{{ report.user.profile.profile_image.url }}" alt="{{ report.user.get_full_name }}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
+            <div class="d-flex align-items-center justify-content-start">
+                {% if report.is_anonymous %}
+                <div class="me-2 flex-shrink-0">
+                    <div class="user-avatar-initial" style="background-color: #718096;">
+                        <span class="material-icons" style="font-size: 16px;">person_off</span>
+                    </div>
+                </div>
+                <div class="text-start overflow-hidden">
+                    <div class="fw-medium text-truncate">
+                        {% if report.reporter_name %}
+                            {{ report.reporter_name }} <span class="badge bg-secondary ms-1">Anonymous</span>
+                        {% else %}
+                            Anonymous Reporter
+                        {% endif %}
+                    </div>
+                    {% if report.reporter_email %}
+                    <div class="small text-muted text-truncate">{{ report.reporter_email }}</div>
+                    {% else %}
+                    <div class="small text-muted text-truncate">No email provided</div>
+                    {% endif %}
+                </div>
                 {% else %}
-                <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px;">
-                    <span class="material-icons" style="font-size: 16px;">person</span>
+                <div class="me-2 flex-shrink-0">
+                    {% if report.user.profile.profile_image %}
+                    <img src="{{ report.user.profile.profile_image.url }}" alt="{{ report.user.get_full_name }}" class="user-avatar">
+                    {% else %}
+                    <div class="user-avatar-initial">
+                        {{ report.user.get_full_name|make_list|first|upper }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="text-start overflow-hidden">
+                    <div class="fw-medium text-truncate">{{ report.user.get_full_name }}</div>
+                    <div class="small text-muted text-truncate">{{ report.user.email }}</div>
                 </div>
                 {% endif %}
-                <div>
-                    <div class="fw-medium">{{ report.user.get_full_name }}</div>
-                    <div class="small text-muted">{{ report.user.email }}</div>
-                </div>
             </div>
         </td>
         <td class="text-center">

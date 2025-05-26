@@ -34,7 +34,7 @@ from traffic_violation_system.models import (
     Driver
 )
 from ..forms import PaymentForm
-from .models import VehicleRegistration, UserReport, DriverApplication, UserNotification
+from .models import VehicleRegistration, UserReport, DriverApplication, UserNotification, ReportAttachment
 
 @login_required
 def user_dashboard(request):
@@ -209,15 +209,32 @@ def user_violations(request):
 def user_ncap_violations(request):
     """
     Display a list of the user's NCAP violations (with camera evidence).
+    Implements enhanced security measures to prevent data leakage.
     """
     user = request.user
+    logger = logging.getLogger(__name__)
     
-    # Get violations linked to this user's license number and user account
-    # Use the UserViolationManager to ensure we only get violations for this user
-    violations = Violation.user_violations.get_user_violations(user).order_by('-violation_date')
+    logger.info(f"SECURITY - NCAP violations request from user: {user.username} (ID: {user.id})")
     
-    # Initialize the query for NCAP violations 
-    from django.db.models import Q
+    # DIRECT OWNERSHIP APPROACH: Start with violations explicitly owned by this user
+    # This is the most restrictive approach - only get violations directly tied to this user account
+    direct_violations = Violation.objects.filter(user_account=user)
+    
+    # Get any violations that might be tied to this user's license if they have one
+    license_violations = Violation.objects.none()  # Empty queryset by default
+    if hasattr(user, 'userprofile') and user.userprofile.license_number:
+        license_number = user.userprofile.license_number.strip().upper()
+        if license_number:
+            logger.info(f"SECURITY - Including license-based violations for license: {license_number}")
+            license_violations = Violation.objects.filter(
+                violator__license_number__iexact=license_number
+            )
+    
+    # Combine both querysets
+    all_user_violations = (direct_violations | license_violations).distinct()
+    logger.info(f"SECURITY - Found {all_user_violations.count()} total violations for user before NCAP filtering")
+    
+    # Only include NCAP violations (with photos)
     ncap_query = (
         Q(image__isnull=False, image__gt='') | 
         Q(driver_photo__isnull=False, driver_photo__gt='') | 
@@ -225,29 +242,47 @@ def user_ncap_violations(request):
         Q(secondary_photo__isnull=False, secondary_photo__gt='')
     )
     
-    # If user is a driver, also include violations assigned to their PD number as NCAP violations
-    if hasattr(user, 'userprofile') and user.userprofile.is_driver:
-        try:
-            from traffic_violation_system.models import Driver
-            drivers = Driver.objects.filter(
-                first_name=user.first_name,
-                last_name=user.last_name
-            )
-            if drivers.exists():
-                driver = drivers.first()
-                if driver.new_pd_number:
-                    ncap_query |= Q(pd_number=driver.new_pd_number)
-        except Exception:
-            # If there's an error, just continue without this part of the filter
-            pass
+    ncap_violations = all_user_violations.filter(ncap_query)
+    logger.info(f"SECURITY - After NCAP filter, found {ncap_violations.count()} violations")
+    
+    # Additional security verification - log every violation ID for audit
+    violation_ids = list(ncap_violations.values_list('id', flat=True))
+    logger.info(f"SECURITY - NCAP violation IDs for user {user.id}: {violation_ids}")
+    
+    # CRITICAL: Add one final ownership verification to be absolutely certain
+    verified_violations = []
+    for violation in ncap_violations:
+        # Direct account ownership
+        if violation.user_account and violation.user_account.id == user.id:
+            verified_violations.append(violation.id)
+            logger.info(f"SECURITY VERIFIED - Violation {violation.id} directly belongs to user {user.id}")
+            continue
             
-    # Filter to only include NCAP violations using the built query
-    violations = violations.filter(ncap_query)
+        # License number match (if violation has a violator with license)
+        if (hasattr(user, 'userprofile') and 
+            user.userprofile.license_number and 
+            violation.violator and 
+            violation.violator.license_number):
+            
+            user_license = user.userprofile.license_number.strip().upper()
+            violation_license = violation.violator.license_number.strip().upper()
+            
+            if user_license == violation_license:
+                verified_violations.append(violation.id)
+                logger.info(f"SECURITY VERIFIED - Violation {violation.id} matches user {user.id}'s license: {user_license}")
+                continue
+                
+        # If we get here, the violation is not verified for this user
+        logger.warning(f"SECURITY BLOCKED - Violation {violation.id} does NOT belong to user {user.id}")
+    
+    # Use the final verified list to create secure queryset
+    final_violations = Violation.objects.filter(id__in=verified_violations).order_by('-violation_date')
+    logger.info(f"SECURITY - Final violations after strict verification: {final_violations.count()}")
     
     # Search functionality
     search_query = request.GET.get('search', '')
     if search_query:
-        violations = violations.filter(
+        final_violations = final_violations.filter(
             Q(violation_type__icontains=search_query) |
             Q(location__icontains=search_query) |
             Q(novr_number__icontains=search_query) |
@@ -257,10 +292,10 @@ def user_ncap_violations(request):
     # Filter by status
     status_filter = request.GET.get('status', '')
     if status_filter:
-        violations = violations.filter(status=status_filter)
+        final_violations = final_violations.filter(status=status_filter)
     
     # Pagination
-    paginator = Paginator(violations, 10)  # 10 items per page
+    paginator = Paginator(final_violations, 10)  # 10 items per page
     page = request.GET.get('page')
     
     try:
@@ -272,15 +307,6 @@ def user_ncap_violations(request):
     
     # Prepare status choices for filter dropdown
     status_choices = dict(Violation.STATUS_CHOICES)
-    
-    # Check if coming from successful violation save or print operation
-    if request.session.pop('ncap_violation_saved', False):
-        messages.success(request, "NCAP violation has been successfully recorded.")
-    
-    # Check if redirected from print form
-    if request.GET.get('printed', False):
-        # messages.success(request, "The NCAP violation was successfully printed.")
-        pass  # No action needed
     
     context = {
         'title': 'My NCAP Violations',
@@ -402,18 +428,34 @@ def file_report(request):
         subject = request.POST.get('subject')
         description = request.POST.get('description')
         location = request.POST.get('location')
+        phone_number = request.POST.get('phone_number')
         incident_date = request.POST.get('incident_date')
-        attachment = request.FILES.get('attachment')
+        attachment = request.FILES.get('attachment')  # Keep for backward compatibility
         
+        # Create the report with basic info and phone number
         report = UserReport.objects.create(
             user=request.user,
             type=report_type,
             subject=subject,
             description=description,
             location=location,
+            phone_number=phone_number,
             incident_date=incident_date,
-            attachment=attachment
+            attachment=attachment  # Keep for backward compatibility
         )
+        
+        # Handle multiple attachments if present
+        if 'attachments' in request.FILES:
+            files = request.FILES.getlist('attachments')
+            
+            # Limit to max 5 attachments
+            for file in files[:5]:
+                # Check file size (5MB limit)
+                if file.size <= 5 * 1024 * 1024:
+                    ReportAttachment.objects.create(
+                        report=report,
+                        file=file
+                    )
         
         # Don't use Django messages, instead add a URL parameter for SweetAlert
         return redirect(f"{reverse('user_portal:user_dashboard')}?report=success")
@@ -423,6 +465,30 @@ def file_report(request):
     }
     
     return render(request, 'user_portal/file_report.html', context)
+
+@login_required
+def user_reports(request):
+    """View all reports submitted by the current user."""
+    reports = UserReport.objects.filter(user=request.user).order_by('-created_at')
+    
+    context = {
+        'reports': reports,
+    }
+    
+    return render(request, 'user_portal/user_reports.html', context)
+
+@login_required
+def user_report_detail(request, report_id):
+    """View details of a specific report."""
+    report = get_object_or_404(UserReport, id=report_id, user=request.user)
+    attachments = ReportAttachment.objects.filter(report=report).order_by('uploaded_at')
+    
+    context = {
+        'report': report,
+        'attachments': attachments,
+    }
+    
+    return render(request, 'user_portal/user_report_detail.html', context)
 
 @login_required
 def mark_notification_read(request, notification_id):
@@ -1704,7 +1770,7 @@ def driver_id_verify(request, driver_id):
             'error': str(e)
         }
     
-    return render(request, 'user_portal/driver_id_verify.html', context)
+    return render(request, 'user_portal/driver_id_verify.html', context) 
 
 @login_required
 def view_qr_code(request):
@@ -1715,80 +1781,67 @@ def view_qr_code(request):
     user = request.user
     profile = user.userprofile
     
-    # Variables to store direct image data
-    qr_code_base64 = None
-    
-    # Generate QR code
-    try:
-        import qrcode
-        from io import BytesIO
-        import base64
-        from django.core.files import File
-        
-        # Generate vehicle/user data to include in QR code
-        qr_data = {
-            "user_id": user.id,
-            "name": user.get_full_name(),
-            "license": profile.license_number or "",
-            "enforcer_id": profile.enforcer_id or "",
-        }
-        
-        # Add vehicle data if the user has registered vehicles
-        vehicles = user.registered_vehicles.filter(is_active=True)
-        if vehicles.exists():
-            vehicle = vehicles.first()
-            qr_data.update({
-                "plate_number": vehicle.plate_number,
-                "vehicle_type": vehicle.vehicle_type,
-                "make": vehicle.make,
-                "model": vehicle.model
-            })
-        
-        # Convert data to string
-        qr_content = "\n".join([f"{k}: {v}" for k, v in qr_data.items()])
-        
-        # Create QR code
-        qr = qrcode.QRCode(
-            version=1,
-            error_correction=qrcode.constants.ERROR_CORRECT_L,
-            box_size=10,
-            border=4,
-        )
-        qr.add_data(qr_content)
-        qr.make(fit=True)
-        
-        img = qr.make_image(fill_color="black", back_color="white")
-        buffer = BytesIO()
-        img.save(buffer, 'PNG')
-        buffer.seek(0)
-        
-        # Generate base64 encoded image data for direct embedding in template
-        qr_code_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
-        
-        # Save QR code to profile (still attempt this for local environments)
-        if not profile.qr_code:
-            try:
-                filename = f'qr_code_{user.username}.png'
-                profile.qr_code.save(filename, File(buffer), save=True)
-                messages.success(request, "QR Code generated successfully.")
-            except Exception as e:
-                import logging
-                logger = logging.getLogger(__name__)
-                logger.error(f"Error saving QR code to file: {str(e)}")
-                # Don't show error to user since we'll display the QR code directly
-        
-    except Exception as e:
-        import logging
-        logger = logging.getLogger(__name__)
-        logger.error(f"Error generating QR code: {str(e)}")
-        messages.error(request, "There was a problem generating your QR code. Please try again later.")
-        return redirect('user_portal:user_profile')
+    # Check if QR code exists
+    if not profile.qr_code:
+        # QR code doesn't exist, generate one
+        try:
+            import qrcode
+            from io import BytesIO
+            from django.core.files import File
+            
+            # Generate vehicle/user data to include in QR code
+            qr_data = {
+                "user_id": user.id,
+                "name": user.get_full_name(),
+                "license": profile.license_number or "",
+                "enforcer_id": profile.enforcer_id or "",
+            }
+            
+            # Add vehicle data if the user has registered vehicles
+            vehicles = user.registered_vehicles.filter(is_active=True)
+            if vehicles.exists():
+                vehicle = vehicles.first()
+                qr_data.update({
+                    "plate_number": vehicle.plate_number,
+                    "vehicle_type": vehicle.vehicle_type,
+                    "make": vehicle.make,
+                    "model": vehicle.model
+                })
+            
+            # Convert data to string
+            qr_content = "\n".join([f"{k}: {v}" for k, v in qr_data.items()])
+            
+            # Create QR code
+            qr = qrcode.QRCode(
+                version=1,
+                error_correction=qrcode.constants.ERROR_CORRECT_L,
+                box_size=10,
+                border=4,
+            )
+            qr.add_data(qr_content)
+            qr.make(fit=True)
+            
+            img = qr.make_image(fill_color="black", back_color="white")
+            buffer = BytesIO()
+            img.save(buffer, 'PNG')
+            
+            # Save QR code to profile
+            filename = f'qr_code_{user.username}.png'
+            profile.qr_code.save(filename, File(buffer), save=True)
+            
+            messages.success(request, "QR Code generated successfully.")
+            
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error generating QR code: {str(e)}")
+            messages.error(request, "There was a problem generating your QR code. Please try again later.")
+            return redirect('user_portal:user_profile')
     
     context = {
         'user': user,
         'profile': profile,
-        'page_title': 'Vehicle QR Code',
-        'qr_code_base64': qr_code_base64,  # Add base64 data to context
+        'page_title': 'Vehicle QR Code'
     }
     
     return render(request, 'user_portal/view_qr_code.html', context) 

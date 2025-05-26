@@ -1,13 +1,280 @@
+<style>
+    /* Enhanced Modal Styling */
+    .report-modal-content {
+        position: relative;
+        max-width: 100%;
+    }
+    
+    /* Improved Typography */
+    .report-modal-content h5 {
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Enhanced Visual Hierarchy */
+    .section-title {
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #718096;
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+    }
+    
+    /* Card Refinements */
+    .report-card {
+        border: none;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        transition: all 0.2s ease;
+        height: 100%;
+    }
+    
+    .report-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        transform: translateY(-2px);
+    }
+    
+    .report-card .card-header {
+        background-color: #f8fafc;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    /* Badge Enhancements */
+    .badge {
+        padding: 0.4em 0.65em;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+    }
+    
+    /* Attachment Grid Improvements */
+    .attachments-grid {
+        margin-top: 0.5rem;
+    }
+    
+    .attachment-item {
+        transition: all 0.2s ease;
+        border-radius: 0.5rem;
+    }
+    
+    .attachment-item:hover {
+        background-color: #f8fafc;
+    }
+    
+    .attachment-card {
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 0.75rem;
+        overflow: hidden;
+        transition: all 0.25s ease;
+    }
+    
+    .attachment-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        border-color: rgba(0, 0, 0, 0);
+    }
+    
+    .attachment-preview {
+        background-color: #f8fafc;
+        height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .attachment-img {
+        max-height: 100%;
+        max-width: 100%;
+        object-fit: contain;
+    }
+    
+    .attachment-icon {
+        font-size: 48px;
+        opacity: 0.9;
+    }
+    
+    .attachment-download {
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        background-color: #4299e1;
+        border: none;
+        border-radius: 0.375rem;
+        padding: 0.5rem 0.75rem;
+        width: 100%;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    
+    .attachment-download:hover {
+        background-color: #2b6cb0;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        transform: translateY(-1px);
+    }
+    
+    .attachment-download .material-icons {
+        font-size: 16px;
+        margin-right: 0.25rem;
+    }
+    
+    .attachment-info {
+        padding: 0.75rem;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    
+    .attachment-name {
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: #2d3748;
+        margin-bottom: 0.75rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        flex-grow: 1;
+    }
+    
+    /* Report Actions */
+    .report-detail-actions {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+    }
+    
+    .report-detail-actions .btn {
+        border-radius: 0.5rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        transition: all 0.2s ease;
+        padding: 0.5rem 1rem;
+    }
+    
+    .report-detail-actions .btn:hover {
+        transform: translateY(-2px);
+    }
+    
+    .report-detail-actions .btn-primary {
+        background-color: #3563E9;
+        border-color: #3563E9;
+    }
+    
+    .report-detail-actions .btn-primary:hover {
+        background-color: #2954D5;
+        border-color: #2954D5;
+        box-shadow: 0 4px 12px rgba(53, 99, 233, 0.25);
+    }
+    
+    .report-detail-actions .btn-outline-danger:hover {
+        box-shadow: 0 4px 12px rgba(229, 62, 62, 0.15);
+    }
+    
+    .report-detail-actions .btn-outline-secondary:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+    
+    .report-detail-actions .material-icons {
+        margin-right: 0.5rem;
+        font-size: 18px;
+    }
+    
+    /* Status Indicators */
+    .status-indicator {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.35rem 0.75rem;
+        border-radius: 1rem;
+        font-weight: 600;
+        font-size: 0.8rem;
+    }
+    
+    .status-pending {
+        background-color: #FFF4DE;
+        color: #B45309;
+    }
+    
+    .status-in-progress {
+        background-color: #E0F2FE;
+        color: #0369A1;
+    }
+    
+    .status-resolved {
+        background-color: #DCFCE7;
+        color: #15803D;
+    }
+    
+    .status-closed {
+        background-color: #F1F5F9;
+        color: #64748B;
+    }
+    
+    /* Meta Information */
+    .report-meta {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+        gap: 1rem;
+    }
+    
+    .meta-item {
+        display: flex;
+        align-items: center;
+        color: #64748B;
+        font-size: 0.85rem;
+    }
+    
+    .meta-item .material-icons {
+        font-size: 16px;
+        margin-right: 0.35rem;
+    }
+    
+    /* Content Sections */
+    .content-section {
+        margin-bottom: 1.5rem;
+    }
+    
+    .content-section:last-child {
+        margin-bottom: 0;
+    }
+    
+    /* Description Box */
+    .description-box {
+        background-color: #f8fafc;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-top: 0.5rem;
+    }
+    
+    /* Animation for better UX */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .report-modal-content {
+        animation: fadeIn 0.3s ease-out;
+    }
+</style>
+
 <div class="p-4 bg-white report-modal-content">
     <!-- Report Header -->
-    <div class="mb-3">
-        <div class="d-flex justify-content-between align-items-center">
-            <h5 class="fw-bold mb-1">{{ report.subject }}</h5>
-            <span class="badge rounded-pill d-inline-flex align-items-center {% if report.type == 'COMPLAINT' %}text-bg-danger
-                   {% elif report.type == 'SUGGESTION' %}text-bg-info
-                   {% elif report.type == 'INQUIRY' %}text-bg-primary
-                   {% elif report.type == 'DISPUTE' %}text-bg-warning
-                   {% endif %}">
+    <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-start">
+            <h5 class="mb-2">{{ report.subject }}</h5>
+            <span class="badge {% if report.type == 'COMPLAINT' %}bg-danger
+                   {% elif report.type == 'SUGGESTION' %}bg-info
+                   {% elif report.type == 'INQUIRY' %}bg-primary
+                   {% elif report.type == 'DISPUTE' %}bg-warning
+                   {% endif %} d-inline-flex align-items-center">
                 <span class="material-icons me-1" style="font-size: 14px;">
                     {% if report.type == 'COMPLAINT' %}report_problem
                     {% elif report.type == 'SUGGESTION' %}lightbulb
@@ -18,62 +285,91 @@
                 {{ report.get_type_display }}
             </span>
         </div>
-        <div class="d-flex align-items-center text-muted small mb-2">
-            <div class="d-flex align-items-center me-3">
-                <span class="material-icons me-1" style="font-size: 1rem;">person</span>
-                {{ report.user.get_full_name }}
+        <div class="report-meta">
+            <div class="d-flex align-items-center mb-2">
+                <div class="me-2">
+                    {% if report.is_anonymous %}
+                        <div class="user-avatar-initial" style="background-color: #718096;">
+                            <span class="material-icons" style="font-size: 16px;">person_off</span>
+                        </div>
+                    {% elif report.user.profile.image %}
+                        <img src="{{ report.user.profile.image.url }}" alt="{{ report.user.username }}" class="user-avatar">
+                    {% else %}
+                        <div class="user-avatar-initial">
+                            {{ report.user.username|make_list|first|default:"?" }}
+                        </div>
+                    {% endif %}
+                </div>
+                <div>
+                    {% if report.is_anonymous %}
+                        <h6 class="mb-0">
+                            {% if report.reporter_name %}
+                                {{ report.reporter_name }} <span class="badge bg-secondary ms-1">Anonymous</span>
+                            {% else %}
+                                Anonymous Reporter
+                            {% endif %}
+                        </h6>
+                    {% else %}
+                        <h6 class="mb-0">{{ report.user.get_full_name|default:report.user.username }}</h6>
+                    {% endif %}
+                    <small class="text-muted">{{ report.created_at|date:"F j, Y, g:i a" }}</small>
+                </div>
             </div>
-            <div class="d-flex align-items-center">
-                <span class="material-icons me-1" style="font-size: 1rem;">calendar_today</span>
-                {{ report.created_at|date:"M d, Y H:i" }}
+            
+            <div class="d-flex flex-wrap gap-2 mb-2">
+                {% if report.location %}
+                    <span class="badge bg-light text-dark border">
+                        <i class="fas fa-map-marker-alt me-1"></i> {{ report.location }}
+                    </span>
+                {% endif %}
+                
+                {% if report.incident_date %}
+                <span class="badge bg-light text-dark border">
+                    <i class="fas fa-calendar-alt me-1"></i> {{ report.incident_date|date:"F j, Y" }}
+                </span>
+                {% endif %}
+                
+                {% if report.vehicle_plate %}
+                    <span class="badge bg-light text-dark border">
+                        <i class="fas fa-car me-1"></i> {{ report.vehicle_plate }}
+                    </span>
+                {% endif %}
+                
+                {% if report.is_anonymous %}
+                    {% if report.reporter_email %}
+                    <span class="badge bg-light text-dark border">
+                        <i class="fas fa-envelope me-1"></i> {{ report.reporter_email }}
+                    </span>
+                    {% endif %}
+                {% else %}
+                    {% if report.user.email %}
+                    <span class="badge bg-light text-dark border">
+                        <i class="fas fa-envelope me-1"></i> {{ report.user.email }}
+                    </span>
+                    {% endif %}
+                {% endif %}
             </div>
         </div>
     </div>
 
     <!-- Main content organized in a grid -->
     <div class="row g-3">
-        <!-- First row - equal height and width cards -->
+        <!-- First row - Details and Description -->
         <div class="col-md-6">
             <!-- Report Details Card -->
-            <div class="card shadow-sm border-0 rounded-3 h-100">
-                <div class="card-header bg-light py-2">
+            <div class="report-card card h-100">
+                <div class="card-header py-2">
                     <div class="d-flex align-items-center">
-                        <span class="material-icons text-muted me-2">info</span>
+                        <span class="material-icons text-primary me-2">info</span>
                         <h6 class="m-0 fw-bold">Report Details</h6>
                     </div>
                 </div>
                 <div class="card-body">
                     <div class="row g-2">
-                        <div class="col-md-6">
-                            <div class="mb-2">
-                                <label class="text-muted small">Status</label>
-                                <div class="d-flex align-items-center">
-                                    <span class="material-icons me-2 {% if report.status == 'PENDING' %}text-warning
-                                           {% elif report.status == 'IN_PROGRESS' %}text-primary
-                                           {% elif report.status == 'RESOLVED' %}text-success
-                                           {% elif report.status == 'CLOSED' %}text-secondary
-                                           {% endif %}">
-                                        {% if report.status == 'PENDING' %}schedule
-                                        {% elif report.status == 'IN_PROGRESS' %}sync
-                                        {% elif report.status == 'RESOLVED' %}check_circle
-                                        {% elif report.status == 'CLOSED' %}cancel
-                                        {% endif %}
-                                    </span>
-                                    <span class="{% if report.status == 'PENDING' %}text-warning
-                                           {% elif report.status == 'IN_PROGRESS' %}text-primary
-                                           {% elif report.status == 'RESOLVED' %}text-success
-                                           {% elif report.status == 'CLOSED' %}text-secondary
-                                           {% endif %} fw-medium">
-                                        {{ report.get_status_display }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        
                         {% if report.incident_date %}
                         <div class="col-md-6">
                             <div class="mb-2">
-                                <label class="text-muted small">Incident Date</label>
+                                <label class="section-title">Incident Date</label>
                                 <p class="mb-0 d-flex align-items-center">
                                     <span class="material-icons me-2 text-muted" style="font-size: 1rem;">event</span>
                                     {{ report.incident_date|date:"M d, Y H:i" }}
@@ -85,7 +381,7 @@
                         {% if report.location %}
                         <div class="col-md-6">
                             <div class="mb-2">
-                                <label class="text-muted small">Location</label>
+                                <label class="section-title">Location</label>
                                 <p class="mb-0 d-flex align-items-center">
                                     <span class="material-icons me-2 text-muted" style="font-size: 1rem;">location_on</span>
                                     {{ report.location }}
@@ -94,10 +390,22 @@
                         </div>
                         {% endif %}
                         
+                        {% if report.phone_number %}
+                        <div class="col-md-6">
+                            <div class="mb-2">
+                                <label class="section-title">Phone Number</label>
+                                <p class="mb-0 d-flex align-items-center">
+                                    <span class="material-icons me-2 text-muted" style="font-size: 1rem;">phone</span>
+                                    {{ report.phone_number }}
+                                </p>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
                         {% if report.assigned_to %}
                         <div class="col-md-6">
                             <div class="mb-2">
-                                <label class="text-muted small">Assigned To</label>
+                                <label class="section-title">Assigned To</label>
                                 <p class="mb-0 d-flex align-items-center">
                                     <span class="material-icons me-2 text-muted" style="font-size: 1rem;">assignment_ind</span>
                                     {{ report.assigned_to.get_full_name }}
@@ -112,32 +420,34 @@
         
         <div class="col-md-6">
             <!-- Description Card -->
-            <div class="card shadow-sm border-0 rounded-3 h-100">
-                <div class="card-header bg-light py-2">
+            <div class="report-card card h-100">
+                <div class="card-header py-2">
                     <div class="d-flex align-items-center">
-                        <span class="material-icons text-muted me-2">description</span>
+                        <span class="material-icons text-primary me-2">description</span>
                         <h6 class="m-0 fw-bold">Description</h6>
                     </div>
                 </div>
                 <div class="card-body">
-                    <p class="mb-0">{{ report.description|linebreaks }}</p>
+                    <div class="description-box">
+                        {{ report.description|linebreaks }}
+                    </div>
                 </div>
             </div>
         </div>
         
         <!-- Second row - conditional cards -->
         {% if report.resolved_at %}
-        <div class="col-md-{% if report.attachment %}6{% else %}12{% endif %}">
-            <div class="card shadow-sm border-0 rounded-3 h-100">
-                <div class="card-header bg-light py-2">
+        <div class="col-md-{% if report.attachment or attachments %}6{% else %}12{% endif %}">
+            <div class="report-card card h-100">
+                <div class="card-header py-2">
                     <div class="d-flex align-items-center">
                         <span class="material-icons text-success me-2">check_circle</span>
                         <h6 class="m-0 fw-bold">Resolution Details</h6>
                     </div>
                 </div>
                 <div class="card-body">
-                    <div class="mb-2">
-                        <label class="text-muted small">Resolved Date</label>
+                    <div class="mb-3">
+                        <label class="section-title">Resolved Date</label>
                         <p class="mb-0 d-flex align-items-center">
                             <span class="material-icons me-2 text-muted" style="font-size: 1rem;">event_available</span>
                             {{ report.resolved_at|date:"M d, Y H:i" }}
@@ -146,8 +456,8 @@
                     
                     {% if report.resolution_notes %}
                     <div>
-                        <label class="text-muted small">Resolution Notes</label>
-                        <div class="p-2 bg-light rounded-3">
+                        <label class="section-title">Resolution Notes</label>
+                        <div class="description-box">
                             {{ report.resolution_notes|linebreaks }}
                         </div>
                     </div>
@@ -158,23 +468,71 @@
         {% endif %}
         
         <!-- Attachment section (if any) -->
-        {% if report.attachment %}
+        {% if report.attachment or attachments %}
         <div class="col-md-{% if report.resolved_at %}6{% else %}12{% endif %}">
-            <div class="card shadow-sm border-0 rounded-3 h-100">
-                <div class="card-header bg-light py-2">
+            <div class="report-card card h-100">
+                <div class="card-header py-2">
                     <div class="d-flex align-items-center">
-                        <span class="material-icons text-muted me-2">attach_file</span>
-                        <h6 class="m-0 fw-bold">Attachment</h6>
+                        <span class="material-icons text-primary me-2">attach_file</span>
+                        <h6 class="m-0 fw-bold">Attachments</h6>
                     </div>
                 </div>
                 <div class="card-body">
-                    <a href="{{ report.attachment.url }}" target="_blank" download class="d-flex align-items-center text-decoration-none">
-                        <span class="material-icons me-2 text-primary">file_download</span>
-                        <div>
-                            <span class="fw-medium">Download Attachment</span>
-                            <small class="text-muted d-block">{{ report.attachment.name|slice:"-20:" }}</small>
+                    <div class="attachments-grid">
+                        {% if report.attachment %}
+                        <!-- Legacy single attachment -->
+                        <div class="attachment-item mb-3 p-2">
+                            <div class="d-flex align-items-center">
+                                <span class="material-icons me-2 text-primary">insert_drive_file</span>
+                                <div class="flex-grow-1">
+                                    <span class="fw-medium">{{ report.attachment.name|slice:"-30:" }}</span>
+                                    <small class="text-muted d-block">Original Attachment</small>
+                                </div>
+                                <button onclick="downloadFile('{{ report.attachment.url }}', '{{ report.attachment.name }}')" class="btn btn-sm btn-primary ms-2">
+                                    <span class="material-icons" style="font-size: 16px;">download</span>
+                                </button>
+                            </div>
                         </div>
-                    </a>
+                        {% endif %}
+                        
+                        <!-- Multiple attachments grid -->
+                        {% if attachments %}
+                        <div class="row g-3 mt-2">
+                            {% for attachment in attachments %}
+                            <div class="col-md-4 col-lg-3 col-6">
+                                <div class="attachment-card">
+                                    <div class="attachment-preview">
+                                        {% if attachment.file.url|lower|slice:"-4:" in ".jpg,.jpeg,.png,.gif,.webp" %}
+                                            <!-- Image file preview -->
+                                            <a href="{{ attachment.file.url }}" target="_blank" class="d-block">
+                                                <img src="{{ attachment.file.url }}" alt="Attachment preview" class="attachment-img">
+                                            </a>
+                                        {% elif attachment.file.url|lower|slice:"-4:" == ".pdf" %}
+                                            <!-- PDF icon -->
+                                            <span class="material-icons attachment-icon" style="color: #e53935;">picture_as_pdf</span>
+                                        {% elif attachment.file.url|lower|slice:"-5:" in ".docx,.xlsx" or attachment.file.url|lower|slice:"-4:" in ".doc,.xls" %}
+                                            <!-- Document icon -->
+                                            <span class="material-icons attachment-icon" style="color: #1565c0;">description</span>
+                                        {% else %}
+                                            <!-- Generic file icon -->
+                                            <span class="material-icons attachment-icon" style="color: #607d8b;">insert_drive_file</span>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="attachment-info">
+                                        <p class="attachment-name" title="{{ attachment.file.name|slice:"-30:" }}">
+                                            {{ attachment.file.name|slice:"-30:" }}
+                                        </p>
+                                        <button onclick="downloadFile('{{ attachment.file.url }}', '{{ attachment.file.name }}')" class="attachment-download">
+                                            <span class="material-icons">download</span> Download
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
@@ -183,16 +541,35 @@
 
     <!-- Action Buttons -->
     <div class="report-detail-actions">
-        <button type="button" class="btn btn-primary d-flex align-items-center btn-update-status btn-update-report" data-report-id="{{ report.id }}" data-micromodal-close>
-            <span class="material-icons me-2" style="font-size: 18px;">update</span> Update Status
+        <button type="button" class="btn btn-primary btn-update-status btn-update-report" data-report-id="{{ report.id }}" data-micromodal-close>
+            <span class="material-icons">update</span> Update Status
         </button>
         {% if report.status == 'PENDING' or report.status == 'IN_PROGRESS' %}
-        <button type="button" class="btn btn-outline-danger d-flex align-items-center btn-dispute-report" data-report-id="{{ report.id }}" data-micromodal-close>
-            <span class="material-icons me-2" style="font-size: 18px;">gavel</span> Dispute Report
+        <button type="button" class="btn btn-outline-danger btn-dispute-report" data-report-id="{{ report.id }}" data-micromodal-close>
+            <span class="material-icons">gavel</span> Dispute Report
         </button>
         {% endif %}
-        <button type="button" class="btn btn-outline-secondary d-flex align-items-center btn-close-report" data-micromodal-close>
-            <span class="material-icons me-2" style="font-size: 18px;">close</span> Close
+        <button type="button" class="btn btn-outline-secondary btn-close-report" data-micromodal-close>
+            <span class="material-icons">close</span> Close
         </button>
     </div>
-</div> 
+</div>
+
+<script>
+    function downloadFile(url, filename) {
+        // Create an invisible anchor element
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = filename || 'download';
+        
+        // Add to DOM, trigger click, and remove
+        document.body.appendChild(a);
+        a.click();
+        
+        // Clean up after a small delay
+        setTimeout(() => {
+            document.body.removeChild(a);
+        }, 100);
+    }
+</script> 

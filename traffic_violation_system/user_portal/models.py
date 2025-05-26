@@ -69,16 +69,22 @@ class UserReport(models.Model):
         ('CLOSED', 'Closed'),
     ]
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reports')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reports', null=True, blank=True)
     type = models.CharField(max_length=20, choices=REPORT_TYPES)
     subject = models.CharField(max_length=200)
     description = models.TextField()
     location = models.CharField(max_length=200, blank=True)
+    phone_number = models.CharField(max_length=20, blank=True, null=True)
     incident_date = models.DateTimeField(null=True, blank=True)
-    attachment = models.FileField(upload_to='reports/', null=True, blank=True)
+    attachment = models.FileField(upload_to='reports/', null=True, blank=True)  # Keep for backward compatibility
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    # Additional fields for anonymous reports
+    reporter_name = models.CharField(max_length=100, blank=True, null=True)
+    reporter_email = models.EmailField(blank=True, null=True)
+    is_anonymous = models.BooleanField(default=False)
     
     # For tracking responses and resolution
     assigned_to = models.ForeignKey(
@@ -98,18 +104,32 @@ class UserReport(models.Model):
         self.assigned_to = user
         self.save()
 
-        # Create notification for user
-        UserNotification.objects.create(
-            user=self.user,
-            type='SYSTEM',
-            message=f'Your report "{self.subject}" has been resolved.'
-        )
+        # Create notification for user if not anonymous
+        if self.user:
+            UserNotification.objects.create(
+                user=self.user,
+                type='SYSTEM',
+                message=f'Your report "{self.subject}" has been resolved.'
+            )
 
     class Meta:
         ordering = ['-created_at']
 
     def __str__(self):
         return f"{self.get_type_display()} - {self.subject}"
+
+
+class ReportAttachment(models.Model):
+    """Model to store multiple attachments for a user report"""
+    report = models.ForeignKey(UserReport, on_delete=models.CASCADE, related_name='attachments')
+    file = models.FileField(upload_to='reports/attachments/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"Attachment for {self.report}"
+        
+    class Meta:
+        ordering = ['uploaded_at']
 
 
 class UserViolationManager(models.Manager):
