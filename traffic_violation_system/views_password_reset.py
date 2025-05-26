@@ -48,24 +48,29 @@ class BrevoPasswordResetForm(PasswordResetForm):
     
     def get_brevo_api_client(self):
         """Initialize and return the Brevo API client."""
-        # Try to get API key from environment first, then settings
-        api_key = os.environ.get('BREVO_API_KEY')
-        
-        # If not in environment, try the settings file
-        if not api_key:
-            # Get from traffic_violation_system.settings first, which has the hardcoded fallback
-            try:
-                from traffic_violation_system.settings import BREVO_API_KEY as TVS_KEY
-                api_key = TVS_KEY
-                logger.info("Using API key from traffic_violation_system.settings")
-            except ImportError:
-                logger.warning("Could not import traffic_violation_system.settings")
+        # Try to use crypto_utils for decryption if available
+        try:
+            from CAPSTONE_PROJECT.crypto_utils import get_env_value
+            api_key = get_env_value('BREVO_API_KEY')
+        except ImportError:
+            # Fallback to standard environment variable lookup
+            api_key = os.environ.get('BREVO_API_KEY')
             
-            # If still not found, try main settings
+            # If not in environment, try the settings file
             if not api_key:
-                api_key = getattr(settings, 'BREVO_API_KEY', '')
-                logger.info("Using API key from main settings")
-            
+                # Get from traffic_violation_system.settings first
+                try:
+                    from traffic_violation_system.settings import BREVO_API_KEY as TVS_KEY
+                    api_key = TVS_KEY
+                    logger.info("Using API key from traffic_violation_system.settings")
+                except ImportError:
+                    logger.warning("Could not import traffic_violation_system.settings")
+                
+                # If still not found, try main settings
+                if not api_key:
+                    api_key = getattr(settings, 'BREVO_API_KEY', '')
+                    logger.info("Using API key from main settings")
+        
         if not api_key:
             logger.error("BREVO_API_KEY not found in environment or settings")
             raise ValueError("BREVO_API_KEY not set")

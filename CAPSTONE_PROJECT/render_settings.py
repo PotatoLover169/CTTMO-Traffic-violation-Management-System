@@ -6,7 +6,9 @@ from .settings import *
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 # Update secret key from environment
-SECRET_KEY = os.environ.get('SECRET_KEY', 'fallback-secret-key-for-build-not-for-production')
+SECRET_KEY = os.environ.get('SECRET_KEY')
+if not SECRET_KEY:
+    raise ValueError("SECRET_KEY environment variable is not set. Cannot start application securely.")
 
 # Allow all hostnames from Render
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '.onrender.com,localhost').split(',')

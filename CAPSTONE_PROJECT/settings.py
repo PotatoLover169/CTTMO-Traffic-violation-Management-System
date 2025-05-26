@@ -16,25 +16,34 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
+# Import crypto utilities for handling encrypted environment variables
+try:
+    from CAPSTONE_PROJECT.crypto_utils import get_env_value
+except ImportError:
+    # Fallback if crypto_utils is not available
+    def get_env_value(name, default=None):
+        return os.environ.get(name, default)
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # OpenAI API Key
-OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+OPENAI_API_KEY = get_env_value('OPENAI_API_KEY')
 
 # Google API Key for Gemini
-GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
+GOOGLE_API_KEY = get_env_value('GOOGLE_API_KEY')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-default-key-change-me-in-production')
+SECRET_KEY = get_env_value('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+DEBUG = get_env_value('DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.1.4', '*']
+# Parse ALLOWED_HOSTS from comma-separated string
+ALLOWED_HOSTS = get_env_value('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 
 
@@ -166,7 +175,7 @@ LOGOUT_REDIRECT_URL = '/login/'
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = 3600  # 1 hour in seconds
 SESSION_SAVE_EVERY_REQUEST = True
-SESSION_COOKIE_SECURE = False  # Changed to False to work with both HTTP and HTTPS
+SESSION_COOKIE_SECURE = get_env_value('SESSION_COOKIE_SECURE', 'False').lower() == 'true'
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'  # Changed from 'Strict' to 'Lax' for better compatibility
 
@@ -194,7 +203,7 @@ CACHE_MIDDLEWARE_KEY_PREFIX = ''
 # Mobile-specific settings
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SECURE_SSL_REDIRECT = False  # Changed to False to work with both HTTP and HTTPS
+SECURE_SSL_REDIRECT = get_env_value('SECURE_SSL_REDIRECT', 'False').lower() == 'true'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -225,8 +234,8 @@ PAYMONGO_PUBLIC_KEY = 'pk_test_yourpaymongokeypublicvalue'
 PAYMONGO_SECRET_KEY = 'sk_test_yourpaymongosecretkeyvalue'
 
 # ID Analyzer API Keys
-ID_ANALYZER_API_KEY = os.getenv('ID_ANALYZER_API_KEY', 'iM7raOQ6XZmE2yxmOHFXtfKAue4JCZS4')
-ID_ANALYZER_RESTRICTED_KEY = os.getenv('ID_ANALYZER_RESTRICTED_KEY', 'qBYFepghQVytiBMLoQTBKm1d2qFI8skm')
+ID_ANALYZER_API_KEY = get_env_value('ID_ANALYZER_API_KEY')
+ID_ANALYZER_RESTRICTED_KEY = get_env_value('ID_ANALYZER_RESTRICTED_KEY')
 
 # Django REST Framework settings
 REST_FRAMEWORK = {
@@ -249,13 +258,14 @@ CORS_ORIGIN_WHITELIST = [
 ]
 
 # Brevo API settings
-BREVO_API_KEY = os.environ.get('BREVO_API_KEY', '')
-DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'hutchiejn@gmail.com')
-SITE_URL = os.environ.get('SITE_URL', 'http://localhost:8000')
+BREVO_API_KEY = get_env_value('BREVO_API_KEY')
+DEFAULT_FROM_EMAIL = get_env_value('DEFAULT_FROM_EMAIL')
+SITE_URL = get_env_value('SITE_URL', 'http://localhost:8000')
 
 # Email verification settings
 EMAIL_VERIFICATION_REQUIRED = True
-EMAIL_VERIFICATION_TIMEOUT_HOURS = 24  # Token expiration in hours
+EMAIL_VERIFICATION_TIMEOUT_HOURS = int(get_env_value('EMAIL_VERIFICATION_TIMEOUT_HOURS', 24))
+EMAIL_VERIFICATION_CODE_LENGTH = int(get_env_value('EMAIL_VERIFICATION_CODE_LENGTH', 6))
 EMAIL_VERIFICATION_EXEMPT_URLS = [
     r'^/login/$',
     r'^/logout/$',
@@ -272,12 +282,31 @@ EMAIL_VERIFICATION_EXEMPT_URLS = [
 ]
 
 # reCAPTCHA settings
-RECAPTCHA_SITE_KEY = os.environ.get('RECAPTCHA_SITE_KEY', '6LcooDUrAAAAAFKBOKmvx5DgMXp2GyuckuLlWLt4')  # Test key
-RECAPTCHA_SECRET_KEY = os.environ.get('RECAPTCHA_SECRET_KEY', '6LcooDUrAAAAAKq8h5bPT6l2JCIlAl6QksJA-Oig')  # Test key
+RECAPTCHA_SITE_KEY = get_env_value('RECAPTCHA_SITE_KEY')
+RECAPTCHA_SECRET_KEY = get_env_value('RECAPTCHA_SECRET_KEY')
 
 # Define allowed domains for reCAPTCHA to work on
-# This should match what you've configured in the Google reCAPTCHA admin console
-RECAPTCHA_ALLOWED_DOMAINS = os.environ.get('RECAPTCHA_ALLOWED_DOMAINS', 'https://traffic-violation-system.onrender.com').split(',')
-if not RECAPTCHA_ALLOWED_DOMAINS or RECAPTCHA_ALLOWED_DOMAINS == ['https://traffic-violation-system.onrender.com']:
-    # Default to the configured hosts if no explicit domains are set
-    RECAPTCHA_ALLOWED_DOMAINS = [host.strip("^$") for host in ALLOWED_HOSTS if not host.startswith('*')]
+RECAPTCHA_ALLOWED_DOMAINS = get_env_value('RECAPTCHA_ALLOWED_DOMAINS', 'localhost,127.0.0.1').split(',')
+
+# Security settings
+CSRF_COOKIE_SECURE = get_env_value('CSRF_COOKIE_SECURE', 'False').lower() == 'true'
+
+# Configuration validation
+try:
+    from CAPSTONE_PROJECT.config_validation import check_config, log_config_summary
+    
+    # In production, raise exceptions for missing critical variables
+    if not DEBUG:
+        check_config(raise_exception=True)
+    else:
+        # In development, just log warnings
+        check_config()
+    
+    # Log a summary of the current configuration
+    log_config_summary()
+except ImportError:
+    import logging
+    logging.warning("Configuration validation module not found. Skipping validation.")
+except Exception as e:
+    import logging
+    logging.error(f"Error validating configuration: {str(e)}")

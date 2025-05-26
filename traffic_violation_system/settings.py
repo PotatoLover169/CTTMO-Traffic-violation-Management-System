@@ -5,16 +5,23 @@ from dotenv import load_dotenv
 # Load environment variables from .env file if it exists
 load_dotenv()
 
-# Hard-coded values are now fallbacks in case environment variables aren't set
-# Always prefer to use environment variables for sensitive data
-BREVO_API_KEY = os.environ.get('BREVO_API_KEY', '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')
-DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'hutchiejn@gmail.com')
-SITE_URL = os.environ.get('SITE_URL', 'http://localhost:8000')
+# Import crypto utilities for handling encrypted environment variables
+try:
+    from CAPSTONE_PROJECT.crypto_utils import get_env_value
+except ImportError:
+    # Fallback if crypto_utils is not available
+    def get_env_value(name, default=None):
+        return os.environ.get(name, default)
+
+# Use environment variables for sensitive data
+BREVO_API_KEY = get_env_value('BREVO_API_KEY')
+DEFAULT_FROM_EMAIL = get_env_value('DEFAULT_FROM_EMAIL')
+SITE_URL = get_env_value('SITE_URL', 'http://localhost:8000')
 
 # Email verification settings
 EMAIL_VERIFICATION_REQUIRED = True
-EMAIL_VERIFICATION_TIMEOUT_HOURS = int(os.environ.get('EMAIL_VERIFICATION_TIMEOUT_HOURS', 24))
-EMAIL_VERIFICATION_CODE_LENGTH = int(os.environ.get('EMAIL_VERIFICATION_CODE_LENGTH', 6))
+EMAIL_VERIFICATION_TIMEOUT_HOURS = int(get_env_value('EMAIL_VERIFICATION_TIMEOUT_HOURS', 24))
+EMAIL_VERIFICATION_CODE_LENGTH = int(get_env_value('EMAIL_VERIFICATION_CODE_LENGTH', 6))
 
 # File Storage
 DEFAULT_FILE_STORAGE = 'traffic_violation_system.storage.SafeFileStorage'
