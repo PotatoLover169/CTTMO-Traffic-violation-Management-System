@@ -15,11 +15,29 @@
                     <p><strong>Location:</strong> {{ violation.location }}</p>
                     <p><strong>Type:</strong> {{ violation.violation_type }}</p>
                     <p><strong>Fine Amount:</strong> ₱{{ violation.fine_amount }}</p>
+                    
+                    <!-- Add interest amount and total calculation -->
+                    {% if violation.status != 'PAID' %}
+                    {% with interest_amount=violation.calculate_interest_amount %}
+                        {% if interest_amount > 0 %}
+                            <p><strong>Interest Amount:</strong> <span class="text-danger">₱{{ interest_amount|floatformat:2 }}</span></p>
+                            <p><strong>Total Amount Due:</strong> <span class="fw-bold">₱{{ violation.get_total_with_interest|floatformat:2 }}</span></p>
+                        {% endif %}
+                    {% endwith %}
+                    {% endif %}
+                    
                     <p><strong>Status:</strong> 
                         <span class="badge {% if violation.status == 'PAID' %}bg-success{% elif violation.status == 'PENDING' %}bg-warning{% else %}bg-danger{% endif %}">
                             {{ violation.status }}
                         </span>
                     </p>
+                    {% if user.userprofile.role == 'ADMIN' or user.userprofile.role == 'TREASURER' %}
+                    <p>
+                        <a href="{% url 'violation_interest_history' violation.id %}" class="btn btn-sm btn-info">
+                            <i class="fas fa-percentage me-1"></i> View Interest History
+                        </a>
+                    </p>
+                    {% endif %}
                 </div>
                 <div class="col-md-6">
                     <h6 class="font-weight-bold">Violator Information</h6>

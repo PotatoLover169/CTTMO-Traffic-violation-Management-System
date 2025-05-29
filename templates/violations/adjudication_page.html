@@ -106,7 +106,9 @@ window.violationTypeAmounts = {};
                                     data-location="{{ violation.location }}"
                                     data-is-rejected="{{ violation.is_rejected|lower }}"
                                     data-is-tdz="{{ violation.is_tdz_violation|lower|default:'false' }}"
-                                    data-rejection-reason="{{ violation.rejection_reason|default:'' }}">
+                                    data-rejection-reason="{{ violation.rejection_reason|default:'' }}"
+                                    data-interest-amount="{{ violation.interest_amount|default:'0' }}"
+                                    data-total-with-interest="{{ violation.total_with_interest|default:violation.fine_amount }}">
                                     <div class="card">
                                         <div class="card-header d-flex justify-content-between align-items-center py-3">
                                             <div>
@@ -133,6 +135,18 @@ window.violationTypeAmounts = {};
                                                         <span class="fw-semibold fs-5">₱{{ violation.fine_amount|floatformat:2 }}</span>
                                                         {% if violation.is_tdz_violation %}
                                                         <div class="small text-danger">TDZ penalties applied (2x)</div>
+                                                        {% endif %}
+                                                        
+                                                        <!-- Add interest and total with interest -->
+                                                        {% if violation.interest_amount > 0 %}
+                                                        <div class="mt-1">
+                                                            <span class="text-muted">Interest:</span>
+                                                            <span class="fw-semibold text-danger">₱{{ violation.interest_amount|floatformat:2 }}</span>
+                                                        </div>
+                                                        <div>
+                                                            <span class="text-muted">Total Due:</span>
+                                                            <span class="fw-bold fs-5">₱{{ violation.total_with_interest|floatformat:2 }}</span>
+                                                        </div>
                                                         {% endif %}
                                                     </div>
                                                     <button class="btn btn-primary select-violation-btn">
@@ -203,6 +217,27 @@ window.violationTypeAmounts = {};
                                                     Original: ₱<span id="originalAmount">0.00</span>
                                                 </small>
                                             </div>
+                                            
+                                            <!-- Add interest information display -->
+                                            <div class="alert alert-info p-2 mb-2" id="interestInfoSection" style="display: none;">
+                                                <div class="d-flex justify-content-between">
+                                                    <div>
+                                                        <small class="fw-medium">Interest Amount:</small>
+                                                        <small class="text-danger fw-semibold">₱<span id="interestAmount">0.00</span></small>
+                                                    </div>
+                                                    <div>
+                                                        <small class="fw-medium">Total with Interest:</small>
+                                                        <small class="fw-semibold">₱<span id="totalWithInterest">0.00</span></small>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Add option to include interest -->
+                                            <div class="form-check form-switch mb-2" id="includeInterestSection" style="display: none;">
+                                                <input class="form-check-input" type="checkbox" id="includeInterest" checked>
+                                                <label class="form-check-label" for="includeInterest">Include interest in penalty amount</label>
+                                            </div>
+                                            
                                             <div class="input-group input-group-lg">
                                                 <span class="input-group-text">₱</span>
                                                 <input type="number" step="0.01" class="form-control fw-medium" id="penaltyAmount" name="penalty_amount" required>
@@ -261,6 +296,8 @@ window.violationTypeAmounts = {};
                                 <th class="fw-semibold">DATE ADJUDICATED</th>
                                 <th class="fw-semibold">VIOLATION TYPES</th>
                                 <th class="fw-semibold">PENALTY</th>
+                                <th class="fw-semibold">INTEREST</th>
+                                <th class="fw-semibold">TOTAL</th>
                                 <th class="fw-semibold">ADJUDICATED BY</th>
                                 <th class="fw-semibold">STATUS</th>
                             </tr>
@@ -272,6 +309,20 @@ window.violationTypeAmounts = {};
                                     <td>{{ violation.adjudication_date|date:"M d, Y" }}</td>
                                     <td class="adjudicated-violation-types" data-violation-types="{{ violation.violation_types }}" title="{{ violation.violation_types }}"></td>
                                     <td class="fw-semibold">₱{{ violation.fine_amount|floatformat:2 }}</td>
+                                    <td class="{% if violation.interest_amount > 0 %}text-danger fw-semibold{% endif %}">
+                                        {% if violation.interest_amount > 0 %}
+                                            ₱{{ violation.interest_amount|floatformat:2 }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td class="fw-semibold">
+                                        {% if violation.interest_amount > 0 %}
+                                            ₱{{ violation.total_with_interest|floatformat:2 }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
                                     <td title="{{ violation.adjudicated_by }}">
                                         <span class="truncate">{{ violation.adjudicated_by }}</span>
                                     </td>
@@ -593,6 +644,22 @@ window.violationTypeAmounts = {};
 <!-- Scripts -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Add global error handler to catch any uncaught errors
+    window.addEventListener('error', function(e) {
+        console.error('Global error caught:', e.error || e.message);
+        // Log to console but don't interrupt user workflow
+    });
+
+    // Track form state
+    window.adjudicationState = {
+        isProcessing: false,
+        lastSubmission: null,
+        submissionCount: 0
+    };
+
+    // Check for any pending submissions from previous page loads
+    checkForInterruptedSubmissions();
+    
     // Initialize tooltips for truncated content
     initializeTooltips();
     
@@ -704,6 +771,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const isTdzViolation = this.getAttribute('data-is-tdz') === 'true';
             const rejectionReason = this.getAttribute('data-rejection-reason');
             
+            // Get interest data - Fix the selectors to correctly find interest elements
+            // Use the data attributes directly instead of querying DOM elements
+            const interestAmount = parseFloat(this.getAttribute('data-interest-amount') || '0');
+            const totalWithInterest = parseFloat(this.getAttribute('data-total-with-interest') || violationAmount);
+            
+            console.log("Found interest amount:", interestAmount);
+            console.log("Found total with interest:", totalWithInterest);
+            
             // Store original amount for reference
             const originalAmountSpan = document.getElementById('originalAmount');
             const originalAmountLabel = document.getElementById('originalAmountLabel');
@@ -752,7 +827,51 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Update form values
             document.getElementById('ticketId').value = violationId;
-            document.getElementById('penaltyAmount').value = violationAmount;
+            document.getElementById('penaltyAmount').value = interestAmount > 0 ? totalWithInterest : violationAmount;
+            
+            // Show/hide interest information if available
+            const interestInfoSection = document.getElementById('interestInfoSection');
+            const includeInterestSection = document.getElementById('includeInterestSection');
+            
+            if (interestAmount > 0) {
+                // Show interest information
+                interestInfoSection.style.display = 'block';
+                document.getElementById('interestAmount').textContent = interestAmount.toFixed(2);
+                document.getElementById('totalWithInterest').textContent = totalWithInterest.toFixed(2);
+                
+                // Show interest toggle switch
+                includeInterestSection.style.display = 'block';
+                
+                // Set up the interest toggle handler
+                const includeInterestCheckbox = document.getElementById('includeInterest');
+                includeInterestCheckbox.checked = true; // Default to include interest
+                
+                // Handle the toggle change
+                includeInterestCheckbox.addEventListener('change', function() {
+                    const penaltyAmountField = document.getElementById('penaltyAmount');
+                    if (this.checked) {
+                        // Include interest
+                        penaltyAmountField.value = totalWithInterest.toFixed(2);
+                    } else {
+                        // Exclude interest, use original fine amount
+                        penaltyAmountField.value = violationAmount.toFixed(2);
+                    }
+                    
+                    // Update visual indicator
+                    penaltyAmountField.style.transition = 'background-color 0.3s';
+                    penaltyAmountField.style.backgroundColor = this.checked ? '#e8f5e9' : '#ffebee';
+                    setTimeout(() => {
+                        penaltyAmountField.style.backgroundColor = '';
+                    }, 800);
+                });
+                
+                // Set initial value to include interest
+                document.getElementById('penaltyAmount').value = totalWithInterest.toFixed(2);
+            } else {
+                // Hide interest sections if no interest
+                interestInfoSection.style.display = 'none';
+                includeInterestSection.style.display = 'none';
+            }
             
             // Update violation types list
             const violationTypesList = document.getElementById('violationTypesList');
@@ -1141,14 +1260,25 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Handle form submission
+    // Handle form submission with direct approach
     document.getElementById('adjudicationForm').addEventListener('submit', function(event) {
         event.preventDefault();
         
-        // Gather form data
+        // Get basic form data
         const ticketId = document.getElementById('ticketId').value;
         const penaltyAmount = document.getElementById('penaltyAmount').value;
         const notes = document.getElementById('adjudicationNotes').value;
+        
+        // Basic validation
+        if (!ticketId || !penaltyAmount) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Form Error',
+                text: !ticketId ? 'No violation selected.' : 'Please enter the penalty amount.',
+                confirmButtonColor: 'var(--primary-color)'
+            });
+            return;
+        }
         
         // Get selected violation types
         const selectedTypes = [];
@@ -1156,41 +1286,48 @@ document.addEventListener('DOMContentLoaded', function() {
             selectedTypes.push(checkbox.value);
         });
         
-        // Get removal reasons for removed violations
+        // Get interest information
+        const interestAmount = document.getElementById('interestAmount') ? 
+            parseFloat(document.getElementById('interestAmount').textContent || '0') : 0;
+        
+        const totalWithInterest = document.getElementById('totalWithInterest') ? 
+            parseFloat(document.getElementById('totalWithInterest').textContent || penaltyAmount) : parseFloat(penaltyAmount);
+        
+        const includesInterest = document.getElementById('includeInterest') ? 
+            document.getElementById('includeInterest').checked : false;
+        
+        // Get removal reasons
         const removedViolations = {};
         document.querySelectorAll('.violation-type-checkbox:not(:checked)').forEach(checkbox => {
             const violationType = checkbox.value;
             const reason = checkbox.getAttribute('data-removal-reason') || 'No reason provided';
             const amount = checkbox.getAttribute('data-amount') || '0.00';
-            
-            removedViolations[violationType] = {
-                reason: reason,
-                amount: amount
-            };
+            removedViolations[violationType] = { reason, amount };
         });
         
-        // Validate form
-        if (!ticketId) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'No violation selected.',
-                confirmButtonColor: 'var(--primary-color)'
-            });
-            return;
+        // Prepare form data
+        const formData = {
+            ticket_id: ticketId,
+            violation_types: selectedTypes,
+            penalty_amount: penaltyAmount,
+            notes: notes,
+            interest_amount: interestAmount,
+            total_with_interest: totalWithInterest,
+            includes_interest: includesInterest,
+            removed_violations: removedViolations
+        };
+        
+        // Store submission for potential recovery
+        try {
+            localStorage.setItem('last_adjudication_submission', JSON.stringify({
+                timestamp: Date.now(),
+                data: formData
+            }));
+        } catch (e) {
+            console.warn('Could not store submission data:', e);
         }
         
-        if (!penaltyAmount) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Please enter the penalty amount.',
-                confirmButtonColor: 'var(--primary-color)'
-            });
-            return;
-        }
-        
-        // Confirm submission
+        // Confirm submission with SweetAlert
         Swal.fire({
             title: 'Confirm Adjudication',
             text: 'Are you sure you want to submit this adjudication decision?',
@@ -1202,256 +1339,83 @@ document.addEventListener('DOMContentLoaded', function() {
             cancelButtonText: 'Cancel'
         }).then((result) => {
             if (result.isConfirmed) {
-                // Show loading state
+                // Show loading state with SweetAlert
                 Swal.fire({
                     title: 'Processing...',
-                    html: '<div class="spinner-border text-primary" role="status"></div>',
+                    html: '<div class="spinner-border text-primary" role="status"></div><p class="mt-3">Processing your submission...</p>',
                     showConfirmButton: false,
-                    allowOutsideClick: false
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
                 });
                 
-                // Send AJAX request
+                // Set up automatic page refresh as fallback
+                const timeoutId = setTimeout(() => {
+                    window.location.reload();
+                }, 10000); // 10 seconds
+                
+                // Submit the form using fetch
                 fetch('{% url "adjudicate_ticket" %}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRFToken': getCookie('csrftoken')
                     },
-                    body: JSON.stringify({
-                        ticket_id: ticketId,
-                        violation_types: selectedTypes,
-                        penalty_amount: penaltyAmount,
-                        notes: notes,
-                        removed_violations: removedViolations // Add the removed violations with reasons
-                    })
+                    body: JSON.stringify(formData)
                 })
                 .then(response => {
+                    clearTimeout(timeoutId); // Clear the automatic refresh
+                    
                     if (!response.ok) {
-                        throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+                        throw new Error(`Server error: ${response.status}`);
                     }
+                    
                     return response.json();
                 })
                 .then(data => {
-                    if (data.status === 'success') {
-                        // Success message
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: 'Adjudication decision has been submitted successfully.',
-                            confirmButtonColor: 'var(--primary-color)'
-                        }).then(() => {
-                            // Handle successful adjudication
-                            const wasRejected = data.was_rejected;
-                            const violationCard = document.querySelector(`.violation-card[data-violation-id="${ticketId}"]`);
-                            
-                            // Get or re-get the adjudicated table body (in case it was just created)
-                            let adjudicatedTableBody = document.getElementById('adjudicatedViolationsBody');
-                            
-                            // Get adjudicated data
-                            const adjudicationDate = new Date().toLocaleDateString('en-US', {
-                                year: 'numeric',
-                                month: 'short',
-                                day: 'numeric'
-                            });
-                            
-                            // Create and insert the new row with proper styling
-                            const newRow = document.createElement('tr');
-                            
-                            // Format adjudication date and use server date if available
-                            const formattedDate = data.adjudication_date ? 
-                                new Date(data.adjudication_date).toLocaleDateString('en-US', {
-                                    year: 'numeric',
-                                    month: 'short',
-                                    day: 'numeric'
-                                }) : adjudicationDate;
-                            
-                            // Create row with consistent formatting
-                            newRow.innerHTML = `
-                                <td>${ticketId}</td>
-                                <td>${formattedDate}</td>
-                                <td class="adjudicated-violation-types" data-violation-types='${JSON.stringify(selectedTypes)}'>${selectedTypes.join(', ')}</td>
-                                <td>₱${parseFloat(penaltyAmount).toFixed(2)}</td>
-                                <td>${data.adjudicated_by || 'Current User'}</td>
-                                <td><span class="badge ${data.status === 'APPROVED' ? 'bg-success' : 'bg-primary'} text-white">${data.status || 'ADJUDICATED'}</span></td>
-                            `;
-                            
-                            // Add the new row to the table
-                            adjudicatedTableBody.prepend(newRow);
-                            
-                            // Add enhanced highlight effects to the new row
-                            newRow.style.animation = 'highlightNewRow 3s';
-                            
-                            // Add the CSS for animations if it doesn't exist
-                            if (!document.querySelector('style#adjudication-animations')) {
-                                const style = document.createElement('style');
-                                style.id = 'adjudication-animations';
-                                style.textContent = `
-                                    @keyframes highlightNewRow {
-                                        0% { background-color: rgba(var(--primary-color-rgb, 37, 99, 235), 0.3); transform: translateY(-10px); opacity: 0; }
-                                        10% { background-color: rgba(var(--primary-color-rgb, 37, 99, 235), 0.3); transform: translateY(0); opacity: 1; }
-                                        20% { background-color: rgba(var(--primary-color-rgb, 37, 99, 235), 0.1); }
-                                        30% { background-color: rgba(var(--primary-color-rgb, 37, 99, 235), 0.3); }
-                                        100% { background-color: transparent; }
-                                    }
-                                    
-                                    @keyframes fadeOutCard {
-                                        0% { opacity: 1; transform: translateX(0); }
-                                        100% { opacity: 0; transform: translateX(-20px); }
-                                    }
-                                    
-                                    @keyframes pulseMessage {
-                                        0% { background-color: #d1e7dd; }
-                                        50% { background-color: #e8f5e9; }
-                                        100% { background-color: #d1e7dd; }
-                                    }
-                                `;
-                                document.head.appendChild(style);
-                            }
-                            
-                            // Scroll to the new row in the adjudicated table
-                            setTimeout(() => {
-                                newRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                                
-                                // Show a temporary toast message near the adjudicated section
-                                const adjudicatedCard = document.querySelector('.card:last-child');
-                                const toast = document.createElement('div');
-                                toast.className = 'alert alert-success position-absolute';
-                                toast.style.top = '0';
-                                toast.style.right = '1rem';
-                                toast.style.zIndex = '100';
-                                toast.style.maxWidth = '300px';
-                                toast.style.animation = 'pulseMessage 2s infinite';
-                                toast.style.border = 'none';
-                                toast.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
-                                toast.innerHTML = `
-                                    <div class="d-flex align-items-center">
-                                        <span class="material-icons me-2">check_circle</span>
-                                        <div>
-                                            <p class="mb-0">Adjudication added successfully</p>
-                                        </div>
-                                    </div>
-                                `;
-                                
-                                adjudicatedCard.style.position = 'relative';
-                                adjudicatedCard.appendChild(toast);
-                                
-                                // Remove toast after 3 seconds
-                                setTimeout(() => {
-                                    toast.style.transition = 'all 0.5s ease';
-                                    toast.style.opacity = '0';
-                                    toast.style.transform = 'translateY(-10px)';
-                                    setTimeout(() => toast.remove(), 500);
-                                }, 3000);
-                            }, 100);
-                            
-                            // Remove the card from the pending list with animation
-                            violationCard.style.animation = 'fadeOutCard 0.3s ease forwards';
-
-                            // Wait for animation to complete before removing the violation card
-                            setTimeout(() => {
-                                violationCard.remove();
-                                
-                                // Update counts
-                                const pendingCount = document.querySelectorAll('.violation-card').length;
-                                
-                                // Update the header count and badge
-                                const pendingHeader = document.querySelector('.card-header h5');
-                                if (pendingHeader) {
-                                    pendingHeader.textContent = `Pending Violations (${pendingCount})`;
-                                }
-                                
-                                const pendingCountElement = document.querySelector('.card-header .badge.bg-primary');
-                                if (pendingCountElement) {
-                                    pendingCountElement.textContent = pendingCount;
-                                }
-                                
-                                // Update adjudicated count
-                                const adjudicatedCount = document.querySelectorAll('#adjudicatedViolationsBody tr').length;
-                                const adjudicatedCountElement = document.querySelector('.card-header .badge.bg-success');
-                                if (adjudicatedCountElement) {
-                                    adjudicatedCountElement.textContent = adjudicatedCount;
-                                }
-                                
-                                // Update the adjudicated header
-                                const adjudicatedHeader = document.querySelector('.card:last-child .card-header h5');
-                                if (adjudicatedHeader) {
-                                    adjudicatedHeader.textContent = 'Adjudicated Violations';
-                                }
-                                
-                                // If all violations are adjudicated, show a message
-                                if (pendingCount === 0) {
-                                    document.getElementById('pendingViolationsContainer').innerHTML = `
-                                        <div class="alert alert-success">
-                                            <div class="d-flex align-items-center">
-                                                <span class="material-icons me-2">check_circle</span>
-                                                <p class="mb-0">All violations have been adjudicated.</p>
-                                            </div>
-                                        </div>
-                                    `;
-                                }
-
-                                // Check if the adjudicated table is empty
-                                const noAdjudicationsMessage = document.querySelector('.card-body:last-child .alert-info');
-                                
-                                // If there was a "No adjudicated violations" message, remove it
-                                if (noAdjudicationsMessage && noAdjudicationsMessage.textContent.includes('No adjudicated violations')) {
-                                    noAdjudicationsMessage.remove();
-                                    
-                                    // Add the table structure if it was not there before
-                                    const tableContainer = document.querySelector('.card-body:last-child');
-                                    if (!tableContainer.querySelector('.table-responsive')) {
-                                        tableContainer.innerHTML = `
-                                            <div class="table-responsive">
-                                                <table class="table table-hover">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Ticket #</th>
-                                                            <th>Date Adjudicated</th>
-                                                            <th>Violation Types</th>
-                                                            <th>Penalty</th>
-                                                            <th>Adjudicated By</th>
-                                                            <th>Status</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody id="adjudicatedViolationsBody">
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        `;
-                                        // Re-get the table body after creating it
-                                        adjudicatedTableBody = document.getElementById('adjudicatedViolationsBody');
-                                        
-                                        // Add the newly created adjudicated entry to the table again
-                                        adjudicatedTableBody.prepend(newRow);
-                                    }
-                                }
-
-                                // Reset the form
-                                document.getElementById('noViolationSelectedMessage').style.display = 'block';
-                                document.getElementById('adjudicationFormContent').style.display = 'none';
-                                document.getElementById('adjudicationForm').reset();
-                            }, 300);
-                        });
-                    } else {
-                        // Error message
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: data.message || 'An error occurred while processing the adjudication.',
-                            confirmButtonColor: 'var(--primary-color)'
-                        });
+                    // Clear localStorage after successful submission
+                    try {
+                        localStorage.removeItem('last_adjudication_submission');
+                    } catch (e) {
+                        console.warn('Could not clear submission data:', e);
                     }
+                    
+                    // Success - Show success message with SweetAlert
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Adjudication submitted successfully.',
+                        timer: 2000,
+                        timerProgressBar: true,
+                        showConfirmButton: false
+                    }).then(() => {
+                        // Reload page to show updated state
+                        window.location.reload();
+                    });
+                    
+                    // Fallback reload timer
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2500);
                 })
                 .catch(error => {
                     console.error('Error:', error);
+                    
+                    // Show error with SweetAlert
                     Swal.fire({
                         icon: 'error',
-                        title: 'Error Submitting Adjudication',
-                        html: `
-                            <p>${error.message || 'An unexpected error occurred'}</p>
-                            <p class="mt-2 text-muted small">If the problem persists, please contact the system administrator.</p>
-                        `,
+                        title: 'Error',
+                        text: `An error occurred: ${error.message}`,
+                        footer: 'The adjudication might have been processed anyway.',
+                        showCancelButton: true,
+                        confirmButtonText: 'Reload Page',
+                        cancelButtonText: 'Try Again',
                         confirmButtonColor: 'var(--primary-color)'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.reload();
+                        }
                     });
                 });
             }
@@ -1483,6 +1447,124 @@ document.addEventListener('DOMContentLoaded', function() {
             violationCard.click();
             violationCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
+    }
+    
+    // Function to check for any interrupted submissions from previous page loads
+    function checkForInterruptedSubmissions() {
+        try {
+            // Check for last adjudication submission
+            const lastSubmission = localStorage.getItem('last_adjudication_submission');
+            if (lastSubmission) {
+                try {
+                    const submissionData = JSON.parse(lastSubmission);
+                    const timestamp = submissionData.timestamp;
+                    const formData = submissionData.data;
+                    
+                    // Only check recent submissions (last 30 minutes)
+                    const submissionAge = Math.floor((Date.now() - timestamp) / 1000 / 60); // minutes
+                    if (submissionAge < 30 && formData) {
+                        Swal.fire({
+                            title: 'Previous Submission Detected',
+                            html: `
+                                <p>It looks like you were submitting an adjudication ${submissionAge} minute${submissionAge !== 1 ? 's' : ''} ago, but the process may not have completed.</p>
+                                <p>Would you like to:</p>
+                            `,
+                            icon: 'question',
+                            showDenyButton: true,
+                            showCancelButton: true,
+                            confirmButtonText: 'Try Again',
+                            denyButtonText: 'Ignore',
+                            cancelButtonText: 'Check Status',
+                            confirmButtonColor: 'var(--primary-color)'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                // Try again with the saved data
+                                submitRecoveredAdjudication(formData);
+                            } else if (result.isDenied) {
+                                // Clean up and ignore
+                                localStorage.removeItem('last_adjudication_submission');
+                            } else {
+                                // User will check status manually - refresh the page
+                                window.location.reload();
+                            }
+                        });
+                    } else if (submissionAge >= 30) {
+                        // Clean up old submissions
+                        localStorage.removeItem('last_adjudication_submission');
+                    }
+                } catch (e) {
+                    console.warn('Error parsing last submission data:', e);
+                    localStorage.removeItem('last_adjudication_submission');
+                }
+            }
+        } catch (e) {
+            console.warn('Error checking for interrupted submissions:', e);
+        }
+    }
+    
+    // Function to submit a recovered adjudication
+    function submitRecoveredAdjudication(formData) {
+        Swal.fire({
+            title: 'Retrying Submission',
+            html: '<div class="spinner-border text-primary" role="status"></div><p class="mt-3">Please wait while we retry your previous submission...</p>',
+            showConfirmButton: false,
+            allowOutsideClick: false
+        });
+        
+        fetch('{% url "adjudicate_ticket" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(errorData => {
+                    throw new Error(errorData.message || `Server returned ${response.status}: ${response.statusText}`);
+                }).catch(err => {
+                    throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Clean up regardless of result
+            localStorage.removeItem('last_adjudication_submission');
+            
+            if (data.status === 'success') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'Your adjudication has been processed successfully.',
+                    confirmButtonColor: 'var(--primary-color)',
+                    confirmButtonText: 'Refresh Page'
+                }).then(() => {
+                    window.location.reload();
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: data.message || 'The server could not process your adjudication.',
+                    confirmButtonColor: 'var(--primary-color)',
+                    confirmButtonText: 'OK'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error retrying submission:', error);
+            localStorage.removeItem('last_adjudication_submission');
+            
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Could not retry your previous submission. Please try again manually.',
+                confirmButtonColor: 'var(--primary-color)',
+                confirmButtonText: 'OK'
+            });
+        });
     }
 });
 </script>

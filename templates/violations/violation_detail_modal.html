@@ -159,6 +159,23 @@
                                 <label>Fine Amount</label>
                                 <div class="info-value amount">₱{{ violation.fine_amount }}</div>
                             </div>
+                            
+                            <!-- Add interest calculation display -->
+                            {% if violation.status != 'PAID' %}
+                            {% with interest_amount=violation.calculate_interest_amount %}
+                                {% if interest_amount > 0 %}
+                                <div class="info-group">
+                                    <label>Interest</label>
+                                    <div class="info-value amount text-danger">₱{{ interest_amount|floatformat:2 }}</div>
+                                </div>
+                                <div class="info-group">
+                                    <label>Total Amount Due</label>
+                                    <div class="info-value amount fw-bold">₱{{ violation.get_total_with_interest|floatformat:2 }}</div>
+                                </div>
+                                {% endif %}
+                            {% endwith %}
+                            {% endif %}
+                            
                             {% if violation.is_tdz_violation %}
                             <div class="info-group">
                                 <div class="alert alert-warning p-2 mb-0">

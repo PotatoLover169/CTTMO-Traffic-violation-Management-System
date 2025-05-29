@@ -3177,6 +3177,13 @@
                                 Payment Records
                             </a>
                             {% endif %}
+                            
+                            {% if user.userprofile.role == 'ADMIN' or user.userprofile.role == 'TREASURER' %}
+                            <a href="{% url 'interest_rate_config' %}" class="list-group-item {% if 'interest-configuration' in request.path %}active{% endif %}">
+                                <span class="material-icons">percent</span>
+                                Interest Configuration
+                            </a>
+                            {% endif %}
                         </div>
                     </div>
                     {% endif %}

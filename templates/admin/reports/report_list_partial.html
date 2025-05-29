@@ -109,4 +109,115 @@
             <p class="text-muted">No reports found matching your criteria</p>
         </td>
     </tr>
-{% endif %} 
+{% endif %}
+
+<!-- Report cards section -->
+<div class="row g-3">
+    <!-- Violation Report Card -->
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="icon-circle bg-primary text-white me-3">
+                        <span class="material-icons">description</span>
+                    </div>
+                    <h5 class="card-title mb-0">Violation Report</h5>
+                </div>
+                <p class="card-text text-muted">View and analyze detailed violation statistics and patterns.</p>
+                <div class="mt-auto text-end">
+                    <a href="{% url 'admin_violation_report' %}" class="btn btn-sm btn-primary">View Report</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Financial Report Card -->
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="icon-circle bg-success text-white me-3">
+                        <span class="material-icons">payments</span>
+                    </div>
+                    <h5 class="card-title mb-0">Financial Report</h5>
+                </div>
+                <p class="card-text text-muted">Track revenue, payment histories, and financial analytics.</p>
+                <div class="mt-auto text-end">
+                    <a href="{% url 'financial_report' %}" class="btn btn-sm btn-success">View Report</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Enforcer Activity Report Card -->
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="icon-circle bg-info text-white me-3">
+                        <span class="material-icons">shield</span>
+                    </div>
+                    <h5 class="card-title mb-0">Enforcer Activity</h5>
+                </div>
+                <p class="card-text text-muted">Monitor enforcer performance, activity levels, and violation issuance.</p>
+                <div class="mt-auto text-end">
+                    <a href="{% url 'enforcer_activity_report' %}" class="btn btn-sm btn-info">View Report</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- User Statistics Report Card -->
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="icon-circle bg-warning text-white me-3">
+                        <span class="material-icons">people</span>
+                    </div>
+                    <h5 class="card-title mb-0">User Statistics</h5>
+                </div>
+                <p class="card-text text-muted">Analyze user demographics, activity patterns, and engagement metrics.</p>
+                <div class="mt-auto text-end">
+                    <a href="{% url 'user_statistics_report' %}" class="btn btn-sm btn-warning">View Report</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Adjudication Report Card -->
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="icon-circle bg-secondary text-white me-3">
+                        <span class="material-icons">gavel</span>
+                    </div>
+                    <h5 class="card-title mb-0">Adjudication Report</h5>
+                </div>
+                <p class="card-text text-muted">Track violation adjudication outcomes, patterns, and processing times.</p>
+                <div class="mt-auto text-end">
+                    <a href="{% url 'adjudication_report' %}" class="btn btn-sm btn-secondary">View Report</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Expired Status Report Card -->
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="icon-circle bg-danger text-white me-3">
+                        <span class="material-icons">warning</span>
+                    </div>
+                    <h5 class="card-title mb-0">Expired Status Report</h5>
+                </div>
+                <p class="card-text text-muted">View drivers and operators with expired licenses and registrations.</p>
+                <div class="mt-auto text-end">
+                    <a href="{% url 'expired_status_report' %}" class="btn btn-sm btn-danger">View Report</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

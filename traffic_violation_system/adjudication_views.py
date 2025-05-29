@@ -103,12 +103,18 @@ def adjudication_page(request, violator_id):
                 else:
                     violation_type_amounts[vtype] = base_amount
         
+        # Calculate interest amount
+        interest_amount = violation.calculate_interest_amount()
+        total_with_interest = violation.fine_amount + interest_amount
+        
         # Prepare data structure
         violation_data = {
             'id': violation.id,
             'ticket_id': violation.id,  # Using ID as ticket_id since there's no separate ticket_id field
             'violation_date': violation.violation_date,
             'fine_amount': violation.fine_amount,
+            'interest_amount': interest_amount,
+            'total_with_interest': total_with_interest,
             'violation_types': json.dumps(violation_types),
             'violation_type_amounts': json.dumps(violation_type_amounts),
             'location': violation.location,
@@ -124,11 +130,17 @@ def adjudication_page(request, violator_id):
     # Prepare adjudicated violations data
     adjudicated_violations_data = []
     for violation in adjudicated_violations:
+        # Calculate interest
+        interest_amount = violation.calculate_interest_amount()
+        total_with_interest = violation.fine_amount + interest_amount
+        
         violation_data = {
             'id': violation.id,
             'ticket_id': violation.id,
             'adjudication_date': violation.adjudication_date,
             'fine_amount': violation.fine_amount,
+            'interest_amount': interest_amount,
+            'total_with_interest': total_with_interest,
             'violation_types': json.dumps(violation.get_violation_types()),
             'adjudication_remarks': violation.adjudication_remarks,
             'status': violation.status,
@@ -176,6 +188,11 @@ def adjudicate_ticket(request):
         penalty_amount = data.get('penalty_amount', 0)
         notes = data.get('notes', '')
         removed_violations = data.get('removed_violations', {})
+        
+        # Get interest information from the request
+        interest_amount = data.get('interest_amount', 0)
+        total_with_interest = data.get('total_with_interest', 0)
+        includes_interest = data.get('includes_interest', False)
         
         # Input validation
         if not ticket_id:
@@ -264,14 +281,23 @@ def adjudicate_ticket(request):
             category="violation"
         )
         
+        # Add a note about interest if it was included in the penalty amount
+        if includes_interest and interest_amount > 0:
+            if not notes:
+                notes = f"Interest of ₱{interest_amount:.2f} included in penalty amount."
+            else:
+                notes = f"{notes}\n\nInterest of ₱{interest_amount:.2f} included in penalty amount."
+        
         return JsonResponse({
             'status': 'success',
-            'message': 'Ticket successfully adjudicated',
-            'ticket_id': ticket_id,
-            'adjudication_date': violation.adjudication_date.isoformat(),
-            'adjudicated_by': request.user.get_full_name(),
-            'original_amount': str(violation.original_fine_amount),
-            'was_rejected': previous_status == 'REJECTED'
+            'ticket_id': violation.id,
+            'adjudication_date': violation.adjudication_date.strftime('%Y-%m-%d %H:%M:%S') if violation.adjudication_date else None,
+            'status': violation.status,
+            'adjudicated_by': violation.adjudicated_by.get_full_name() if violation.adjudicated_by else None,
+            'fine_amount': str(violation.fine_amount),
+            'interest_amount': str(interest_amount) if includes_interest else '0',
+            'total_with_interest': str(total_with_interest) if includes_interest else str(violation.fine_amount),
+            'includes_interest': includes_interest
         })
         
     except Violation.DoesNotExist:

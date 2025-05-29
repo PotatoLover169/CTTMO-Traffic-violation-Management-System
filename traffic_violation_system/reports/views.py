@@ -12,7 +12,7 @@ from django.template.loader import get_template, render_to_string
 from django.utils import timezone
 from django.apps import apps
 
-from traffic_violation_system.models import Violation, ViolationType, UserProfile, Vehicle
+from traffic_violation_system.models import Violation, ViolationType, UserProfile, Vehicle, Driver, Operator
 from xhtml2pdf import pisa
 
 def is_admin_or_supervisor(user):
@@ -1971,3 +1971,214 @@ def adjudication_export(request):
         return HttpResponse('We had some errors with generating the PDF <pre>' + html + '</pre>')
     
     return response 
+
+@login_required
+@user_passes_test(lambda u: u.userprofile.role in ['ADMIN', 'SUPERVISOR'])
+def expired_status_report(request):
+    """View for displaying drivers and operators with expired status."""
+    today = timezone.now().date()
+    
+    # Get expired drivers (explicitly expired)
+    expired_drivers = Driver.objects.filter(
+        active=True,
+        expiration_date__lt=today
+    ).select_related('operator').order_by('expiration_date')
+    
+    # Get operators that have been registered for more than a year
+    one_year_ago = today - timezone.timedelta(days=365)
+    expired_operators = Operator.objects.filter(
+        active=True,
+        created_at__lt=one_year_ago
+    ).order_by('created_at')
+    
+    # Get search parameters
+    search_query = request.GET.get('q', '')
+    if search_query:
+        expired_drivers = expired_drivers.filter(
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query) |
+            Q(new_pd_number__icontains=search_query) |
+            Q(license_number__icontains=search_query)
+        )
+        expired_operators = expired_operators.filter(
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query) |
+            Q(new_pd_number__icontains=search_query) |
+            Q(po_number__icontains=search_query)
+        )
+    
+    # Status filter
+    status = request.GET.get('status', 'all')
+    if status == 'drivers':
+        expired_operators = Operator.objects.none()
+    elif status == 'operators':
+        expired_drivers = Driver.objects.none()
+    
+    # Pagination for drivers
+    drivers_page_size = int(request.GET.get('drivers_page_size', 10))
+    drivers_paginator = Paginator(expired_drivers, drivers_page_size)
+    drivers_page_number = request.GET.get('drivers_page', 1)
+    drivers_page = drivers_paginator.get_page(drivers_page_number)
+    
+    # Pagination for operators
+    operators_page_size = int(request.GET.get('operators_page_size', 10))
+    operators_paginator = Paginator(expired_operators, operators_page_size)
+    operators_page_number = request.GET.get('operators_page', 1)
+    operators_page = operators_paginator.get_page(operators_page_number)
+    
+    # Statistics
+    total_expired_drivers = expired_drivers.count()
+    total_expired_operators = expired_operators.count()
+    total_expired = total_expired_drivers + total_expired_operators
+    
+    # Driver expiration periods
+    expiration_distribution = {
+        'expired_1_month': expired_drivers.filter(expiration_date__gte=today - timezone.timedelta(days=30)).count(),
+        'expired_3_months': expired_drivers.filter(
+            expiration_date__lt=today - timezone.timedelta(days=30),
+            expiration_date__gte=today - timezone.timedelta(days=90)
+        ).count(),
+        'expired_6_months': expired_drivers.filter(
+            expiration_date__lt=today - timezone.timedelta(days=90),
+            expiration_date__gte=today - timezone.timedelta(days=180)
+        ).count(),
+        'expired_more': expired_drivers.filter(expiration_date__lt=today - timezone.timedelta(days=180)).count(),
+    }
+    
+    # Operator registration periods
+    registration_distribution = {
+        'registered_1_year': expired_operators.filter(created_at__gte=today - timezone.timedelta(days=366)).count(),
+        'registered_2_years': expired_operators.filter(
+            created_at__lt=today - timezone.timedelta(days=366),
+            created_at__gte=today - timezone.timedelta(days=730)
+        ).count(),
+        'registered_3_years': expired_operators.filter(
+            created_at__lt=today - timezone.timedelta(days=730),
+            created_at__gte=today - timezone.timedelta(days=1095)
+        ).count(),
+        'registered_more': expired_operators.filter(created_at__lt=today - timezone.timedelta(days=1095)).count(),
+    }
+    
+    context = {
+        'drivers': drivers_page,
+        'operators': operators_page,
+        'total_expired_drivers': total_expired_drivers,
+        'total_expired_operators': total_expired_operators,
+        'total_expired': total_expired,
+        'search_query': search_query,
+        'status_filter': status,
+        'expiration_distribution': expiration_distribution,
+        'registration_distribution': registration_distribution,
+        'today': today,
+        'current_datetime': timezone.now(),
+    }
+    
+    return render(request, 'admin/reports/expired/expired_status_report.html', context)
+
+@login_required
+@user_passes_test(lambda u: u.userprofile.role in ['ADMIN', 'SUPERVISOR'])
+def expired_status_export(request):
+    """Export expired status report to PDF."""
+    today = timezone.now().date()
+    
+    # Get expired drivers (explicitly expired)
+    expired_drivers = Driver.objects.filter(
+        active=True,
+        expiration_date__lt=today
+    ).select_related('operator').order_by('expiration_date')
+    
+    # Get operators that have been registered for more than a year
+    one_year_ago = today - timezone.timedelta(days=365)
+    expired_operators = Operator.objects.filter(
+        active=True,
+        created_at__lt=one_year_ago
+    ).order_by('created_at')
+    
+    # Get search parameters
+    search_query = request.GET.get('q', '')
+    if search_query:
+        expired_drivers = expired_drivers.filter(
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query) |
+            Q(new_pd_number__icontains=search_query) |
+            Q(license_number__icontains=search_query)
+        )
+        expired_operators = expired_operators.filter(
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query) |
+            Q(new_pd_number__icontains=search_query) |
+            Q(po_number__icontains=search_query)
+        )
+    
+    # Status filter
+    status = request.GET.get('status', 'all')
+    if status == 'drivers':
+        expired_operators = Operator.objects.none()
+    elif status == 'operators':
+        expired_drivers = Driver.objects.none()
+    
+    # Statistics
+    total_expired_drivers = expired_drivers.count()
+    total_expired_operators = expired_operators.count()
+    total_expired = total_expired_drivers + total_expired_operators
+    
+    # Driver expiration periods
+    expiration_distribution = {
+        'expired_1_month': expired_drivers.filter(expiration_date__gte=today - timezone.timedelta(days=30)).count(),
+        'expired_3_months': expired_drivers.filter(
+            expiration_date__lt=today - timezone.timedelta(days=30),
+            expiration_date__gte=today - timezone.timedelta(days=90)
+        ).count(),
+        'expired_6_months': expired_drivers.filter(
+            expiration_date__lt=today - timezone.timedelta(days=90),
+            expiration_date__gte=today - timezone.timedelta(days=180)
+        ).count(),
+        'expired_more': expired_drivers.filter(expiration_date__lt=today - timezone.timedelta(days=180)).count(),
+    }
+    
+    # Operator registration periods
+    registration_distribution = {
+        'registered_1_year': expired_operators.filter(created_at__gte=today - timezone.timedelta(days=366)).count(),
+        'registered_2_years': expired_operators.filter(
+            created_at__lt=today - timezone.timedelta(days=366),
+            created_at__gte=today - timezone.timedelta(days=730)
+        ).count(),
+        'registered_3_years': expired_operators.filter(
+            created_at__lt=today - timezone.timedelta(days=730),
+            created_at__gte=today - timezone.timedelta(days=1095)
+        ).count(),
+        'registered_more': expired_operators.filter(created_at__lt=today - timezone.timedelta(days=1095)).count(),
+    }
+    
+    # Generate PDF
+    template_path = 'admin/reports/expired/expired_status_pdf.html'
+    context = {
+        'drivers': expired_drivers,
+        'operators': expired_operators,
+        'total_expired_drivers': total_expired_drivers,
+        'total_expired_operators': total_expired_operators,
+        'total_expired': total_expired,
+        'expiration_distribution': expiration_distribution,
+        'registration_distribution': registration_distribution,
+        'current_datetime': timezone.now(),
+        'search_query': search_query,
+        'status_filter': status,
+        'today': today,
+    }
+    
+    # Render template
+    template = get_template(template_path)
+    html = template.render(context)
+    
+    # Create PDF response for download
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename="expired_status_report_{timezone.now().strftime("%Y%m%d_%H%M%S")}.pdf"'
+    
+    # Generate PDF
+    pisa_status = pisa.CreatePDF(html, dest=response)
+    
+    # If error, show some error view
+    if pisa_status.err:
+        return HttpResponse('We had some errors with generating the PDF <pre>' + html + '</pre>')
+    
+    return response

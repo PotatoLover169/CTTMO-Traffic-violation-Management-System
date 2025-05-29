@@ -37,6 +37,7 @@ from educational_analytics import educational_analytics, educational_analytics_b
 from django.contrib.auth.tokens import default_token_generator
 from .views_password_reset import get_email_by_username, BrevoPasswordResetForm
 from . import landing_views
+from . import interest_views
 
 # DEBUG VIEW for troubleshooting - this will be removed later
 @csrf_exempt
@@ -298,4 +299,12 @@ urlpatterns = [
     
     # Debug URL for password reset troubleshooting
     path('debug-password-reset/', debug_password_reset_route, name='debug_password_reset'),
+    
+    # Interest rate configuration
+    path('management/interest-configuration/', interest_views.interest_rate_config, name='interest_rate_config'),
+    path('management/toggle-interest-config/<int:config_id>/', interest_views.toggle_interest_config, name='toggle_interest_config'),
+    path('management/delete-interest-config/<int:config_id>/', interest_views.delete_interest_config, name='delete_interest_config'),
+    path('management/apply-interest-to-all/', interest_views.apply_interest_to_all, name='apply_interest_to_all'),
+    path('management/violation/<int:violation_id>/interest-history/', interest_views.violation_interest_history, name='violation_interest_history'),
+    path('management/violation/<int:violation_id>/record-interest/', interest_views.record_violation_interest, name='record_violation_interest'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) 

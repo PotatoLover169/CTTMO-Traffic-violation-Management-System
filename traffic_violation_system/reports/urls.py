@@ -14,4 +14,6 @@ urlpatterns = [
     path('user-statistics/export/', views.user_statistics_export, name='user_statistics_export'),
     path('adjudication/', views.adjudication_report, name='adjudication_report'),
     path('adjudication/export/', views.adjudication_export, name='adjudication_export'),
+    path('expired-status/', views.expired_status_report, name='expired_status_report'),
+    path('expired-status/export/', views.expired_status_export, name='expired_status_export'),
 ] 

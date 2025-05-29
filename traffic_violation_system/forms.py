@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import Violation, Violator, UserProfile, Operator, Payment, ActivityLog, Announcement, LocationHistory, Vehicle, OperatorApplication, Driver, DriverVehicleAssignment
+from django.contrib.auth.forms import UserCreationForm
+from .models import Violation, Violator, UserProfile, Operator, Payment, ActivityLog, Announcement, LocationHistory, Vehicle, OperatorApplication, Driver, DriverVehicleAssignment, InterestRateConfiguration
 import os
 
 class NCAPViolationForm(forms.ModelForm):
@@ -426,3 +427,49 @@ class DriverImportForm(forms.Form):
         required=False,
         help_text='Skip the first row (header row)'
     ) 
+
+class InterestRateConfigForm(forms.ModelForm):
+    """Form for configuring interest rates"""
+    class Meta:
+        model = InterestRateConfiguration
+        fields = ['interest_rate', 'initial_grace_period', 'monthly_grace_period', 'is_active', 'notes']
+        widgets = {
+            'interest_rate': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': '0.01',
+                'min': '0.01',
+                'max': '100',
+                'placeholder': 'Monthly interest rate (e.g., 1.00 for 1%)'
+            }),
+            'initial_grace_period': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': '0',
+                'placeholder': 'Days after due date before first interest'
+            }),
+            'monthly_grace_period': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': '1',
+                'placeholder': 'Days between interest applications'
+            }),
+            'is_active': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
+            'notes': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Additional notes about this configuration'
+            })
+        }
+        labels = {
+            'interest_rate': 'Monthly Interest Rate (%)',
+            'initial_grace_period': 'Initial Grace Period (days)',
+            'monthly_grace_period': 'Monthly Grace Period (days)',
+            'is_active': 'Make this configuration active',
+            'notes': 'Notes'
+        }
+        help_texts = {
+            'interest_rate': 'Percentage applied each period (e.g., 1.00 for 1%)',
+            'initial_grace_period': 'Days after payment due before first interest is applied',
+            'monthly_grace_period': 'Days between subsequent interest applications',
+            'is_active': 'Only one configuration can be active at a time'
+        } 

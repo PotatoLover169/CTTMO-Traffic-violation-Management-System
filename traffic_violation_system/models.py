@@ -13,6 +13,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 import json
 import os
+from decimal import Decimal
 from traffic_violation_system.user_portal.models import UserViolationManager
 
 
@@ -339,6 +340,94 @@ class Violation(models.Model):
         Returns the violation type string directly.
         """
         return self.violation_type
+
+    def calculate_interest_amount(self):
+        """
+        Calculate the interest amount based on active interest rate configuration and time overdue.
+        Returns Decimal amount of interest.
+        """
+        # If violation is already paid or no due date, no interest
+        if self.status == 'PAID' or not self.payment_due_date:
+            return Decimal('0.00')
+            
+        # If still within due date, no interest
+        if self.payment_due_date >= timezone.now().date():
+            return Decimal('0.00')
+            
+        # Get active interest configuration
+        interest_config = InterestRateConfiguration.objects.filter(is_active=True).first()
+        
+        if not interest_config:
+            return Decimal('0.00')  # No configuration, no interest
+            
+        # Calculate days overdue
+        days_overdue = (timezone.now().date() - self.payment_due_date).days
+        
+        # If within initial grace period, no interest
+        if days_overdue <= interest_config.initial_grace_period:
+            return Decimal('0.00')
+            
+        # Calculate number of interest periods
+        # First period occurs after initial grace period
+        # Additional periods occur every monthly_grace_period days
+        periods_after_initial = max(0, days_overdue - interest_config.initial_grace_period)
+        interest_periods = 1 + (periods_after_initial // interest_config.monthly_grace_period)
+        
+        # Calculate interest amount
+        interest_rate = interest_config.interest_rate / 100  # Convert percentage to decimal
+        interest_amount = self.fine_amount * interest_rate * interest_periods
+        
+        return interest_amount.quantize(Decimal('0.01'))  # Round to 2 decimal places
+        
+    def record_interest_calculation(self, user=None):
+        """
+        Calculate interest and record it in the history.
+        Returns the calculated interest amount (Decimal).
+        """
+        interest_amount = self.calculate_interest_amount()
+        
+        # Don't record if no interest to apply
+        if interest_amount <= 0:
+            return Decimal('0.00')
+            
+        # Get active config
+        interest_config = InterestRateConfiguration.objects.filter(is_active=True).first()
+        
+        if not interest_config:
+            return Decimal('0.00')
+            
+        # Calculate days overdue
+        days_overdue = (timezone.now().date() - self.payment_due_date).days
+        
+        # Calculate months overdue for record-keeping
+        months_overdue = Decimal(days_overdue) / Decimal('30')
+        months_overdue = months_overdue.quantize(Decimal('0.01'))
+        
+        # Prepare config snapshot
+        config_snapshot = {
+            'interest_rate': float(interest_config.interest_rate),
+            'initial_grace_period': interest_config.initial_grace_period,
+            'monthly_grace_period': interest_config.monthly_grace_period,
+        }
+        
+        # Create history record
+        ViolationInterestHistory.objects.create(
+            violation=self,
+            interest_amount=interest_amount,
+            calculated_by=user,
+            interest_rate=interest_config.interest_rate,
+            days_overdue=days_overdue,
+            months_overdue=months_overdue,
+            config_snapshot=config_snapshot
+        )
+        
+        return interest_amount
+        
+    def get_total_with_interest(self):
+        """
+        Return the total amount due including interest
+        """
+        return self.fine_amount + self.calculate_interest_amount()
 
 
 class Payment(models.Model):
@@ -982,3 +1071,61 @@ class ViolatorQRHash(models.Model):
         hash_id = hashlib.sha256(base.encode()).hexdigest()[:16]
         logger.info(f"CREATING new QR hash: {hash_id} for {first_name} {last_name}")
         return hash_id
+
+
+class InterestRateConfiguration(models.Model):
+    """Model for storing interest rate configurations"""
+    interest_rate = models.DecimalField(
+        max_digits=5, 
+        decimal_places=2, 
+        default=1.0,
+        validators=[MinValueValidator(0.01), MaxValueValidator(100.0)],
+        help_text="Monthly interest rate percentage (e.g., 1.0 for 1%)"
+    )
+    initial_grace_period = models.PositiveIntegerField(
+        default=7,
+        help_text="Number of days after due date before first interest is applied"
+    )
+    monthly_grace_period = models.PositiveIntegerField(
+        default=30,
+        help_text="Number of days between interest applications after initial period"
+    )
+    is_active = models.BooleanField(default=True, help_text="Only one configuration can be active at a time")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='created_interest_configs')
+    updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='updated_interest_configs')
+    notes = models.TextField(blank=True, null=True)
+    
+    class Meta:
+        verbose_name = "Interest Rate Configuration"
+        verbose_name_plural = "Interest Rate Configurations"
+    
+    def __str__(self):
+        return f"{self.interest_rate}% Interest Rate (Grace: {self.initial_grace_period}/{self.monthly_grace_period} days)"
+        
+    def save(self, *args, **kwargs):
+        # Make sure only one config is active at a time
+        if self.is_active:
+            InterestRateConfiguration.objects.exclude(pk=self.pk).update(is_active=False)
+        super().save(*args, **kwargs)
+
+
+class ViolationInterestHistory(models.Model):
+    """Model to track interest calculation history for violations"""
+    violation = models.ForeignKey('Violation', on_delete=models.CASCADE, related_name='interest_history')
+    interest_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    calculation_date = models.DateTimeField(default=timezone.now)
+    calculated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='calculated_interests')
+    interest_rate = models.DecimalField(max_digits=5, decimal_places=2, help_text="Interest rate used for calculation")
+    days_overdue = models.PositiveIntegerField(help_text="Number of days overdue at calculation time")
+    months_overdue = models.DecimalField(max_digits=5, decimal_places=2, default=0.00, help_text="Number of months overdue (for calculation)")
+    config_snapshot = models.JSONField(null=True, blank=True, help_text="Snapshot of interest configuration used")
+    
+    class Meta:
+        verbose_name = "Violation Interest History"
+        verbose_name_plural = "Violation Interest Histories"
+        ordering = ['-calculation_date']
+    
+    def __str__(self):
+        return f"Interest for Violation #{self.violation.id}: ₱{self.interest_amount}"

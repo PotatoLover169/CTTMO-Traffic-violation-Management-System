@@ -1,146 +1,48 @@
 <mxfile host="65bd71144e">
     <diagram id="C5RBs43oDa-KdzZeNtuy" name="Announcement Creation Process">
-        <mxGraphModel dx="705" dy="1649" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+        <mxGraphModel dx="585" dy="1598" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
-                <mxCell id="start" value="User visits Create&#xa;Announcement Page" style="ellipse;whiteSpace=wrap;html=1;fillColor=#3563E9;fontColor=#FFFFFF;strokeColor=none;" parent="1" vertex="1">
-                    <mxGeometry x="350" y="70" width="140" height="80" as="geometry"/>
-                </mxCell>
-                <mxCell id="formFill" value="User fills announcement form" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F6F7F9;strokeColor=#E0E3EB;" parent="1" vertex="1">
+                <mxCell id="formFill" value="&lt;b&gt;User fills announcement form&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
                     <mxGeometry x="350" y="240" width="140" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="basicDetails" value="Fill Basic Details&#xa;(Title, Priority, Category, etc.)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EEF3FF;strokeColor=#3563E9;" parent="1" vertex="1">
-                    <mxGeometry x="150" y="340" width="140" height="60" as="geometry"/>
-                </mxCell>
-                <mxCell id="scheduling" value="Configure Scheduling&#xa;(Publish/Expiration Dates)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EEF3FF;strokeColor=#3563E9;" parent="1" vertex="1">
+                <mxCell id="submitForm" value="&lt;b&gt;User submits form&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F6F7F9;strokeColor=#E0E3EB;" parent="1" vertex="1">
                     <mxGeometry x="350" y="340" width="140" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="displaySettings" value="Configure Display Settings&#xa;(Popup, Acknowledge, etc.)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EEF3FF;strokeColor=#3563E9;" parent="1" vertex="1">
-                    <mxGeometry x="550" y="340" width="140" height="60" as="geometry"/>
+                <mxCell id="validateForm" value="&lt;b&gt;Form valid?&lt;/b&gt;" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
+                    <mxGeometry x="350" y="440" width="140" height="80" as="geometry"/>
                 </mxCell>
-                <mxCell id="contentEntry" value="Enter Announcement Content&#xa;(Rich Text Editor)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EEF3FF;strokeColor=#3563E9;" parent="1" vertex="1">
-                    <mxGeometry x="350" y="440" width="140" height="60" as="geometry"/>
+                <mxCell id="10" style="edgeStyle=none;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="validationErrors" target="9">
+                    <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="isPopup" value="Is Popup enabled?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#3563E9;fontColor=#FFFFFF;strokeColor=none;" parent="1" vertex="1">
-                    <mxGeometry x="550" y="430" width="140" height="80" as="geometry"/>
+                <mxCell id="validationErrors" value="&lt;b&gt;Display validation errors&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF0F0;strokeColor=#F53D3D;" parent="1" vertex="1">
+                    <mxGeometry x="580" y="450" width="140" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="popupSettings" value="Configure Popup Settings&#xa;(Width, Position, Auto-dismiss)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EEF3FF;strokeColor=#3563E9;" parent="1" vertex="1">
-                    <mxGeometry x="730" y="440" width="140" height="60" as="geometry"/>
+                <mxCell id="saveAnnouncement" value="&lt;b&gt;Save announcement to server&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EEF3FF;strokeColor=#3563E9;" parent="1" vertex="1">
+                    <mxGeometry x="350" y="590" width="140" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="previewPopup" value="Preview Popup (Optional)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F6F7F9;strokeColor=#E0E3EB;dashed=1;" parent="1" vertex="1">
-                    <mxGeometry x="730" y="540" width="140" height="60" as="geometry"/>
+                <mxCell id="redirect" value="&lt;b&gt;Redirect to announcements list&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EEF3FF;strokeColor=#3563E9;" parent="1" vertex="1">
+                    <mxGeometry x="350" y="720" width="140" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="submitForm" value="User submits form" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F6F7F9;strokeColor=#E0E3EB;" parent="1" vertex="1">
-                    <mxGeometry x="350" y="540" width="140" height="60" as="geometry"/>
+                <mxCell id="showAnnouncements" value="&lt;b&gt;Display announcements&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8F8F8;strokeColor=#666666;dashed=1;" parent="1" vertex="1">
+                    <mxGeometry x="160" y="720" width="140" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="validateForm" value="Form validation" style="rhombus;whiteSpace=wrap;html=1;fillColor=#3563E9;fontColor=#FFFFFF;strokeColor=none;" parent="1" vertex="1">
-                    <mxGeometry x="350" y="640" width="140" height="80" as="geometry"/>
+                <mxCell id="userViewsAnnouncement" value="&lt;b&gt;Users see announcements&lt;br&gt;based on settings&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8F8F8;strokeColor=#666666;dashed=1;" parent="1" vertex="1">
+                    <mxGeometry x="540" y="720" width="140" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="validationErrors" value="Display validation errors" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF0F0;strokeColor=#F53D3D;" parent="1" vertex="1">
-                    <mxGeometry x="550" y="650" width="140" height="60" as="geometry"/>
+                <mxCell id="end" value="&lt;b&gt;End&lt;/b&gt;" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+                    <mxGeometry x="350" y="840" width="140" height="80" as="geometry"/>
                 </mxCell>
-                <mxCell id="saveAnnouncement" value="Save announcement to server" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EEF3FF;strokeColor=#3563E9;" parent="1" vertex="1">
-                    <mxGeometry x="350" y="790" width="140" height="60" as="geometry"/>
-                </mxCell>
-                <mxCell id="redirect" value="Redirect to announcements list" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EEF3FF;strokeColor=#3563E9;" parent="1" vertex="1">
-                    <mxGeometry x="350" y="910" width="140" height="60" as="geometry"/>
-                </mxCell>
-                <mxCell id="showAnnouncements" value="Display announcements" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8F8F8;strokeColor=#666666;dashed=1;" parent="1" vertex="1">
-                    <mxGeometry x="150" y="910" width="140" height="60" as="geometry"/>
-                </mxCell>
-                <mxCell id="userViewsAnnouncement" value="Users see announcements&#xa;based on settings" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8F8F8;strokeColor=#666666;dashed=1;" parent="1" vertex="1">
-                    <mxGeometry x="550" y="910" width="140" height="60" as="geometry"/>
-                </mxCell>
-                <mxCell id="end" value="End" style="ellipse;whiteSpace=wrap;html=1;fillColor=#0CAA1D;fontColor=#FFFFFF;strokeColor=none;" parent="1" vertex="1">
-                    <mxGeometry x="350" y="1040" width="140" height="80" as="geometry"/>
-                </mxCell>
-                <mxCell id="conn1" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="start" target="formFill" edge="1">
+                <mxCell id="conn1" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" target="formFill" edge="1">
                     <mxGeometry width="50" height="50" relative="1" as="geometry">
-                        <mxPoint x="400" y="110" as="sourcePoint"/>
+                        <mxPoint x="420" y="170" as="sourcePoint"/>
                         <mxPoint x="420" y="140" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="conn5" value="" style="endArrow=classic;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="formFill" target="basicDetails" edge="1">
+                <mxCell id="conn15" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="formFill" target="submitForm" edge="1">
                     <mxGeometry width="50" height="50" relative="1" as="geometry">
-                        <mxPoint x="300" y="270" as="sourcePoint"/>
-                        <mxPoint x="350" y="220" as="targetPoint"/>
-                        <Array as="points">
-                            <mxPoint x="220" y="270"/>
-                        </Array>
-                    </mxGeometry>
-                </mxCell>
-                <mxCell id="conn6" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="formFill" target="scheduling" edge="1">
-                    <mxGeometry width="50" height="50" relative="1" as="geometry">
-                        <mxPoint x="400" y="310" as="sourcePoint"/>
-                        <mxPoint x="450" y="260" as="targetPoint"/>
-                    </mxGeometry>
-                </mxCell>
-                <mxCell id="conn7" value="" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="formFill" target="displaySettings" edge="1">
-                    <mxGeometry width="50" height="50" relative="1" as="geometry">
-                        <mxPoint x="560" y="270" as="sourcePoint"/>
-                        <mxPoint x="610" y="220" as="targetPoint"/>
-                        <Array as="points">
-                            <mxPoint x="620" y="270"/>
-                        </Array>
-                    </mxGeometry>
-                </mxCell>
-                <mxCell id="conn8" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="basicDetails" target="contentEntry" edge="1">
-                    <mxGeometry width="50" height="50" relative="1" as="geometry">
-                        <mxPoint x="220" y="420" as="sourcePoint"/>
-                        <mxPoint x="270" y="370" as="targetPoint"/>
-                        <Array as="points">
-                            <mxPoint x="220" y="470"/>
-                        </Array>
-                    </mxGeometry>
-                </mxCell>
-                <mxCell id="conn9" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="scheduling" target="contentEntry" edge="1">
-                    <mxGeometry width="50" height="50" relative="1" as="geometry">
-                        <mxPoint x="400" y="410" as="sourcePoint"/>
-                        <mxPoint x="450" y="360" as="targetPoint"/>
-                    </mxGeometry>
-                </mxCell>
-                <mxCell id="conn10" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="displaySettings" target="isPopup" edge="1">
-                    <mxGeometry width="50" height="50" relative="1" as="geometry">
-                        <mxPoint x="620" y="410" as="sourcePoint"/>
-                        <mxPoint x="670" y="360" as="targetPoint"/>
-                    </mxGeometry>
-                </mxCell>
-                <mxCell id="conn11" value="Yes" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="isPopup" target="popupSettings" edge="1">
-                    <mxGeometry width="50" height="50" relative="1" as="geometry">
-                        <mxPoint x="680" y="470" as="sourcePoint"/>
-                        <mxPoint x="730" y="420" as="targetPoint"/>
-                    </mxGeometry>
-                </mxCell>
-                <mxCell id="conn12" value="No" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="isPopup" target="submitForm" edge="1">
-                    <mxGeometry width="50" height="50" relative="1" as="geometry">
-                        <mxPoint x="620" y="540" as="sourcePoint"/>
-                        <mxPoint x="670" y="490" as="targetPoint"/>
-                        <Array as="points">
-                            <mxPoint x="620" y="570"/>
-                        </Array>
-                    </mxGeometry>
-                </mxCell>
-                <mxCell id="conn13" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="popupSettings" target="previewPopup" edge="1">
-                    <mxGeometry width="50" height="50" relative="1" as="geometry">
-                        <mxPoint x="800" y="520" as="sourcePoint"/>
-                        <mxPoint x="850" y="470" as="targetPoint"/>
-                    </mxGeometry>
-                </mxCell>
-                <mxCell id="conn14" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.75;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="previewPopup" target="submitForm" edge="1">
-                    <mxGeometry width="50" height="50" relative="1" as="geometry">
-                        <mxPoint x="800" y="610" as="sourcePoint"/>
-                        <mxPoint x="850" y="560" as="targetPoint"/>
-                        <Array as="points">
-                            <mxPoint x="800" y="620"/>
-                            <mxPoint x="550" y="620"/>
-                            <mxPoint x="550" y="585"/>
-                        </Array>
-                    </mxGeometry>
-                </mxCell>
-                <mxCell id="conn15" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="contentEntry" target="submitForm" edge="1">
-                    <mxGeometry width="50" height="50" relative="1" as="geometry">
-                        <mxPoint x="400" y="520" as="sourcePoint"/>
+                        <mxPoint x="420" y="500" as="sourcePoint"/>
                         <mxPoint x="450" y="470" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
@@ -150,27 +52,16 @@
                         <mxPoint x="450" y="570" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="conn17" value="Invalid" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="validateForm" target="validationErrors" edge="1">
+                <mxCell id="conn17" value="No" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="validateForm" target="validationErrors" edge="1">
                     <mxGeometry width="50" height="50" relative="1" as="geometry">
                         <mxPoint x="490" y="680" as="sourcePoint"/>
                         <mxPoint x="540" y="630" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="conn18" value="Valid" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="1" source="validateForm" target="saveAnnouncement" edge="1">
+                <mxCell id="conn18" value="Yes" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="1" source="validateForm" target="saveAnnouncement" edge="1">
                     <mxGeometry width="50" height="50" relative="1" as="geometry">
                         <mxPoint x="400" y="740" as="sourcePoint"/>
                         <mxPoint x="420" y="760" as="targetPoint"/>
-                    </mxGeometry>
-                </mxCell>
-                <mxCell id="conn19" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="validationErrors" target="formFill" edge="1">
-                    <mxGeometry width="50" height="50" relative="1" as="geometry">
-                        <mxPoint x="620" y="640" as="sourcePoint"/>
-                        <mxPoint x="670" y="590" as="targetPoint"/>
-                        <Array as="points">
-                            <mxPoint x="620" y="600"/>
-                            <mxPoint x="520" y="600"/>
-                            <mxPoint x="520" y="270"/>
-                        </Array>
                     </mxGeometry>
                 </mxCell>
                 <mxCell id="conn21" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="saveAnnouncement" target="redirect" edge="1">
@@ -200,8 +91,20 @@
                 <mxCell id="title" value="Announcement Creation Process Flow" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;fontStyle=1" parent="1" vertex="1">
                     <mxGeometry x="250" y="-20" width="380" height="20" as="geometry"/>
                 </mxCell>
-                <mxCell id="2" value="" style="shape=stencil(fZbdcgIhDIWfZm8zQAg/17Z9j85U606tdqz9e/tmZ0c0uJ47xP0I5JwEBl59bp8/1kNwn6fj4W39M76ctgM/DCGM++36OJ50NPDjwKvN4bh+PR6+9i/z74/n6ctp9H74nlb4nbmSKZeJCu5vngmZ6jzzNAO7cX8FVKEsBuBKrgKg9oAE8gkCbLeUhEoEQKSUDZDLeWYRKIl8MEDRmHwfyBrBG6Amyu4+kDxxMoB3jhwgYu7TVAsVkFcWCs4CTBEoF4RctKeOxHIf8IXYpikHikAIf+MNUW94AGSSaoAoFIE3AlOyeWU+p2E5S9yfQZcQILVuQOwZdJNoS9Ls3wA5u2XZTIHECqeJ9kDpSaauRiNVcAY1QhdBzeLBli5WazpkSsBLV25uRaqWRyFawTQzRRIQYirJzq5atkBqLfouwqUxLBepthWb10vrWZY6UOAeyKCCtDV625mm9gmUC4Wc3VLJMMIE1BsA2FW9JraVlQB7n3c9oMKhCLEvIM1zBPZ25/umNQ1tVEC2G+fFCC8g398O2hNQuQlVu752DBfA+q0ptnqO5JFmeuIuo9DY7KjY71UxdJV4EntifPWorW++R/dC4t7V3DlIB5cHx2bc7eb3yvX//QNFp+bHDT/+Aw==);lineShape=1;strokeColor=default;" vertex="1" parent="1">
+                <mxCell id="2" value="" style="shape=stencil(fZbdcgIhDIWfZm8zQAg/17Z9j85U606tdqz9e/tmZ0c0uJ47xP0I5JwEBl59bp8/1kNwn6fj4W39M76ctgM/DCGM++36OJ50NPDjwKvN4bh+PR6+9i/z74/n6ctp9H74nlb4nbmSKZeJCu5vngmZ6jzzNAO7cX8FVKEsBuBKrgKg9oAE8gkCbLeUhEoEQKSUDZDLeWYRKIl8MEDRmHwfyBrBG6Amyu4+kDxxMoB3jhwgYu7TVAsVkFcWCs4CTBEoF4RctKeOxHIf8IXYpikHikAIf+MNUW94AGSSaoAoFIE3AlOyeWU+p2E5S9yfQZcQILVuQOwZdJNoS9Ls3wA5u2XZTIHECqeJ9kDpSaauRiNVcAY1QhdBzeLBli5WazpkSsBLV25uRaqWRyFawTQzRRIQYirJzq5atkBqLfouwqUxLBepthWb10vrWZY6UOAeyKCCtDV625mm9gmUC4Wc3VLJMMIE1BsA2FW9JraVlQB7n3c9oMKhCLEvIM1zBPZ25/umNQ1tVEC2G+fFCC8g398O2hNQuQlVu752DBfA+q0ptnqO5JFmeuIuo9DY7KjY71UxdJV4EntifPWorW++R/dC4t7V3DlIB5cHx2bc7eb3yvX//QNFp+bHDT/+Aw==);lineShape=1;strokeColor=default;" parent="1" vertex="1">
                     <mxGeometry x="940.8679608424757" y="686.8753124585191" width="4.67253977211567" height="4.665236216357243" as="geometry"/>
+                </mxCell>
+                <mxCell id="6" style="edgeStyle=none;html=1;" edge="1" parent="1" source="5" target="formFill">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" value="&lt;b&gt;A&lt;/b&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+                    <mxGeometry x="630" y="240" width="60" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="9" value="&lt;b&gt;A&lt;/b&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+                    <mxGeometry x="620" y="570" width="60" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="11" value="&lt;font style=&quot;color: rgb(255, 255, 255);&quot;&gt;H&lt;/font&gt;" style="shape=offPageConnector;whiteSpace=wrap;html=1;fillColor=#e51400;fontColor=#ffffff;strokeColor=#B20000;" vertex="1" parent="1">
+                    <mxGeometry x="380" y="90" width="80" height="80" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>

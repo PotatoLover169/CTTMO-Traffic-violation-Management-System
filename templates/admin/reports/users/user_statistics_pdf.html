@@ -31,7 +31,7 @@
             font-size: 10pt;
         }
         h1 {
-            color: #1a3c6e;
+            color: #000000;
             font-size: 22pt;
             font-weight: 700;
             margin-bottom: 8px;
@@ -40,12 +40,12 @@
             letter-spacing: -0.5px;
         }
         h2 {
-            color: #1a3c6e;
+            color: #000000;
             font-size: 14pt;
             font-weight: 600;
             margin-top: 20px;
             margin-bottom: 10px;
-            border-left: 4px solid #1a3c6e;
+            border-left: 4px solid #333333;
             padding-left: 10px;
             letter-spacing: 0.5px;
         }
@@ -53,7 +53,7 @@
         /* Enhanced header styling */
         .header-container {
             position: relative;
-            border-bottom: 2px solid #1a3c6e;
+            border-bottom: 2px solid #333333;
             padding-bottom: 10px;
             margin-bottom: 15px;
         }
@@ -81,13 +81,13 @@
             font-weight: bold;
             text-transform: uppercase;
             margin-bottom: 5px;
-            color: #1a3c6e;
+            color: #000000;
         }
         
         .office-title {
             font-size: 18pt;
             font-weight: bold;
-            color: #1a3c6e;
+            color: #000000;
             text-transform: uppercase;
             margin: 5px 0;
         }
@@ -116,10 +116,10 @@
             right: 0.5cm;
             font-size: 12pt;
             font-weight: bold;
-            border: 1px solid #1a3c6e;
+            border: 1px solid #333333;
             padding: 5px 10px;
             background-color: #f2f2f2;
-            color: #1a3c6e;
+            color: #333333;
         }
         
         .header-logo {
@@ -149,7 +149,7 @@
         }
         .summary-header {
             margin-bottom: 10px;
-            color: #1a3c6e;
+            color: #333333;
             border-bottom: 1px solid #dee2e6;
             padding-bottom: 5px;
         }
@@ -165,13 +165,13 @@
             text-align: center;
         }
         .summary-table th {
-            background-color: #1a3c6e;
+            background-color: #333333;
             color: white;
             font-weight: bold;
             font-size: 9pt;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            border-bottom: 2px solid #0f2a54;
+            border-bottom: 2px solid #444444;
         }
         .summary-table td {
             font-weight: 500;
@@ -194,14 +194,14 @@
             vertical-align: middle;
         }
         .users-table th {
-            background-color: #1a3c6e;
+            background-color: #333333;
             color: white;
             font-weight: bold;
             text-align: center;
             font-size: 10pt;
             text-transform: uppercase;
             letter-spacing: 0.7px;
-            border-bottom: 3px solid #0f2a54;
+            border-bottom: 3px solid #444444;
         }
         .users-table tr:nth-child(even) {
             background-color: #f8f9fa;
@@ -239,7 +239,7 @@
         .stat-value {
             font-size: 12pt;
             font-weight: bold;
-            color: #1a3c6e;
+            color: #333333;
         }
         .report-section {
             margin-bottom: 30px;
@@ -278,15 +278,15 @@
             margin-right: 4px;
         }
         .badge-success {
-            background-color: #28a745;
+            background-color: #444444;
         }
         .badge-warning {
-            background-color: #ffc107;
-            color: #212529;
+            background-color: #666666;
+            color: #ffffff;
         }
         .badge-light {
-            background-color: #f8f9fa;
-            color: #212529;
+            background-color: #aaaaaa;
+            color: #ffffff;
         }
         .report-title-section {
             text-align: center;
@@ -306,7 +306,7 @@
             }
             .download-button {
                 display: inline-block;
-                background-color: #28a745;
+                background-color: #444444;
                 color: white;
                 font-weight: bold;
                 padding: 8px 16px;
@@ -320,7 +320,7 @@
                 text-align: center;
             }
             .download-button:hover {
-                background-color: #218838;
+                background-color: #333333;
             }
         }
         /* Hide download button in print/PDF output */
@@ -346,7 +346,7 @@
             <div class="document-number">Report #{{ current_datetime|date:"Ymd" }}</div>
             
             <div class="logo-container">
-                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAIAAAD/gAIDAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5QQCCzshC2SOHwAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAAGzSURBVHja7drLacQwFIVhWwNIF+k03aUZB1JFCgg4EIhz5iGN5Pt9a+MfG1sXzfOU6/RxBQgQBAgCBAGCAEGAIEAQIAgQBAgCBAGCAEGAIEAQIAgQBAgCBAGCAEGAIEAQIAgQBAgCBAGCAEGAIEAQIAgQBAgCBAGCAEGAIED+vV7X6+l0iqJojuM4ym/L9Xq1AFnX9eVfd0+z27bJg3yrvp5OpyzL9n2XBGmaJk3TKIrCMHQcZ5omSZDX6/Ve1Pt+LMtCEuT9dRzHURRJgjxlCIIg+/vz4fV86r7v4zhOkuTHdW+t67ppmhRFkSTJ+Xx++AMupxZlWZZlWd/34zhOpxZlWZZlWd/34zj+3JZSSoRhaJr/2u9Xdm49z1vXNY5jx3EKxfV931pb17UkyDRNaZr+MfN1XS/LQhLk6Uyz7H6/FUWxruttSUqppmm+Lg1RkKqq+r4vy7Ku63mej7ZlnueaplmWNQwD1TtZWZZ1XRepTdPsuu6o68uy7Ha7BUFAFeTIwjAMfN/XdZ3qLzZe3RAECAIEA YIAQYAgQBAgCBAECAIEAYIAQYAgQBAgCBAECAIEAYIAQYAgQBAgCBAECAIEAYIAQYAgQBAgCBAECAIEAYIAQYAgQBAgCBAECAIEAYIAQYAgf9YnVdAGRw5yk2cAAAAASUVORK5CYII=" class="logo" alt="City Logo" style="float: left;">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAIAAAD/gAIDAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5QQCCzshC2SOHwAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAAGzSURBVHja7drLacQwFIVhWwNIF+k03aUZB1JFCgg4EIhz5iGN5Pt9a+MfG1sXzfOU6/RxBQgQBAgCBAGCAEGAIEAQIAgQBAgCBAGCAEGAIEAQIAgQBAgCBAGCAEGAIEAQIAgQBAgCBAGCAEGAIEAQIAgQBAgCBAGCAEGAIED+vV7X6+l0iqJojuM4ym/L9Xq1AFnX9eVfd0+z27bJg3yrvp5OpyzL9n2XBGmaJk3TKIrCMHQcZ5omSZDX6/Ve1Pt+LMtCEuT9dRzHURRJgjxlCIIg+/vz4fV86r7v4zhOkuTHdW+t67ppmhRFkSTJ+Xx++AMupxZlWZZlWd/34zhOpxZlWZZlWd/34zj+3JZSSoRhaJr/2u9Xdm49z1vXNY5jx3EKxfV931pb17UkyDRNaZr+MfN1XS/LQhLk6Uyz7H6/FUWxruttSUqppmm+Lg1RkKqq+r4vy7Ku63mej7ZlnueaplmWNQwD1TtZWZZ1XRepTdPsuu6o68uy7Ha7BUFAFeTIwjAMfN/XdZ3qLzZe3RAECAIEA YIAQYAgQBAgCBAECAIEAYIAQYAgQBAgCBAECAIEAYIAQYAgQBAgCBAECAIEAYIAQYAgQBAgCBAECAIEAYIAQYAgf9YnVdAGRw5yk2cAAAAASUVORK5CYII=" class="logo" alt="City Logo" style="float: left;">
                 
                 <div class="header-text">
                     <div class="republic-title">REPUBLIC OF THE PHILIPPINES</div>

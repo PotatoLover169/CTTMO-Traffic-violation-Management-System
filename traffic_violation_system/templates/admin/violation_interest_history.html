@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% block title %}Violation Interest History{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h1 class="page-title">Interest History for Violation #{{ violation.id }}</h1>
+            <p class="text-muted">
+                <a href="{% url 'violation_detail' violation.id %}" class="text-decoration-none">
+                    <i class="bi bi-arrow-left"></i> Back to Violation
+                </a>
+            </p>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Violation Summary -->
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Violation Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="info-group mb-2">
+                        <label>Violation Date:</label>
+                        <div class="value">{{ violation.violation_date|date:"F d, Y" }}</div>
+                    </div>
+                    <div class="info-group mb-2">
+                        <label>Violation Type:</label>
+                        <div class="value">{{ violation.violation_type }}</div>
+                    </div>
+                    <div class="info-group mb-2">
+                        <label>Original Fine Amount:</label>
+                        <div class="value">₱{{ violation.fine_amount|floatformat:2 }}</div>
+                    </div>
+                    <div class="info-group mb-2">
+                        <label>Status:</label>
+                        <div class="value">
+                            <span class="badge bg-{{ violation.status|lower }}">{{ violation.get_status_display }}</span>
+                        </div>
+                    </div>
+                    <div class="info-group mb-2">
+                        <label>Payment Due Date:</label>
+                        <div class="value">{{ violation.payment_due_date|date:"F d, Y" }}</div>
+                    </div>
+                    <div class="info-group mb-2">
+                        <label>Days Overdue:</label>
+                        <div class="value">
+                            {% if violation.payment_due_date %}
+                                {% with days_overdue=violation.payment_due_date|timeuntil:now %}
+                                    {% if violation.payment_due_date > now %}
+                                        Not overdue yet (Due in {{ days_overdue }})
+                                    {% else %}
+                                        {{ days_overdue }} overdue
+                                    {% endif %}
+                                {% endwith %}
+                            {% else %}
+                                No due date set
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="info-group mb-2">
+                        <label>Current Interest:</label>
+                        <div class="value fw-bold {% if current_interest > 0 %}text-danger{% endif %}">
+                            ₱{{ current_interest|floatformat:2 }}
+                        </div>
+                    </div>
+                    <div class="info-group mb-2">
+                        <label>Total Amount Due:</label>
+                        <div class="value fw-bold">₱{{ total_with_interest|floatformat:2 }}</div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <form method="post" action="{% url 'record_violation_interest' violation.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-warning btn-sm w-100">
+                            Calculate & Record Current Interest
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Interest History Table -->
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">Interest History</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date Calculated</th>
+                                    <th>Months Overdue</th>
+                                    <th>Interest Rate</th>
+                                    <th>Interest Amount</th>
+                                    <th>Calculated By</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for entry in interest_history %}
+                                <tr>
+                                    <td>{{ entry.calculation_date|date:"Y-m-d H:i" }}</td>
+                                    <td>{{ entry.months_overdue }}</td>
+                                    <td>{{ entry.interest_rate_used }}%</td>
+                                    <td class="text-danger">₱{{ entry.interest_amount|floatformat:2 }}</td>
+                                    <td>
+                                        {% if entry.calculated_by %}
+                                            {{ entry.calculated_by.get_full_name }}
+                                        {% else %}
+                                            System
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center">No interest history found.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

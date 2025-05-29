@@ -32,7 +32,7 @@
                     </h5>
                 </div>
                 <div class="card-body">
-                    <div class="row row-cols-1 row-cols-md-5 g-4">
+                    <div class="row row-cols-1 row-cols-md-6 g-4">
                         <div class="col">
                             <div class="card h-100 border-0 shadow-sm">
                                 <div class="card-body text-center">
@@ -116,6 +116,24 @@
                                 </div>
                                 <div class="card-footer bg-transparent border-0 text-center">
                                     <a href="{% url 'adjudication_report' %}" class="btn btn-danger">
+                                        <i class="material-icons align-middle me-1">visibility</i> View Report
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Expired Status Report Card -->
+                        <div class="col">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body text-center">
+                                    <div class="display-4 mb-3 text-danger">
+                                        <i class="material-icons" style="font-size: 3rem;">warning</i>
+                                    </div>
+                                    <h5 class="card-title">Expired Status Report</h5>
+                                    <p class="card-text text-muted small">Track drivers with expired licenses and operators with expired registrations requiring renewal.</p>
+                                </div>
+                                <div class="card-footer bg-transparent border-0 text-center">
+                                    <a href="{% url 'expired_status_report' %}" class="btn btn-danger">
                                         <i class="material-icons align-middle me-1">visibility</i> View Report
                                     </a>
                                 </div>
