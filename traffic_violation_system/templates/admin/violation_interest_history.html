@@ -70,6 +70,11 @@
                         <label>Total Amount Due:</label>
                         <div class="value fw-bold">₱{{ total_with_interest|floatformat:2 }}</div>
                     </div>
+                    <div class="info-group mb-2">
+                        <label>Interest Calculation:</label>
+                        <div class="value">Compound Interest</div>
+                        <small class="text-muted">Interest is calculated on the total amount (fine + previous interest)</small>
+                    </div>
                 </div>
                 <div class="card-footer">
                     <form method="post" action="{% url 'record_violation_interest' violation.id %}">
@@ -97,6 +102,7 @@
                                     <th>Months Overdue</th>
                                     <th>Interest Rate</th>
                                     <th>Interest Amount</th>
+                                    <th>Total Amount</th>
                                     <th>Calculated By</th>
                                 </tr>
                             </thead>
@@ -107,6 +113,13 @@
                                     <td>{{ entry.months_overdue }}</td>
                                     <td>{{ entry.interest_rate_used }}%</td>
                                     <td class="text-danger">₱{{ entry.interest_amount|floatformat:2 }}</td>
+                                    <td class="fw-bold">
+                                        {% if entry.config_snapshot.total_with_interest %}
+                                            ₱{{ entry.config_snapshot.total_with_interest|floatformat:2 }}
+                                        {% else %}
+                                            ₱{{ violation.fine_amount|add:entry.interest_amount|floatformat:2 }}
+                                        {% endif %}
+                                    </td>
                                     <td>
                                         {% if entry.calculated_by %}
                                             {{ entry.calculated_by.get_full_name }}
@@ -117,7 +130,7 @@
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="5" class="text-center">No interest history found.</td>
+                                    <td colspan="6" class="text-center">No interest history found.</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>

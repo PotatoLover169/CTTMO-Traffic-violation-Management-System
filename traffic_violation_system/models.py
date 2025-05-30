@@ -344,7 +344,7 @@ class Violation(models.Model):
     def calculate_interest_amount(self):
         """
         Calculate the interest amount based on active interest rate configuration and time overdue.
-        Returns Decimal amount of interest.
+        Returns Decimal amount of interest using compound interest calculation.
         """
         # If violation is already paid or no due date, no interest
         if self.status == 'PAID' or not self.payment_due_date:
@@ -367,15 +367,26 @@ class Violation(models.Model):
         if days_overdue <= interest_config.initial_grace_period:
             return Decimal('0.00')
             
+        # Convert interest rate percentage to decimal
+        interest_rate = interest_config.interest_rate / 100  # Convert percentage to decimal
+        
         # Calculate number of interest periods
         # First period occurs after initial grace period
         # Additional periods occur every monthly_grace_period days
         periods_after_initial = max(0, days_overdue - interest_config.initial_grace_period)
         interest_periods = 1 + (periods_after_initial // interest_config.monthly_grace_period)
         
-        # Calculate interest amount
-        interest_rate = interest_config.interest_rate / 100  # Convert percentage to decimal
-        interest_amount = self.fine_amount * interest_rate * interest_periods
+        # Initialize with the original fine amount
+        total_amount = self.fine_amount
+        initial_amount = self.fine_amount
+        
+        # Apply compound interest for each period
+        for i in range(interest_periods):
+            interest_for_period = total_amount * interest_rate
+            total_amount += interest_for_period
+        
+        # Calculate just the interest amount
+        interest_amount = total_amount - initial_amount
         
         return interest_amount.quantize(Decimal('0.01'))  # Round to 2 decimal places
         
@@ -403,11 +414,17 @@ class Violation(models.Model):
         months_overdue = Decimal(days_overdue) / Decimal('30')
         months_overdue = months_overdue.quantize(Decimal('0.01'))
         
+        # Calculate the total amount due (original fine + interest)
+        total_amount = self.fine_amount + interest_amount
+        
         # Prepare config snapshot
         config_snapshot = {
             'interest_rate': float(interest_config.interest_rate),
             'initial_grace_period': interest_config.initial_grace_period,
             'monthly_grace_period': interest_config.monthly_grace_period,
+            'original_fine': float(self.fine_amount),
+            'total_with_interest': float(total_amount),
+            'compound_interest': True
         }
         
         # Create history record

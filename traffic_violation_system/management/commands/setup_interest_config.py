@@ -11,7 +11,7 @@ class Command(BaseCommand):
                 'interest_rate': 1.0,
                 'initial_grace_period': 7,
                 'monthly_grace_period': 30,
-                'notes': 'Default configuration: 1% interest after 7 days, compounding monthly (30 days)'
+                'notes': 'Default configuration: 1% compound interest after 7 days, compounding monthly (30 days). Interest is calculated on the total amount (fine + previous interest).'
             }
         )
         

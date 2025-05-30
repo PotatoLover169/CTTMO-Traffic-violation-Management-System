@@ -13,7 +13,7 @@
                     </div>
                     <div>
                         <h4 class="mb-0">Interest Rate Configuration</h4>
-                        <p class="text-muted mb-0 small">Configure interest rates for late violation payments</p>
+                        <p class="text-muted mb-0 small">Configure compound interest rates for late violation payments</p>
                     </div>
                 </div>
             </div>
@@ -32,7 +32,7 @@
                     {% if active_config %}
                         <div class="info-group mb-3">
                             <label class="form-label fw-semibold">Interest Rate:</label>
-                            <div class="value fs-5 text-primary">{{ active_config.interest_rate }}% <span class="text-muted fs-6">per month</span></div>
+                            <div class="value fs-5 text-primary">{{ active_config.interest_rate }}% <span class="text-muted fs-6">per month, compounded</span></div>
                         </div>
                         <div class="info-group mb-3">
                             <label class="form-label fw-semibold">Initial Grace Period:</label>
@@ -43,6 +43,11 @@
                             <label class="form-label fw-semibold">Monthly Grace Period:</label>
                             <div class="value">{{ active_config.monthly_grace_period }} days</div>
                             <small class="text-muted fst-italic">Days for each subsequent period</small>
+                        </div>
+                        <div class="info-group mb-3">
+                            <label class="form-label fw-semibold">Calculation Method:</label>
+                            <div class="value">Compound Interest</div>
+                            <small class="text-muted fst-italic">Interest is calculated on the total amount (fine + previous interest)</small>
                         </div>
                         {% if active_config.notes %}
                         <div class="info-group mb-3">
@@ -115,7 +120,7 @@
                                     Interest Rate (%):
                                 </label>
                                 {{ form.interest_rate }}
-                                <div class="form-text">Percentage applied per month</div>
+                                <div class="form-text">Percentage applied per month, compounded monthly</div>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="{{ form.initial_grace_period.id_for_label }}" class="form-label fw-semibold">
