@@ -1,13 +1,12 @@
 # Traffic Violation System
 
 ## Overview
-A comprehensive web-based traffic violation management system built with Django. This system enables efficient handling of traffic violations, including reporting, tracking, and managing violations with features like QR code generation and face recognition for enhanced security.
+A comprehensive web-based traffic violation management system built with Django. This system enables efficient handling of traffic violations, including reporting, tracking, and managing violations with features like QR code generation and face recognition for enhanced security. The platform serves multiple stakeholders including enforcers, administrators, operators, drivers, and regular users throughout the entire lifecycle of traffic violations, from issuance to resolution.
 
 ## Features
 - **User Authentication & Authorization**
   - Role-based access control (Admin, Staff, Regular Users)
   - Secure login and registration system
-  - Password reset functionality
 
 - **Violation Management**
   - Record and track traffic violations
@@ -30,15 +29,19 @@ A comprehensive web-based traffic violation management system built with Django.
   - Activity logging and monitoring
   - Report generation
 
+- **Educational Module**
+  - Traffic rules educational content
+  - Embedded PDF viewer for manuals
+  - User progress tracking
+
 ## Technology Stack
-- **Backend**: Django 4.x
+- **Backend**: Django 4.x with Python 3.8+
 - **Frontend**: HTML5, CSS3, JavaScript, Bootstrap
-- **Database**: SQLite (Development) / MySQL (Production)
-- **Authentication**: Django Authentication System
+- **Database**: MySQL
 - **Additional Libraries**:
   - Face Recognition
   - QR Code Generation
-  - PDF Generation
+  - PDF.js for document viewing
   - Image Processing
 
 ## Installation
