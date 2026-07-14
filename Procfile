@@ -1,1 +1,0 @@
-web: gunicorn CAPSTONE_PROJECT.wsgi:application 
